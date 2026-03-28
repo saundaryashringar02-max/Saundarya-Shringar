@@ -3,12 +3,19 @@ const router = express.Router();
 const cloudinary = require('cloudinary').v2;
 const { protect } = require('../middleware/authMiddleware');
 
-// Configure Cloudinary
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
-});
+// Configure Cloudinary with trimmed credentials to avoid environment variable mangling
+const cloudinaryConfig = {
+    cloud_name: (process.env.CLOUDINARY_CLOUD_NAME || '').trim(),
+    api_key: (process.env.CLOUDINARY_API_KEY || '').trim(),
+    api_secret: (process.env.CLOUDINARY_API_SECRET || '').trim()
+};
+
+cloudinary.config(cloudinaryConfig);
+
+// Diagnostic log for production troubleshooting
+if (process.env.NODE_ENV !== 'production' || !cloudinaryConfig.cloud_name) {
+    console.log(`★ Uploader Ready | Cloud: ${cloudinaryConfig.cloud_name || 'MISSING'}`);
+}
 
 router.post('/', protect, async (req, res, next) => {
     try {
@@ -29,15 +36,19 @@ router.post('/', protect, async (req, res, next) => {
             url: result.secure_url
         });
     } catch (error) {
-        console.error('● CORE UPLOADER FAILURE:', error);
+        console.error('● CORE UPLOADER FAILURE:', {
+            status: error.http_code,
+            message: error.message,
+            cloud: (process.env.CLOUDINARY_CLOUD_NAME || '').slice(0, 3) + '...',
+            key: (process.env.CLOUDINARY_API_KEY || '').slice(-4),
+            secretSet: !!process.env.CLOUDINARY_API_SECRET
+        });
 
-        // Handle specific Cloudinary errors or network failures
         const message = error.message || 'Asset synchronization with cloud failed.';
         res.status(500).json({
             status: 'error',
-            message: message,
-            // Include details only if not in production to prevent leakage
-            details: process.env.NODE_ENV === 'development' ? error : undefined
+            message: `Cloudinary 403: Check Credentials on server. (Using Cloud: ${process.env.CLOUDINARY_CLOUD_NAME})`,
+            details: error
         });
     }
 });
