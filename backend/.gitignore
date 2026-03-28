@@ -1,0 +1,86 @@
+# =========================
+# Node modules
+# =========================
+node_modules/
+**/node_modules/
+
+# =========================
+# Environment variables
+# =========================
+.env
+.env.*
+**/.env
+
+# =========================
+# Build / dist
+# =========================
+dist/
+build/
+out/
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# Cache
+# =========================
+.cache/
+.parcel-cache/
+.next/
+.vite/
+
+# =========================
+# Backend sensitive files
+# =========================
+backend/.env
+backend/config/*.json
+backend/config/*.key
+backend/config/*.pem
+
+# =========================
+# API keys / credentials
+# =========================
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+
+# =========================
+# Uploads / temp files
+# =========================
+uploads/
+tmp/
+temp/
+
+# =========================
+# Testing
+# =========================
+coverage/
+.nyc_output/
+
+# =========================
+# Misc
+# =========================
+*.pid
+*.seed
+*.pid.lock

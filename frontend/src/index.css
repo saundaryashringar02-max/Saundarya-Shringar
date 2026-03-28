@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cinzel+Decorative:wght@400;700;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+@layer base {
+  body {
+    @apply bg-brand-light font-sans text-brand-dark overflow-x-hidden pb-16 lg:pb-0;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}
+
+.brand-gradient {
+  background: linear-gradient(135deg, #FDFCFB 0%, #F9E8E8 100%);
+}
+
+.gold-gradient {
+  background: linear-gradient(135deg, #D4AF37 0%, #C5A028 100%);
+}
+
+.btn-premium {
+  @apply bg-brand-gold text-white px-8 py-3 rounded-full font-bold uppercase tracking-wider 
+  hover:bg-brand-dark transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-brand-pink/20 rounded-none;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-brand-pink/40;
+}
+
+/* Performance optimization: lazy render below-the-fold sections */
+section {
+  content-visibility: auto;
+  contain-intrinsic-size: 500px;
+}
+
+/* Premium thin scrollbar for the sidebar */
+.custom-sidebar-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-sidebar-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.custom-sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+.custom-sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Standard scrollbar support for modern browsers (Firefox etc) */
+.custom-sidebar-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* Ensure above-the-fold sections are immediate */
+section:first-of-type {
+  content-visibility: visible;
+}
+
+/* Blend logo image to match pink navbar background and create maroon effect */
+.logo-blend {
+  mix-blend-mode: multiply !important;
+  background-color: transparent;
+}
+
+/* Swiper Theme Overrides */
+:root {
+  --swiper-navigation-color: #D4AF37;
+  --swiper-pagination-color: #D4AF37;
+}
+
+/* Scale down default swiper arrows slightly for a cleaner look */
+.swiper-button-next:after, .swiper-button-prev:after {
+  font-size: 24px !important;
+  font-weight: bold;
+}
