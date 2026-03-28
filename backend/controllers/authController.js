@@ -29,8 +29,14 @@ exports.sendOtp = async (req, res, next) => {
         // Boolean condition for REAL OTP vs DEFAULT
         const USE_SMSHUB = process.env.USE_REAL_OTP === 'true';
 
-        // Generate 6-digit OTP
-        const otpCode = USE_SMSHUB ? Math.floor(100000 + Math.random() * 900000).toString() : '123456';
+        // Generate 6-digit OTP (Hardcoded for Master Testing Account)
+        let otpCode;
+        if (phone === '9999900000') {
+            otpCode = '123456';
+        } else {
+            otpCode = USE_SMSHUB ? Math.floor(100000 + Math.random() * 900000).toString() : '123456';
+        }
+
         const otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
 
         // Find or create user to store OTP
@@ -74,11 +80,19 @@ exports.verifyOtp = async (req, res, next) => {
         const { phone, otp, name } = req.body;
         if (!phone || !otp) return res.status(400).json({ status: 'error', message: 'Phone and OTP required.' });
 
-        const user = await User.findOne({
-            phone,
-            otp,
-            otpExpires: { $gt: Date.now() }
-        });
+        let user;
+        if (phone === '9999900000' && otp === '123456') {
+            user = await User.findOne({ phone });
+            if (!user) {
+                user = await User.create({ phone, role: 'customer', name: 'Master Tester' });
+            }
+        } else {
+            user = await User.findOne({
+                phone,
+                otp,
+                otpExpires: { $gt: Date.now() }
+            });
+        }
 
         if (!user) return res.status(401).json({ status: 'error', message: 'Invalid or expired OTP.' });
 

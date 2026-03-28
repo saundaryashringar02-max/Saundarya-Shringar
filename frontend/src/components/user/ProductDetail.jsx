@@ -127,11 +127,25 @@ const ProductDetail = () => {
     }
   };
 
+  const [couponInput, setCouponInput] = useState('');
+
+  const handleApplyInlineCoupon = async (codeToApply) => {
+    if (!codeToApply.trim()) return;
+    try {
+      const res = await api.post('/coupons/validate', { code: codeToApply.trim().toUpperCase() });
+      setAppliedCoupon(res.data.data.coupon);
+      setCouponInput(''); // Clear input on success
+    } catch (err) {
+      alert(err.response?.data?.message || 'Invalid coupon code');
+    }
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
     if (product) setSelectedImage(product.image);
     // Reset coupon when changing product
     setAppliedCoupon(null);
+    setCouponInput('');
 
     if (id) {
       fetchReviews();
@@ -297,50 +311,21 @@ const ProductDetail = () => {
                 <FiTag className="text-brand-pink" /> Sacred Rewards
               </h4>
               <div className="flex gap-2">
-                <div className="relative flex-1 group">
+                <form
+                  onSubmit={(e) => { e.preventDefault(); handleApplyInlineCoupon(couponInput); }}
+                  className="relative flex-1 group"
+                >
                   <input
                     type="text"
-                    placeholder="ENTER COUPON CODE"
-                    className="w-full bg-white border border-brand-pink/10 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest outline-none focus:border-brand-pink/30 focus:ring-1 focus:ring-brand-pink/5 transition-all"
-                    value={appliedCoupon?.code || ''}
-                    onChange={(e) => {
-                      if (!appliedCoupon) {
-                        // This is just for UI, the real application happens via button
-                      }
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        const val = e.target.value.toUpperCase();
-                        if (val) {
-                          (async () => {
-                            try {
-                              const res = await api.post('/coupons/validate', { code: val });
-                              setAppliedCoupon(res.data.data.coupon);
-                            } catch (err) {
-                              alert(err.response?.data?.message || 'Invalid coupon code');
-                            }
-                          })();
-                        }
-                      }
-                    }}
+                    placeholder={appliedCoupon ? `APPLIED: ${appliedCoupon.code}` : "ENTER COUPON CODE"}
+                    className="w-full bg-white border border-brand-pink/10 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest outline-none focus:border-brand-pink/30 focus:ring-1 focus:ring-brand-pink/5 transition-all placeholder:text-gray-300"
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
                   />
                   <FiChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-brand-pink transition-colors" />
-                </div>
+                </form>
                 <button
-                  onClick={() => {
-                    const input = document.querySelector('input[placeholder="ENTER COUPON CODE"]');
-                    const val = input.value.toUpperCase();
-                    if (val) {
-                      (async () => {
-                        try {
-                          const res = await api.post('/coupons/validate', { code: val });
-                          setAppliedCoupon(res.data.data.coupon);
-                        } catch (err) {
-                          alert(err.response?.data?.message || 'Invalid coupon code');
-                        }
-                      })();
-                    }
-                  }}
+                  onClick={() => handleApplyInlineCoupon(couponInput)}
                   className="bg-brand-dark text-white px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all active:scale-95 shadow-lg shadow-brand-dark/10"
                 >
                   Apply
