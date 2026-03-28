@@ -14,6 +14,8 @@ export const uploadToCloudinary = async (file) => {
         return response.data.url;
     } catch (error) {
         console.error('Core Uploader Bridge Error:', error);
-        throw new Error('Digital asset transmission failed.');
+        // Prioritize the server's specific error message
+        const message = error.response?.data?.message || error.message || 'Digital asset transmission failed.';
+        throw new Error(message);
     }
 };

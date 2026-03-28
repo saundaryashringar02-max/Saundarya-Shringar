@@ -12,6 +12,10 @@ cloudinary.config({
 
 router.post('/', protect, async (req, res, next) => {
     try {
+        if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+            console.error('● Cloudinary error: Missing environment variables');
+            return res.status(500).json({ status: 'error', message: 'Uploader configuration is missing on server.' });
+        }
         const { image } = req.body; // Expecting base64 or URL
         if (!image) return res.status(400).json({ status: 'fail', message: 'No digital asset provided' });
 
@@ -24,9 +28,17 @@ router.post('/', protect, async (req, res, next) => {
             status: 'success',
             url: result.secure_url
         });
-    } catch (err) {
-        console.error('Core Uploader Error:', err);
-        next(err);
+    } catch (error) {
+        console.error('● CORE UPLOADER FAILURE:', error);
+
+        // Handle specific Cloudinary errors or network failures
+        const message = error.message || 'Asset synchronization with cloud failed.';
+        res.status(500).json({
+            status: 'error',
+            message: message,
+            // Include details only if not in production to prevent leakage
+            details: process.env.NODE_ENV === 'development' ? error : undefined
+        });
     }
 });
 

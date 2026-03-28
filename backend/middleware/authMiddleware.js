@@ -26,6 +26,15 @@ const protect = async (req, res, next) => {
         req.user = currentUser;
         next();
     } catch (err) {
+        console.error(`● AUTH_ERROR: ${err.name} - ${err.message}`);
+
+        if (err.name === 'JsonWebTokenError') {
+            return res.status(401).json({ status: 'error', message: 'Token is invalid or malformed. Re-auth required.' });
+        }
+        if (err.name === 'TokenExpiredError') {
+            return res.status(401).json({ status: 'error', message: 'Auth session expired. Please relogin to sync assets.' });
+        }
+
         next(err);
     }
 };
