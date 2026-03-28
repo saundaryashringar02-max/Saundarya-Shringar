@@ -23,9 +23,19 @@ const app = express();
 // Middleware Stack
 app.use(helmet()); // Security headers
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true
-})); // Refined cross-origin access
+    origin: (origin, callback) => {
+        const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173').split(',').map(o => o.trim());
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Cross-origin access blocked by professional security policy'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+})); // Refined cross-origin access with multi-origin support
 app.use(compression()); // Compress responses
 app.use(express.json({ limit: '50mb' })); // Body parser
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));

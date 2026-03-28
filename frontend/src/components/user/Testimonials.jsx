@@ -72,7 +72,7 @@ const Testimonials = () => {
           spaceBetween={40}
           slidesPerView="auto"
           centeredSlides={false}
-          loop={true}
+          loop={dynamicTestimonials.length > 3}
           freeMode={{
             enabled: true,
             momentum: true,
