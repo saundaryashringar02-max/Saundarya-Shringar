@@ -152,12 +152,24 @@ exports.adminLogin = async (req, res, next) => {
         const { email, password } = req.body;
         if (!email || !password) return res.status(400).json({ status: 'error', message: 'Email and password required.' });
 
+        console.log(`[DEBUG] Attempting admin login for: ${email}`);
         const user = await User.findOne({ email }).select('+password');
-        if (!user || !(await user.correctPassword(password, user.password))) {
+
+        if (!user) {
+            console.log(`[DEBUG] No user found with email: ${email}`);
             return res.status(401).json({ status: 'error', message: 'Incorrect email or password.' });
         }
 
+        const isMatch = await user.correctPassword(password, user.password);
+        console.log(`[DEBUG] Password Match Result: ${isMatch}`);
+
+        if (!isMatch) {
+            return res.status(401).json({ status: 'error', message: 'Incorrect email or password.' });
+        }
+
+        console.log(`[DEBUG] User Role: ${user.role}`);
         if (user.role !== 'admin' && user.role !== 'super-admin') {
+            console.log(`[DEBUG] Role check failed: ${user.role}`);
             return res.status(403).json({ status: 'error', message: 'Unauthorized access.' });
         }
 
