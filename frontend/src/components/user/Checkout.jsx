@@ -2,34 +2,91 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiChevronLeft, FiShoppingBag, FiCreditCard, FiTruck, FiCheckCircle, FiShield, FiMinus, FiPlus, FiTrash2, FiCheck } from 'react-icons/fi';
 import { useShop } from '../../context/ShopContext';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 
 const Checkout = () => {
-  const { cart, removeFromCart, updateQuantity, cartTotal, cartCount, clearCart, verifyAndClearCart, orderId, user } = useShop();
+  const { cart, removeFromCart, updateQuantity, cartTotal, cartCount, clearCart, verifyAndClearCart, orderId, user, isAuthenticated, isAuthLoading } = useShop();
+  const navigate = useNavigate();
+
+  // Enforce authentication for checkout
+  useEffect(() => {
+    if (!isAuthLoading && !isAuthenticated) {
+      navigate('/login', { state: { from: '/checkout' } });
+    }
+  }, [isAuthenticated, isAuthLoading, navigate]);
+
   const [step, setStep] = useState(1); // 1: Cart, 2: Details, 3: Payment
   const [isSuccess, setIsSuccess] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState('paynow');
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
+    email: '',
     phone: '',
     address: ''
   });
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState('');
   const [errors, setErrors] = useState({});
+  
+  // Pre-populate data from profile
+  useEffect(() => {
+    if (user && !isAuthLoading) {
+      setFormData(prev => ({
+        ...prev,
+        name: prev.name || user.name || '',
+        email: prev.email || user.email || '',
+        phone: prev.phone || user.phone || ''
+      }));
+    }
+  }, [user, isAuthLoading]);
 
   // Scroll to top on step change or load
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo(0, 0);
   }, [step, isSuccess]);
 
   // Router State Payload checks (Promos from Bag)
   const location = useLocation();
-  const appliedPromo = location.state?.appliedCoupon || null;
-  const passedDiscount = location.state?.discountAmount || 0;
+  const directProduct = location.state?.directProduct || null;
+  const passedCouponCode = location.state?.couponApplied || null;
 
+  // Initialize with passed coupon if any
+  useEffect(() => {
+    const initCoupon = async () => {
+      if (passedCouponCode) {
+        try {
+          const res = await api.post('/coupons/validate', { code: passedCouponCode });
+          const coupon = res.data.data.coupon;
+          setAppliedCoupon(coupon);
+          // Calculate initial discount
+          const st = directProduct ? directProduct.price * (directProduct.quantity || 1) : cartTotal;
+          if (coupon.discountType === 'percentage') {
+            setDiscountAmount(Math.round(st * (coupon.discountValue / 100)));
+          } else {
+            setDiscountAmount(coupon.discountValue);
+          }
+        } catch (err) {
+          console.error("Initial coupon validation failed", err);
+        }
+      }
+    };
+    initCoupon();
+  }, [passedCouponCode, cartTotal, directProduct]);
+
+  const displayItems = directProduct ? [directProduct] : cart;
   const shipping = 0; // Free delivery charges
-  const total = location.state?.finalTotal !== undefined ? location.state.finalTotal : cartTotal;
+  
+  // Calculate subtotal for displayItems
+  const subtotal = directProduct 
+    ? (directProduct.originalPrice || directProduct.price) * (directProduct.quantity || 1) 
+    : cartTotal;
+
+  const total = Math.max(0, subtotal - discountAmount + shipping);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -40,7 +97,16 @@ const Checkout = () => {
   const validateDetails = () => {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = 'Name is required';
-    if (!formData.phone.trim()) newErrors.phone = 'Phone is required';
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone is required';
+    } else if (!/^\d{10}$/.test(formData.phone.trim())) {
+      newErrors.phone = 'Please enter a valid 10-digit number';
+    }
     if (!formData.address.trim()) newErrors.address = 'Address is required';
 
     setErrors(newErrors);
@@ -66,7 +132,12 @@ const Checkout = () => {
         handler: async (response) => {
           // 2. Verify payment & save order
           try {
-            await verifyAndClearCart(response, formData, total);
+            await verifyAndClearCart(response, { 
+              ...formData, 
+              items: displayItems.map(i => ({ product: i._id, quantity: i.quantity || 1, price: i.price, name: i.name })),
+              totalAmount: total,
+              couponCode: appliedCoupon?.code
+            }, total);
             setIsSuccess(true);
           } catch (err) {
             console.error("Verification error", err);
@@ -96,9 +167,33 @@ const Checkout = () => {
     }
   };
 
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setCouponLoading(true);
+    setCouponError('');
+    try {
+      const res = await api.post('/coupons/validate', { code: couponCode.trim().toUpperCase() });
+      const coupon = res.data.data.coupon;
+      setAppliedCoupon(coupon);
+      
+      let discount = 0;
+      if (coupon.discountType === 'percentage') {
+        discount = Math.round(subtotal * (coupon.discountValue / 100));
+      } else {
+        discount = coupon.discountValue;
+      }
+      setDiscountAmount(discount);
+      setCouponCode('');
+    } catch (err) {
+      setCouponError(err.response?.data?.message || 'Invalid Ritual Key');
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
   const handleProceed = async () => {
     if (step === 1) {
-      if (cart.length === 0) return;
+      if (displayItems.length === 0) return;
       setStep(2);
     } else if (step === 2) {
       if (validateDetails()) setStep(3);
@@ -215,9 +310,9 @@ const Checkout = () => {
                   </h1>
 
                   <div className="space-y-3">
-                    {cart.length > 0 ? (
-                      cart.map((item) => (
-                        <div key={item._id} className="bg-white p-3 border border-gray-100 shadow-sm flex items-center gap-4 group hover:border-brand-pink/20 transition-all">
+                    {displayItems.length > 0 ? (
+                      displayItems.map((item) => (
+                        <div key={item._id} className={`bg-white p-3 border border-gray-100 shadow-sm flex items-center gap-4 group transition-all ${directProduct ? 'border-brand-pink/10' : 'hover:border-brand-pink/20'}`}>
                           <div className="w-16 h-20 bg-[#F9F6F4] shrink-0">
                             <img src={item.image} alt={item.name} className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all" />
                           </div>
@@ -225,18 +320,26 @@ const Checkout = () => {
                             <h3 className="text-[10px] font-black text-[#5C2E3E] uppercase tracking-widest truncate">{item.name}</h3>
                             <p className="text-[9px] text-gray-400 font-serif italic mb-2">{item.subCategory}</p>
                             <div className="flex items-center gap-4">
-                              <div className="flex items-center gap-2.5 bg-gray-50 border border-gray-100 px-2 py-0.5 scale-90 -ml-2">
-                                <button onClick={() => updateQuantity(item._id, -1)} className="text-gray-400 hover:text-brand-pink transition-colors">
+                              <div className={`flex items-center gap-2.5 bg-gray-50 border border-gray-100 px-2 py-0.5 scale-90 -ml-2 ${directProduct ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                <button 
+                                  onClick={() => !directProduct && updateQuantity(item._id, -1)} 
+                                  className={`text-gray-400 hover:text-brand-pink transition-colors ${directProduct ? 'pointer-events-none' : ''}`}
+                                >
                                   <FiMinus size={8} />
                                 </button>
-                                <span className="text-[10px] font-black text-[#5C2E3E] w-3 text-center">{item.quantity}</span>
-                                <button onClick={() => updateQuantity(item._id, 1)} className="text-gray-400 hover:text-brand-pink transition-colors">
+                                <span className="text-[10px] font-black text-[#5C2E3E] w-3 text-center">{item.quantity || 1}</span>
+                                <button 
+                                  onClick={() => !directProduct && updateQuantity(item._id, 1)} 
+                                  className={`text-gray-400 hover:text-brand-pink transition-colors ${directProduct ? 'pointer-events-none' : ''}`}
+                                >
                                   <FiPlus size={8} />
                                 </button>
                               </div>
-                              <button onClick={() => removeFromCart(item._id)} className="text-[#5C2E3E]/30 hover:text-red-500 transition-colors uppercase text-[7px] font-black tracking-[0.2em]">
-                                Remove
-                              </button>
+                              {!directProduct && (
+                                <button onClick={() => removeFromCart(item._id)} className="text-[#5C2E3E]/30 hover:text-red-500 transition-colors uppercase text-[7px] font-black tracking-[0.2em]">
+                                  Remove
+                                </button>
+                              )}
                             </div>
                           </div>
                           <div className="text-right pr-2">
@@ -267,10 +370,22 @@ const Checkout = () => {
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
-                        className={`w-full bg-gray-50 border ${errors.name ? 'border-red-400' : 'border-gray-100'} px-6 py-4 text-[11px] font-bold outline-none focus:border-brand-pink/30 transition-all`}
-                        placeholder="Arjun Shrinagar"
+                        className={`w-full bg-white border ${errors.name ? 'border-red-400' : 'border-[#5C2E3E]/10'} px-6 py-4 text-[11px] font-bold outline-none focus:border-brand-pink/30 transition-all shadow-sm`}
+                        placeholder=""
                       />
                       {errors.name && <p className="text-red-400 text-[8px] font-black uppercase tracking-widest ml-1">{errors.name}</p>}
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">Email Essence *</label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        className={`w-full bg-white border ${errors.email ? 'border-red-400' : 'border-[#5C2E3E]/10'} px-6 py-4 text-[11px] font-bold outline-none focus:border-brand-pink/30 transition-all shadow-sm`}
+                        placeholder=""
+                      />
+                      {errors.email && <p className="text-red-400 text-[8px] font-black uppercase tracking-widest ml-1">{errors.email}</p>}
                     </div>
                     <div className="space-y-3">
                       <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">Phone Essence *</label>
@@ -279,8 +394,8 @@ const Checkout = () => {
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
-                        className={`w-full bg-gray-50 border ${errors.phone ? 'border-red-400' : 'border-gray-100'} px-6 py-4 text-[11px] font-bold outline-none focus:border-brand-pink/30 transition-all`}
-                        placeholder="+91 00000 00000"
+                        className={`w-full bg-white border ${errors.phone ? 'border-red-400' : 'border-[#5C2E3E]/10'} px-6 py-4 text-[11px] font-bold outline-none focus:border-brand-pink/30 transition-all shadow-sm`}
+                        placeholder=""
                       />
                       {errors.phone && <p className="text-red-400 text-[8px] font-black uppercase tracking-widest ml-1">{errors.phone}</p>}
                     </div>
@@ -290,8 +405,8 @@ const Checkout = () => {
                         name="address"
                         value={formData.address}
                         onChange={handleInputChange}
-                        className={`w-full bg-gray-50 border ${errors.address ? 'border-red-400' : 'border-gray-100'} px-6 py-5 text-[11px] font-bold outline-none focus:border-brand-pink/30 transition-all min-h-[140px] resize-none`}
-                        placeholder="123, Green Valley, Bangalore, Karnataka - 560001"
+                        className={`w-full bg-white border ${errors.address ? 'border-red-400' : 'border-[#5C2E3E]/10'} px-6 py-5 text-[11px] font-bold outline-none focus:border-brand-pink/30 transition-all min-h-[140px] resize-none shadow-sm`}
+                        placeholder=""
                       />
                       {errors.address && <p className="text-red-400 text-[8px] font-black uppercase tracking-widest ml-1">{errors.address}</p>}
                     </div>
@@ -341,59 +456,96 @@ const Checkout = () => {
           </div>
 
           {/* Sidebar / Summary */}
-          <div className="lg:col-span-4 lg:sticky lg:top-32 h-fit">
-            <div className="bg-white p-8 shadow-2xl border border-gray-100 flex flex-col gap-6 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-brand-pink/5 -translate-y-16 translate-x-16 pointer-events-none rotate-45 border border-brand-pink/10" />
+          {displayItems.length > 0 && (
+            <div className="lg:col-span-4 lg:sticky lg:top-32 h-fit">
+              <div className="bg-white p-8 shadow-2xl border border-gray-100 flex flex-col gap-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-pink/5 -translate-y-16 translate-x-16 pointer-events-none rotate-45 border border-brand-pink/10" />
 
-              <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#5C2E3E] pb-4 border-b border-gray-100">Order Summary</h3>
+                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#5C2E3E] pb-4 border-b border-gray-100">Order Summary</h3>
 
-              <div className="space-y-4 py-2">
-                <div className="flex justify-between items-center px-1">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/40">Subtotal</span>
-                  <span className="text-sm font-black text-[#5C2E3E]">₹{cartTotal}</span>
-                </div>
-                {appliedPromo && (
+                  <div className="space-y-4 py-2">
                   <div className="flex justify-between items-center px-1">
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-green-600">Promo ({appliedPromo.code})</span>
-                    <span className="text-sm font-black text-green-600">- ₹{passedDiscount}</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/40">Subtotal</span>
+                    <span className="text-sm font-black text-[#5C2E3E]">₹{subtotal}</span>
                   </div>
-                )}
-                <div className="flex justify-between items-center px-1">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/40">Safe Passage</span>
-                  <span className="text-sm font-black text-brand-gold">{shipping === 0 ? 'FREE' : `₹${shipping}`}</span>
-                </div>
-                <div className="bg-brand-gold/5 p-3 text-center border-l-2 border-brand-gold">
-                  <p className="text-[8px] font-bold text-brand-gold uppercase tracking-[0.2em] leading-relaxed">
-                    🎉 <span className="underline">Free Shipping Activated</span> for All Divine Purchases
-                  </p>
-                </div>
-              </div>
+                  
+                  {appliedCoupon && (
+                    <div className="flex justify-between items-center px-1">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-green-600">Promo Applied</span>
+                        <span className="text-[7px] text-green-500 font-bold uppercase tracking-widest">{appliedCoupon.code}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-black text-green-600">- ₹{discountAmount}</span>
+                        <button onClick={() => { setAppliedCoupon(null); setDiscountAmount(0); }} className="text-red-300 hover:text-red-500 transition-colors">
+                          <FiTrash2 size={10} />
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
-              <div className="pt-4 border-t border-gray-100 flex justify-between items-center px-1">
-                <span className="text-[11px] font-black uppercase tracking-widest text-[#5C2E3E]">Grand Total</span>
-                <span className="text-2xl font-black text-brand-gold leading-none">₹{total}</span>
-              </div>
+                  {!appliedCoupon && (
+                    <div className="py-2">
+                       <div className="flex flex-col gap-2">
+                          <p className="text-[7px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1 ml-1">Ritual Key (Coupon)</p>
+                          <div className="flex gap-2">
+                            <input 
+                              type="text" 
+                              value={couponCode}
+                              onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                              placeholder="E.G. SAUNDARYA10"
+                              className="flex-1 bg-gray-50 border border-gray-100 px-3 py-2 text-[9px] font-bold outline-none focus:border-brand-pink/30 uppercase tracking-widest transition-all"
+                            />
+                            <button 
+                              onClick={handleApplyCoupon}
+                              disabled={couponLoading || !couponCode.trim()}
+                              className="bg-brand-dark text-white px-4 py-2 text-[8px] font-black uppercase tracking-widest hover:bg-black transition-all disabled:opacity-30"
+                            >
+                              {couponLoading ? '...' : 'APPLY'}
+                            </button>
+                          </div>
+                          {couponError && <p className="text-[7px] font-bold text-red-400 uppercase tracking-widest mt-1 ml-1">{couponError}</p>}
+                       </div>
+                    </div>
+                  )}
 
-              <button
-                onClick={handleProceed}
-                disabled={cart.length === 0 || isPaymentLoading}
-                className="w-full bg-[#5C2E3E] text-white py-5 font-bold uppercase tracking-[0.4em] text-[10px] shadow-2xl hover:bg-brand-pink transition-all active:scale-95 disabled:bg-gray-100 disabled:text-gray-400 disabled:shadow-none"
-              >
-                {isPaymentLoading ? 'Processing...' : (step === 3 ? 'Pay Now' : 'Continue Journey')}
-              </button>
-
-              <div className="flex flex-wrap items-center justify-center gap-4 mt-2">
-                <div className="flex items-center gap-1.5 opacity-30 grayscale hover:grayscale-0 transition-all">
-                  <FiShield size={10} className="text-[#5C2E3E]" />
-                  <span className="text-[8px] font-black uppercase tracking-widest text-[#5C2E3E]">Secured</span>
+                  <div className="flex justify-between items-center px-1">
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/40">Safe Passage</span>
+                    <span className="text-sm font-black text-brand-gold">{shipping === 0 ? 'FREE' : `₹${shipping}`}</span>
+                  </div>
+                  <div className="bg-brand-gold/5 p-3 text-center border-l-2 border-brand-gold">
+                    <p className="text-[8px] font-bold text-brand-gold uppercase tracking-[0.2em] leading-relaxed">
+                      🎉 <span className="underline">Free Shipping Activated</span> for All Divine Purchases
+                    </p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5 opacity-30 grayscale hover:grayscale-0 transition-all">
-                  <FiCheckCircle size={10} className="text-[#5C2E3E]" />
-                  <span className="text-[8px] font-black uppercase tracking-widest text-[#5C2E3E]">Pure</span>
+
+                <div className="pt-4 border-t border-gray-100 flex justify-between items-center px-1">
+                  <span className="text-[11px] font-black uppercase tracking-widest text-[#5C2E3E]">Grand Total</span>
+                  <span className="text-2xl font-black text-brand-gold leading-none">₹{total}</span>
+                </div>
+
+                <button
+                  onClick={handleProceed}
+                  disabled={displayItems.length === 0 || isPaymentLoading}
+                  className="w-full bg-[#5C2E3E] text-white py-5 font-bold uppercase tracking-[0.4em] text-[10px] shadow-2xl hover:bg-brand-pink transition-all active:scale-95 disabled:bg-gray-100 disabled:text-gray-400 disabled:shadow-none"
+                >
+                  {isPaymentLoading ? 'Processing...' : (step === 3 ? 'Pay Now' : 'Continue Journey')}
+                </button>
+
+                <div className="flex flex-wrap items-center justify-center gap-4 mt-2">
+                  <div className="flex items-center gap-1.5 opacity-30 grayscale hover:grayscale-0 transition-all">
+                    <FiShield size={10} className="text-[#5C2E3E]" />
+                    <span className="text-[8px] font-black uppercase tracking-widest text-[#5C2E3E]">Secured</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 opacity-30 grayscale hover:grayscale-0 transition-all">
+                    <FiCheckCircle size={10} className="text-[#5C2E3E]" />
+                    <span className="text-[8px] font-black uppercase tracking-widest text-[#5C2E3E]">Pure</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
         </div>
       </div>

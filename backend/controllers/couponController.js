@@ -34,6 +34,12 @@ exports.validateCoupon = async (req, res, next) => {
         if (!coupon || new Date(coupon.expiryDate) < new Date()) {
             return res.status(400).json({ status: 'error', message: 'Invalid or expired coupon' });
         }
+
+        // Check for redemption cap
+        if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit) {
+            return res.status(400).json({ status: 'error', message: 'This promo code has reached its maximum usage limit.' });
+        }
+
         res.status(200).json({ status: 'success', data: { coupon } });
     } catch (err) { next(err); }
 };

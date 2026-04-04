@@ -5,12 +5,20 @@
 @tailwind utilities;
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
+  overflow-x: hidden;
+  width: 100%;
+  -webkit-text-size-adjust: 100%;
 }
 
 @layer base {
   body {
-    @apply bg-brand-light font-sans text-brand-dark overflow-x-hidden pb-16 lg:pb-0;
+    @apply bg-brand-light font-sans text-brand-dark pb-16 lg:pb-0;
+    overflow-x: hidden;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    touch-action: manipulation;
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -19,7 +27,7 @@ html {
 }
 
 .brand-gradient {
-  background: linear-gradient(135deg, #FDFCFB 0%, #F9E8E8 100%);
+  background: linear-gradient(135deg, #F2EDED 0%, #F9E8E8 100%);
 }
 
 .gold-gradient {
@@ -99,4 +107,9 @@ section:first-of-type {
 .swiper-button-next:after, .swiper-button-prev:after {
   font-size: 24px !important;
   font-weight: bold;
+}
+
+/* Fix overlapping dots in BestSellers slider */
+.bestseller-swiper .swiper-pagination {
+  bottom: 6px !important;
 }

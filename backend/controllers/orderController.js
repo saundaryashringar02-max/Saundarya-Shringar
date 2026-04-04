@@ -1,4 +1,6 @@
 const Order = require('../models/Order');
+const Product = require('../models/Product');
+const Coupon = require('../models/Coupon');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
@@ -66,9 +68,11 @@ exports.verifyRazorpayPayment = async (req, res, next) => {
             paymentStatus: 'Completed',
             razorpayOrderId: razorpay_order_id,
             razorpayPaymentId: razorpay_payment_id,
-            razorpaySignature: razorpay_signature
+            razorpaySignature: razorpay_signature,
+            couponApplied: orderDetails.couponCode || null
         });
 
+<<<<<<< HEAD
         // NOTIFICATION: Admin - New Order
         const notificationService = require('../utils/notificationService');
         notificationService.sendToAdmin({
@@ -83,6 +87,16 @@ exports.verifyRazorpayPayment = async (req, res, next) => {
             body: `Your order #${newOrder.orderId} of ₹${newOrder.totalAmount} has been placed successfully. Thank you for choosing Saundarya Shringar!`,
             data: { type: 'order_update', id: newOrder._id.toString() }
         });
+=======
+        // Decrement Stock & Increment Coupon
+        for (const item of orderDetails.items) {
+            await Product.findByIdAndUpdate(item.product || item._id, { $inc: { stock: -Number(item.quantity) } });
+        }
+
+        if (orderDetails.couponCode) {
+            await Coupon.findOneAndUpdate({ code: orderDetails.couponCode.toUpperCase() }, { $inc: { usedCount: 1 } });
+        }
+>>>>>>> 1b0a5a3 (chnagesin frontend)
 
         res.status(201).json({ status: 'success', data: { order: newOrder } });
     } catch (err) {
@@ -100,9 +114,11 @@ exports.createOrder = async (req, res, next) => {
             user: req.user._id,
             items,
             totalAmount,
-            shippingAddress
+            shippingAddress,
+            couponApplied: req.body.couponCode || null
         });
 
+<<<<<<< HEAD
         // NOTIFICATION: Admin - New Order
         const notificationService = require('../utils/notificationService');
         notificationService.sendToAdmin({
@@ -117,6 +133,16 @@ exports.createOrder = async (req, res, next) => {
             body: `Your order #${newOrder.orderId} of ₹${newOrder.totalAmount} has been placed successfully. Thank you for choosing Saundarya Shringar!`,
             data: { type: 'order_update', id: newOrder._id.toString() }
         });
+=======
+        // Decrement Stock & Increment Coupon
+        for (const item of items) {
+            await Product.findByIdAndUpdate(item.product || item._id, { $inc: { stock: -Number(item.quantity) } });
+        }
+
+        if (req.body.couponCode) {
+            await Coupon.findOneAndUpdate({ code: req.body.couponCode.toUpperCase() }, { $inc: { usedCount: 1 } });
+        }
+>>>>>>> 1b0a5a3 (chnagesin frontend)
 
         res.status(201).json({ status: 'success', data: { order: newOrder } });
     } catch (err) {
@@ -137,7 +163,7 @@ exports.getMyOrders = async (req, res, next) => {
 // Public/Customer: Track Order
 exports.getOrder = async (req, res, next) => {
     try {
-        const order = await Order.findOne({ orderId: req.params.orderId }).lean();
+        const order = await Order.findOne({ orderId: req.params.orderId }).populate('user', 'name email phone').lean();
         if (!order) return res.status(404).json({ status: 'error', message: 'Order not found.' });
         res.status(200).json({ status: 'success', data: { order } });
     } catch (err) {
@@ -148,7 +174,7 @@ exports.getOrder = async (req, res, next) => {
 // Admin: Get all orders
 exports.getAllOrders = async (req, res, next) => {
     try {
-        const orders = await Order.find().populate('user', 'name phone').sort('-date').lean();
+        const orders = await Order.find().populate('user', 'name email phone').sort('-date').lean();
         res.status(200).json({ status: 'success', data: { orders } });
     } catch (err) {
         next(err);
@@ -160,14 +186,10 @@ exports.updateOrderStatus = async (req, res, next) => {
     try {
         const { status, trackingId, paymentStatus } = req.body;
 
-        let updatePayload = {};
-        if (status) updatePayload.status = status;
-        if (trackingId) updatePayload.trackingId = trackingId;
-        if (paymentStatus) updatePayload.paymentStatus = paymentStatus;
-
-        const order = await Order.findByIdAndUpdate(req.params.id, updatePayload, { new: true, runValidators: true });
+        const order = await Order.findById(req.params.id);
         if (!order) return res.status(404).json({ status: 'error', message: 'Order not found.' });
 
+<<<<<<< HEAD
         // NOTIFICATION: User - Order Status Update
         if (status) {
             const notificationService = require('../utils/notificationService');
@@ -178,6 +200,16 @@ exports.updateOrderStatus = async (req, res, next) => {
             });
         }
 
+=======
+        if (status && status !== order.status) {
+            order.status = status;
+            order.statusHistory.push({ status, timestamp: new Date() });
+        }
+        if (trackingId) order.trackingId = trackingId;
+        if (paymentStatus) order.paymentStatus = paymentStatus;
+
+        await order.save();
+>>>>>>> 1b0a5a3 (chnagesin frontend)
         res.status(200).json({ status: 'success', data: { order } });
     } catch (err) {
         next(err);

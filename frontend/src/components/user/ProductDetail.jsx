@@ -7,6 +7,7 @@ import {
 } from 'react-icons/fi';
 import { useShop } from '../../context/ShopContext';
 import api from '../../utils/api';
+import ConsultationCTA from './ConsultationCTA';
 
 const CouponModal = ({ onClose, onApply }) => {
   const [code, setCode] = useState('');
@@ -63,18 +64,74 @@ const CouponModal = ({ onClose, onApply }) => {
   );
 };
 
+const PolicySanctuaryModal = ({ onClose, initialTab = 'Genuine' }) => {
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  const policies = {
+    'Genuine': {
+      title: 'Purity Assurance',
+      icon: <FiShield />,
+      desc: 'Every treasure in our sanctuary is 100% authentic, sourced directly from heritage artisans and brand owners to ensure the highest divine quality.'
+    },
+    'Fast Delivery': {
+      title: 'Sacred Logistics',
+      icon: <FiTruck />,
+      desc: 'Our delivery partners are chosen for their respect of your time. Most orders reach their destination within 3-5 business days across Bharat.'
+    },
+    '7 Days Return': {
+      title: 'Peace of Mind',
+      icon: <FiRefreshCw />,
+      desc: 'If a treasure does not resonate with you, we offer a seamless 7-day return or exchange policy from the date of delivery.'
+    },
+    'Quality Check': {
+      title: 'Divine Standard',
+      icon: <FiCheckCircle />,
+      desc: 'Each item undergoes a rigorous 5-point quality check before it leaves our sanctuary to ensure it reaches you in pristine condition.'
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-[4px] flex items-center justify-center p-4">
+      <motion.div initial={{ scale: 0.95, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} className="bg-white w-full max-w-md rounded-2xl p-8 shadow-2xl relative">
+        <button onClick={onClose} className="absolute top-6 right-6 p-1 text-gray-400 hover:text-brand-dark transition-colors"><FiX size={18} /></button>
+
+        <div className="flex gap-4 mb-8 overflow-x-auto no-scrollbar pb-2 border-b border-gray-100">
+          {Object.keys(policies).map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`text-[8px] font-black uppercase tracking-widest whitespace-nowrap transition-all pb-2 relative ${activeTab === tab ? 'text-brand-pink' : 'text-gray-300'}`}
+            >
+              {tab}
+              {activeTab === tab && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-pink" />}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-col items-center text-center py-4">
+          <div className="w-16 h-16 bg-brand-pink/5 rounded-full flex items-center justify-center text-brand-pink mb-4 text-2xl">
+            {policies[activeTab].icon}
+          </div>
+          <h3 className="text-xl font-serif font-black text-brand-dark mb-2">{policies[activeTab].title}</h3>
+          <p className="text-xs text-gray-500 leading-relaxed max-w-[280px]">{policies[activeTab].desc}</p>
+        </div>
+
+        <button onClick={onClose} className="mt-8 w-full bg-brand-dark text-white py-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all">Understood</button>
+      </motion.div>
+    </div>
+  );
+};
+
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { products, addToCart, toggleWishlist, isInWishlist, loading } = useShop();
-
-  const product = products.find(p => p._id === id);
-  const { user, isAuthenticated } = useShop();
-
-  const [selectedImage, setSelectedImage] = useState(product?.image);
+  const { products, addToCart, toggleWishlist, isInWishlist, loading, isAuthenticated, user, setIsCartDrawerOpen } = useShop();
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isAdded, setIsAdded] = useState(false);
   const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
+
+  const product = products.find(p => p._id === id);
 
   // Review States
   const [reviews, setReviews] = useState([]);
@@ -82,6 +139,18 @@ const ProductDetail = () => {
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
   const [reviewLoading, setReviewLoading] = useState(true);
+  const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false);
+  const [selectedPolicyTab, setSelectedPolicyTab] = useState('Genuine');
+  const [availableCoupons, setAvailableCoupons] = useState([]);
+
+  const fetchAvailableCoupons = async () => {
+    try {
+      const res = await api.get('/coupons');
+      setAvailableCoupons(res.data.data.coupons.filter(c => c.isActive));
+    } catch (err) {
+      console.error("Failed to fetch divine offers:", err);
+    }
+  };
 
   const fetchReviews = async () => {
     try {
@@ -142,7 +211,7 @@ const ProductDetail = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    if (product) setSelectedImage(product.image);
+    setSelectedImageIndex(0); // Reset index when product changes
     // Reset coupon when changing product
     setAppliedCoupon(null);
     setCouponInput('');
@@ -150,8 +219,9 @@ const ProductDetail = () => {
     if (id) {
       fetchReviews();
       checkEligibility();
+      fetchAvailableCoupons();
     }
-  }, [id, product, isAuthenticated, user]);
+  }, [id, isAuthenticated, user]);
 
   if (loading && !product) {
     return (
@@ -187,14 +257,21 @@ const ProductDetail = () => {
   };
 
   const handleBuyNow = () => {
-    addToCart({ ...product, price: finalPrice, couponApplied: appliedCoupon?.code });
-    navigate('/checkout');
+    const directProductData = {
+      ...product,
+      price: finalPrice,
+      quantity: 1,
+      couponApplied: appliedCoupon?.code
+    };
+    setIsCartDrawerOpen(false);
+    navigate('/checkout', { state: { directProduct: directProductData } });
   };
 
   return (
     <div className="min-h-screen bg-white pb-10 pt-0 font-sans focus:outline-none">
       <AnimatePresence>
         {isCouponModalOpen && <CouponModal onClose={() => setIsCouponModalOpen(false)} onApply={setAppliedCoupon} />}
+        {isPolicyModalOpen && <PolicySanctuaryModal onClose={() => setIsPolicyModalOpen(false)} initialTab={selectedPolicyTab} />}
       </AnimatePresence>
 
       <div className="container mx-auto px-4 pt-1 pb-2 flex items-center gap-2 text-[10px] md:text-[11px] text-gray-400 font-medium">
@@ -213,10 +290,10 @@ const ProductDetail = () => {
             {/* Main Large Image - Tighter Boundary */}
             <div className="relative aspect-square overflow-hidden bg-white shadow-2xl rounded-2xl group border border-gray-100/50 max-w-[500px] mx-auto">
               <motion.img
-                key={selectedImage}
+                key={selectedImageIndex}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                src={selectedImage}
+                src={(product.gallery && product.gallery[selectedImageIndex]) || product.image}
                 alt={product.name}
                 className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
               />
@@ -233,14 +310,14 @@ const ProductDetail = () => {
             {/* Thumbnails Row Below - Clickable & Labeled */}
             <div className="flex justify-center gap-4 mt-2">
               {[
-                { img: product.image, label: 'FRONT' },
-                { img: product.image, label: 'SIDE' },
-                { img: product.image, label: 'DETAIL' }
+                { img: (product.gallery && product.gallery[0]) || product.image, label: 'FRONT' },
+                { img: (product.gallery && product.gallery[1]) || product.image, label: 'SIDE' },
+                { img: (product.gallery && product.gallery[2]) || product.image, label: 'DETAIL' }
               ].map((item, idx) => (
                 <div key={idx} className="flex flex-col items-center gap-2">
                   <button
-                    onClick={() => setSelectedImage(item.img)}
-                    className={`w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden transition-all border-2 flex items-center justify-center bg-gray-50/30 ${selectedImage === item.img ? 'border-brand-pink shadow-md' : 'border-gray-100 opacity-60 hover:opacity-100'
+                    onClick={() => setSelectedImageIndex(idx)}
+                    className={`w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden transition-all border-2 flex items-center justify-center bg-gray-50/30 ${selectedImageIndex === idx ? 'border-brand-pink shadow-md' : 'border-gray-100 opacity-60 hover:opacity-100'
                       }`}
                   >
                     <img src={item.img} alt={item.label} className="w-full h-full object-contain p-2" />
@@ -305,33 +382,60 @@ const ProductDetail = () => {
               )}
             </div>
 
-            {/* Inline Coupon Reward System */}
-            <div className="border border-brand-pink/10 rounded-2xl p-4 bg-brand-light/20">
-              <h4 className="flex items-center gap-2 text-brand-dark font-black text-[10px] uppercase tracking-[0.2em] mb-3">
-                <FiTag className="text-brand-pink" /> Sacred Rewards
-              </h4>
-              <div className="flex gap-2">
-                <form
-                  onSubmit={(e) => { e.preventDefault(); handleApplyInlineCoupon(couponInput); }}
-                  className="relative flex-1 group"
-                >
-                  <input
-                    type="text"
-                    placeholder={appliedCoupon ? `APPLIED: ${appliedCoupon.code}` : "ENTER COUPON CODE"}
-                    className="w-full bg-white border border-brand-pink/10 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest outline-none focus:border-brand-pink/30 focus:ring-1 focus:ring-brand-pink/5 transition-all placeholder:text-gray-300"
-                    value={couponInput}
-                    onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
-                  />
-                  <FiChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-brand-pink transition-colors" />
-                </form>
-                <button
-                  onClick={() => handleApplyInlineCoupon(couponInput)}
-                  className="bg-brand-dark text-white px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all active:scale-95 shadow-lg shadow-brand-dark/10"
-                >
-                  Apply
-                </button>
+            {/* Available Offers Grid - Replacing Manual Input */}
+            <div className="space-y-4">
+              <h3 className="text-[9px] font-black text-[#5C2E3E]/60 uppercase tracking-[0.3em] flex items-center gap-2">
+                Available Offers
+              </h3>
+
+              <div className="grid grid-cols-2 gap-3">
+                {(availableCoupons.length > 0 ? availableCoupons.slice(0, 2) : [
+                  { code: 'SAUNDARYA10', discountValue: 10, discountType: 'percentage', _id: 'def1' },
+                  { code: 'WELCOME20', discountValue: 200, discountType: 'fixed', _id: 'def2' }
+                ]).map((coupon) => (
+                  <div
+                    key={coupon._id}
+                    className={`bg-white border rounded-xl p-4 flex flex-col justify-between relative overflow-hidden transition-all duration-300 ${appliedCoupon?.code === coupon.code
+                        ? 'border-brand-pink ring-2 ring-brand-pink/5 shadow-inner bg-brand-pink/[0.01]'
+                        : 'border-gray-100 hover:border-brand-pink/20 hover:shadow-lg hover:shadow-brand-pink/5'
+                      }`}
+                  >
+                    {/* Header: Code & Label */}
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-xs font-black text-[#5C2E3E] tracking-tight">{coupon.code}</span>
+                      <span className="text-[6px] font-black text-gray-300 uppercase tracking-widest border border-gray-100 px-1 rounded-sm">Coupon</span>
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-[8px] text-gray-400 font-bold uppercase tracking-tighter leading-tight mb-4 min-h-[16px]">
+                      Flat {coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `₹${coupon.discountValue}`} Off on orders...
+                    </p>
+
+                    {/* Footer: Apply Action */}
+                    <div className="flex items-center justify-between mt-auto">
+                      <button
+                        onClick={() => {
+                          if (appliedCoupon?.code !== coupon.code) {
+                            setAppliedCoupon(coupon);
+                          }
+                        }}
+                        className={`text-[8px] font-black uppercase tracking-widest transition-all ${appliedCoupon?.code === coupon.code
+                            ? 'text-green-500'
+                            : 'text-brand-pink hover:bg-brand-pink hover:text-white border border-transparent hover:border-brand-pink px-2 py-1 rounded-md'
+                          }`}
+                      >
+                        {appliedCoupon?.code === coupon.code ? 'APPLIED' : 'APPLY'}
+                      </button>
+
+                      {appliedCoupon?.code === coupon.code && (
+                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-green-500">
+                          <FiCheckCircle size={10} strokeWidth={3} />
+                        </motion.div>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
-              <p className="text-[7px] text-gray-400 font-bold uppercase tracking-widest mt-2 px-1">Check for limited time divine discounts in your mail</p>
             </div>
 
             {/* Icons - Grid style */}
@@ -342,34 +446,35 @@ const ProductDetail = () => {
                 { icon: <FiRefreshCw />, label: '7 Days Return' },
                 { icon: <FiCheckCircle />, label: 'Quality Check' }
               ].map((item, idx) => (
-                <div key={idx} className="flex flex-col items-center text-center gap-1 group">
-                  <div className="text-gray-400 group-hover:text-brand-gold">
+                <button
+                  key={idx}
+                  onClick={() => { setSelectedPolicyTab(item.label); setIsPolicyModalOpen(true); }}
+                  className="flex flex-col items-center text-center gap-1 group transition-all transform active:scale-95"
+                >
+                  <div className="text-gray-400 group-hover:text-brand-gold transition-colors">
                     {item.icon}
                   </div>
-                  <span className="text-[7px] md:text-[8px] font-bold text-gray-400 uppercase tracking-tighter">{item.label}</span>
-                </div>
+                  <span className="text-[7px] md:text-[8px] font-bold text-gray-400 uppercase tracking-tighter group-hover:text-brand-dark">{item.label}</span>
+                </button>
               ))}
             </div>
 
             {/* Bullet Points */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-black text-brand-dark uppercase tracking-widest flex items-center gap-2">
-                <div className="w-1 h-4 bg-brand-gold" /> About this item
-              </h3>
-              <ul className="space-y-2.5">
-                {((product.about && product.about.length > 0) ? product.about : [
-                  'Non Oily Matte Look: Evens out complexion and hides imperfections.',
-                  'Blends Effortlessly: Pressed powder for all skin types.',
-                  'Weightless Stay: Breathable HD coverage that lasts 12h+.',
-                  'Pure & Organic: Crafted with botanical heritage rituals.'
-                ]).map((point, idx) => (
-                  <li key={idx} className="flex items-start gap-2.5">
-                    <span className="text-brand-pink font-black text-xs leading-none mt-1">•</span>
-                    <p className="text-xs md:text-sm text-gray-600 leading-snug">{point}</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {product.about && product.about.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-black text-brand-dark uppercase tracking-widest flex items-center gap-2">
+                  <div className="w-1 h-4 bg-brand-gold" /> About this item
+                </h3>
+                <ul className="space-y-2.5">
+                  {product.about.map((point, idx) => (
+                    <li key={idx} className="flex items-start gap-2.5">
+                      <span className="text-brand-pink font-black text-xs leading-none mt-1">•</span>
+                      <p className="text-xs md:text-sm text-gray-600 leading-snug">{point}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           {/* Right: Buy Section - Amazon Buy Box */}
@@ -386,7 +491,7 @@ const ProductDetail = () => {
                     <p className="text-green-600 font-black text-sm">In Stock</p>
                   </div>
                   <p className="text-[11px] text-gray-500 leading-tight">
-                    FREE delivery <span className="text-brand-dark font-bold">Sunday, 22 March</span> on your first order. <span className="text-blue-600 font-bold cursor-pointer hover:underline">Details</span>
+                    FREE delivery <span className="text-brand-dark font-bold">Sunday, 22 March</span> on your first order. <span onClick={() => { setSelectedPolicyTab('Fast Delivery'); setIsPolicyModalOpen(true); }} className="text-blue-600 font-bold cursor-pointer hover:underline">Details</span>
                   </p>
                   <p className="text-[11px] text-gray-700 font-medium">
                     Or fastest delivery <span className="font-bold underline">Today 6 pm - 10 pm</span>. Order within <span className="text-red-600 font-bold">2 hrs 56 mins</span>.
@@ -425,13 +530,6 @@ const ProductDetail = () => {
                 </div>
               </div>
 
-              <div className="bg-brand-pink/5 rounded-xl p-4 border border-brand-pink/10 group cursor-pointer hover:bg-brand-pink/10 transition-colors">
-                <div className="flex items-center justify-between">
-                  <p className="text-[10px] text-brand-dark font-black uppercase tracking-widest">Customer Help</p>
-                  <FiChevronRight className="w-3 h-3 text-brand-pink group-hover:translate-x-1 transition-transform" />
-                </div>
-                <button className="text-brand-pink text-[11px] font-black underline underline-offset-4 mt-2">Chat with Beauty Expert</button>
-              </div>
             </div>
           </div>
 
@@ -453,6 +551,7 @@ const ProductDetail = () => {
                 <span className="text-lg font-black text-brand-dark">{product.rating} / 5.0</span>
               </div>
               <p className="text-xs text-gray-400 font-medium mb-6">{product.reviews} Global Ratings & Testimony</p>
+
 
               {/* Write Review Trigger */}
               {canSubmitReview && (
@@ -539,6 +638,7 @@ const ProductDetail = () => {
             </div>
           </div>
         </div>
+        <ConsultationCTA />
       </main>
     </div>
   );

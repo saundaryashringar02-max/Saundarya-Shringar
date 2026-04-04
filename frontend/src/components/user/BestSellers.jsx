@@ -40,16 +40,15 @@ const BestSellers = () => {
         </motion.div>
 
         <Swiper
-          modules={[Navigation, Pagination]}
+          modules={[Navigation]}
           spaceBetween={16}
           slidesPerView={2}
           navigation
-          pagination={{ clickable: true }}
           breakpoints={{
             768: { slidesPerView: 3, spaceBetween: 24 },
             1024: { slidesPerView: 4, spaceBetween: 30 },
           }}
-          className="pb-8"
+          className="bestseller-swiper"
         >
           {bestSellers.map((product) => (
             <SwiperSlide key={product._id}>

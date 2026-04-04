@@ -23,6 +23,7 @@ import ProductDetail from './components/user/ProductDetail';
 import Bag from './components/user/Bag';
 import UserOrders from './components/user/UserOrders';
 import ScrollToTop from './components/user/ScrollToTop';
+import RaiseTicket from './components/user/RaiseTicket';
 
 // Policy Imports
 import PrivacyPolicy from './components/user/policies/PrivacyPolicy';
@@ -49,6 +50,8 @@ import AdminTestimonials from './components/admin/AdminTestimonials';
 import AdminInstagram from './components/admin/AdminInstagram';
 import AdminReplacements from './components/admin/AdminReplacements';
 import AdminReviews from './components/admin/AdminReviews';
+import AdminSupport from './components/admin/AdminSupport';
+import AdminLogistics from './components/admin/AdminLogistics';
 import { FiBox, FiRotateCcw, FiRefreshCw, FiTag, FiShoppingBag, FiUsers } from 'react-icons/fi';
 
 const UserRoutes = () => (
@@ -76,6 +79,7 @@ const UserRoutes = () => (
           <Route path="/return-policy" element={<ReturnPolicy />} />
           <Route path="/terms-conditions" element={<TermsAndConditions />} />
           <Route path="/cancellation-policy" element={<CancelPolicy />} />
+          <Route path="/support" element={<RaiseTicket />} />
         </Routes>
       </main>
       <Footer />
@@ -106,6 +110,8 @@ const AdminRoutes = () => (
       <Route path="/testimonials" element={<AdminTestimonials />} />
       <Route path="/instagram" element={<AdminInstagram />} />
       <Route path="/reviews" element={<AdminReviews />} />
+      <Route path="/support" element={<AdminSupport />} />
+      <Route path="/logistics" element={<AdminLogistics />} />
     </Route>
   </Routes>
 );

@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useShop } from '../../context/ShopContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiUser, FiPhone, FiMail, FiMapPin, FiShoppingBag, FiHeart, FiLogOut, FiEdit2 } from 'react-icons/fi';
+import { FiUser, FiPhone, FiMail, FiMapPin, FiShoppingBag, FiHeart, FiLogOut, FiEdit2, FiMessageSquare } from 'react-icons/fi';
 import api from '../../utils/api';
 
 const Profile = () => {
   const { user, isAuthenticated, setIsAuthenticated, setUser, wishlistCount } = useShop();
   const navigate = useNavigate();
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [totalOrders, setTotalOrders] = useState(0);
   const [editForm, setEditForm] = useState({
     name: user?.name || '',
@@ -42,11 +43,19 @@ const Profile = () => {
     navigate('/');
   };
 
-  const handleSave = async () => {
+  const handleSave = async (section) => {
+    if (section === 'profile') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!editForm.email || !emailRegex.test(editForm.email)) {
+        alert("Please enter a valid email address.");
+        return;
+      }
+    }
     try {
       const res = await api.patch('/users/update-me', editForm);
       setUser(res.data.data.user);
-      setIsEditing(false);
+      if (section === 'profile') setIsEditingProfile(false);
+      if (section === 'address') setIsEditingAddress(false);
     } catch (err) {
       alert("Failed to update profile: " + (err.response?.data?.message || err.message));
     }
@@ -72,9 +81,9 @@ const Profile = () => {
                     {editForm.name ? editForm.name.charAt(0).toUpperCase() : 'U'}
                   </span>
                 </div>
-                {!isEditing && (
+                {!isEditingProfile && (
                   <button
-                    onClick={() => setIsEditing(true)}
+                    onClick={() => setIsEditingProfile(true)}
                     className="absolute bottom-0 right-0 p-1 bg-brand-gold text-white rounded-full shadow-lg hover:scale-110 active:scale-95 transition-transform"
                   >
                     <FiEdit2 size={10} />
@@ -82,7 +91,7 @@ const Profile = () => {
                 )}
               </div>
 
-              {isEditing ? (
+              {isEditingProfile ? (
                 <div className="space-y-3 mb-3">
                   <input
                     type="text"
@@ -91,7 +100,7 @@ const Profile = () => {
                     className="w-full text-center font-serif font-bold text-[#5C2E3E] border-b border-brand-pink/30 focus:border-brand-pink outline-none bg-transparent py-1 text-sm"
                     placeholder="Full Name"
                   />
-                  <p className="text-[9px] font-black uppercase tracking-widest text-gray-400">Editing Mode</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-gray-400">Editing Profile</p>
                 </div>
               ) : (
                 <>
@@ -107,11 +116,12 @@ const Profile = () => {
                   </div>
                   <div className="flex-1">
                     <span className="block text-[7px] font-black uppercase tracking-widest text-[#5C2E3E]/50">Mobile</span>
-                    {isEditing ? (
+                    {isEditingProfile ? (
                       <input
                         type="tel"
+                        maxLength={10}
                         value={editForm.phone}
-                        onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                        onChange={(e) => setEditForm({ ...editForm, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
                         className="text-[11px] font-bold text-brand-dark border-b border-brand-pink/20 focus:border-brand-pink outline-none bg-transparent w-full"
                       />
                     ) : (
@@ -125,7 +135,7 @@ const Profile = () => {
                   </div>
                   <div className="flex-1">
                     <span className="block text-[7px] font-black uppercase tracking-widest text-[#5C2E3E]/50">Email</span>
-                    {isEditing ? (
+                    {isEditingProfile ? (
                       <input
                         type="email"
                         value={editForm.email}
@@ -139,16 +149,16 @@ const Profile = () => {
                 </div>
               </div>
 
-              {isEditing ? (
+              {isEditingProfile ? (
                 <div className="grid grid-cols-2 gap-2 mt-6">
                   <button
-                    onClick={() => setIsEditing(false)}
+                    onClick={() => setIsEditingProfile(false)}
                     className="py-2.5 bg-gray-50 text-gray-400 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-gray-100 transition-all"
                   >
                     Cancel
                   </button>
                   <button
-                    onClick={handleSave}
+                    onClick={() => handleSave('profile')}
                     className="py-2.5 bg-[#5C2E3E] text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-brand-pink shadow-lg shadow-brand-pink/20 transition-all"
                   >
                     Save
@@ -167,7 +177,7 @@ const Profile = () => {
 
           {/* Quick Stats & Details - More Compact */}
           <div className="md:col-span-2 space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               <Link to="/orders" className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm flex items-center gap-4 hover:border-brand-pink/30 hover:shadow-lg transition-all cursor-pointer group">
                 <div className="w-10 h-10 bg-brand-pink/10 rounded-full flex items-center justify-center text-brand-pink group-hover:bg-brand-pink group-hover:text-white transition-colors">
                   <FiShoppingBag size={18} />
@@ -186,6 +196,15 @@ const Profile = () => {
                   <span className="text-xl font-serif text-[#5C2E3E] font-bold">{wishlistCount || 0}</span>
                 </div>
               </Link>
+              <Link to="/support" className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm flex items-center gap-4 hover:border-brand-pink/30 hover:shadow-lg transition-all cursor-pointer group col-span-2 md:col-span-1">
+                <div className="w-10 h-10 bg-brand-dark/10 rounded-full flex items-center justify-center text-brand-dark group-hover:bg-brand-dark group-hover:text-white transition-colors">
+                  <FiMessageSquare size={18} />
+                </div>
+                <div>
+                  <span className="block text-[8px] font-black uppercase tracking-widest text-gray-400">Assistance</span>
+                  <span className="text-[12px] font-black uppercase tracking-[0.05em] text-[#5C2E3E]">Raise Ticket</span>
+                </div>
+              </Link>
             </div>
 
             <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
@@ -193,10 +212,10 @@ const Profile = () => {
                 <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#5C2E3E] flex items-center gap-2">
                   <FiMapPin /> Saved Addresses
                 </h3>
-                {!isEditing && (
+                {!isEditingAddress && (
                   <div className="flex gap-4">
                     <button
-                      onClick={() => setIsEditing(true)}
+                      onClick={() => setIsEditingAddress(true)}
                       className="text-[9px] font-black uppercase tracking-widest text-[#5C2E3E] border-b border-[#5C2E3E] hover:text-brand-pink hover:border-brand-pink transition-colors"
                     >
                       Edit Address
@@ -205,8 +224,8 @@ const Profile = () => {
                 )}
               </div>
 
-              <div className={`border rounded-xl p-4 relative transition-all ${isEditing ? 'border-brand-pink bg-white shadow-inner' : 'border-brand-pink/20 bg-brand-pink/5'}`}>
-                {isEditing ? (
+              <div className={`border rounded-xl p-4 relative transition-all ${isEditingAddress ? 'border-brand-pink bg-white shadow-inner' : 'border-brand-pink/20 bg-brand-pink/5'}`}>
+                {isEditingAddress ? (
                   <div className="space-y-3">
                     <div className="absolute top-4 right-4 text-[8px] font-black uppercase tracking-widest text-brand-pink">
                       Editing Address
@@ -218,6 +237,20 @@ const Profile = () => {
                       className="w-full bg-white border border-gray-100 rounded-lg p-3 text-[11px] font-medium text-gray-600 focus:border-brand-pink outline-none min-h-[80px]"
                       placeholder="Enter your full address..."
                     />
+                    <div className="flex justify-end gap-2 mt-4">
+                      <button
+                        onClick={() => setIsEditingAddress(false)}
+                        className="px-4 py-2 bg-gray-50 text-gray-400 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-gray-100 transition-all"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() => handleSave('address')}
+                        className="px-4 py-2 bg-[#5C2E3E] text-white rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-brand-pink shadow-lg shadow-brand-pink/20 transition-all"
+                      >
+                        Save Address
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <>

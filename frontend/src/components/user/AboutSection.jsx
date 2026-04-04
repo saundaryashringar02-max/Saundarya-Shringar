@@ -87,7 +87,7 @@ const AboutSection = () => {
                 The Heritage
               </h2>
               <p className="text-sm md:text-base leading-relaxed opacity-90 font-medium tracking-wide">
-                At Saundarya Shrinagar, we believe that true luxury lies in the pure essence of nature. 
+                At Saundarya Shringar, we believe that true luxury lies in the pure essence of nature. 
                 With over two decades of expertise in traditional Ayurvedic formulations and modern 
                 cosmetic science, we bring you a curation of skincare and wellness products that 
                 celebrate your natural glow.

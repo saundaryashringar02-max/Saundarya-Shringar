@@ -41,7 +41,7 @@ const WhyChoose = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-8"
         >
-          <h2 className="text-xl md:text-2xl font-serif font-bold mb-1 text-brand-dark uppercase tracking-wide">Why Choose Saundarya Shrinagar?</h2>
+          <h2 className="text-xl md:text-2xl font-serif font-bold mb-1 text-brand-dark uppercase tracking-wide">Why Choose Saundarya Shringar?</h2>
           <div className="w-16 h-1 bg-brand-gold mx-auto"></div>
         </motion.div>
 

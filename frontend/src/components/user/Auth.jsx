@@ -20,6 +20,9 @@ const Auth = () => {
   const isAdminPath = location.pathname.includes('/admin');
 
   useEffect(() => {
+    if (isAdminPath) {
+      setIsLogin(true);
+    }
     if (isAuthenticated && !isAdminPath) {
       navigate('/');
     }
@@ -103,7 +106,8 @@ const Auth = () => {
         }
 
         showNotification("Ritual Success! Welcome to Saundarya Shringar.");
-        setTimeout(() => navigate('/'), 1000);
+        const from = location.state?.from || '/';
+        setTimeout(() => navigate(from), 1000);
       }
     } catch (err) {
       showNotification(err.response?.data?.message || "Error processing request.", 'error');
@@ -115,6 +119,13 @@ const Auth = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) {
+      showNotification("Please enter a valid email address.", "error");
+      setLoading(false);
+      return;
+    }
+
     try {
       if (isLogin) {
         if (!form.email || !form.password) {
@@ -195,7 +206,7 @@ const Auth = () => {
                   Saundarya
                 </h2>
                 <span className="text-[4px] md:text-[8px] text-[#5C2E3E]/70 font-bold uppercase tracking-[0.45em] mt-0.5" style={{ fontFamily: "'Cinzel', serif" }}>
-                  Shrinagar
+                  Shringar
                 </span>
               </div>
             </div>
@@ -282,9 +293,10 @@ const Auth = () => {
                         <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
                         <input
                           type="tel"
+                          inputMode="numeric"
                           name="phone"
                           value={form.phone}
-                          onChange={handleInputChange}
+                          onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
                           required
                           maxLength={10}
                           placeholder="10-digit mobile number"
@@ -301,6 +313,8 @@ const Auth = () => {
                             key={index}
                             id={`otp-${index}`}
                             type="text"
+                            inputMode="numeric"
+                            autoComplete={index === 0 ? "one-time-code" : "off"}
                             maxLength={1}
                             value={digit}
                             onChange={(e) => handleOtpChange(index, e.target.value)}
@@ -337,7 +351,7 @@ const Auth = () => {
               initial={{ opacity: 0, y: 50, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[1001] bg-white border-l-4 border-brand-gold shadow-2xl px-8 py-5 flex items-center gap-4 min-w-[300px]"
+              className="fixed bottom-24 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:right-auto z-[1001] bg-white border-l-4 border-brand-gold shadow-2xl px-6 md:px-8 py-4 md:py-5 flex items-center gap-4 md:min-w-[400px]"
             >
               <div className={`w-8 h-8 rounded-full flex items-center justify-center ${notification.type === 'error' ? 'bg-red-50 text-red-500' : 'bg-brand-pink/10 text-brand-pink'}`}>
                 {notification.type === 'error' ? '!' : <FiCheckCircle size={18} />}
@@ -367,13 +381,13 @@ const Auth = () => {
         >
           {/* Header / Logo */}
           <div className="flex items-center gap-3 mb-6 md:mb-8 md:px-6">
-            <img src="/logo.png" alt="Saundarya Shrinagar Logo" className="h-4 md:h-10 w-auto logo-blend" />
+            <img src="/logo.png" alt="Saundarya Shringar Logo" className="h-4 md:h-10 w-auto logo-blend" />
             <div className="flex flex-col leading-none">
               <h2 className="text-[10px] md:text-lg font-black text-[#5C2E3E] uppercase tracking-[0.12em]" style={{ fontFamily: "'Cinzel Decorative', serif" }}>
                 Saundarya
               </h2>
               <span className="text-[4px] md:text-[8px] text-[#5C2E3E]/70 font-bold uppercase tracking-[0.45em] mt-0.5" style={{ fontFamily: "'Cinzel', serif" }}>
-                Shrinagar
+                Shringar
               </span>
             </div>
           </div>
@@ -417,45 +431,21 @@ const Auth = () => {
             >
               <div className="flex items-end justify-between mb-4 md:mb-5">
                 <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-white leading-none">
-                  {isLogin ? 'Login' : 'Register'}
+                  Login
                 </h1>
 
                 <div className="flex gap-4">
                   <button
-                    onClick={() => setIsLogin(true)}
-                    className={`text-[8px] md:text-[8px] font-black uppercase tracking-widest transition-all pb-0.5 md:pb-1 relative ${isLogin ? 'text-[#92B89D]' : 'text-white/40 hover:text-white/70'}`}
+                    type="button"
+                    className="text-[8px] md:text-[8px] font-black uppercase tracking-widest transition-all pb-0.5 md:pb-1 relative text-[#92B89D]"
                   >
                     Sign In
-                    {isLogin && <span className="absolute bottom-0 left-0 w-full h-[1px] md:h-0.5 bg-[#92B89D] rounded-full" />}
-                  </button>
-                  <button
-                    onClick={() => setIsLogin(false)}
-                    className={`text-[8px] md:text-[8px] font-black uppercase tracking-widest transition-all pb-0.5 md:pb-1 relative ${!isLogin ? 'text-[#92B89D]' : 'text-white/40 hover:text-white/70'}`}
-                  >
-                    Create
-                    {!isLogin && <span className="absolute bottom-0 left-0 w-full h-[1px] md:h-0.5 bg-[#92B89D] rounded-full" />}
+                    <span className="absolute bottom-0 left-0 w-full h-[1px] md:h-0.5 bg-[#92B89D] rounded-full" />
                   </button>
                 </div>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-3 md:space-y-3.5">
-                {!isLogin && (
-                  <div className="space-y-1 md:space-y-1">
-                    <label className="text-[8px] md:text-[9px] text-white/80 font-medium tracking-wide">Full Name</label>
-                    <div className="relative">
-                      <FiUser className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-white/50 text-xs" />
-                      <input
-                        type="text"
-                        name="name"
-                        value={form.name}
-                        onChange={handleInputChange}
-                        required={!isLogin}
-                        placeholder="Admin Name"
-                        className="w-full bg-white/10 border border-white/5 pl-9 md:pl-10 pr-4 py-2 md:py-2.5 rounded-lg text-[10px] md:text-xs font-medium focus:bg-white/20 focus:border-white/20 outline-none transition-all text-white placeholder:text-white/30"
-                      />
-                    </div>
-                  </div>
-                )}
 
                 <div className="space-y-1 md:space-y-1">
                   <label className="text-[8px] md:text-[9px] text-white/80 font-medium tracking-wide">Email Address</label>
@@ -491,10 +481,10 @@ const Auth = () => {
 
                 <button
                   type="submit"
-                  disabled={loading || (isLogin ? (!form.email || !form.password) : (!form.name || !form.email || !form.password))}
+                  disabled={loading || (!form.email || !form.password)}
                   className="w-full bg-gradient-to-r from-[#82a88d] to-[#92B89D] text-white py-2.5 md:py-3 rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-[0.15em] text-center mt-3 md:mt-5 disabled:opacity-50 hover:brightness-110 transition-all shadow-lg active:scale-95"
                 >
-                  {loading ? 'Processing...' : (isLogin ? 'Login to Portal' : 'Register Securely')}
+                  {loading ? 'Processing...' : 'Login to Portal'}
                 </button>
               </form>
             </motion.div>
@@ -513,7 +503,7 @@ const Auth = () => {
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[1001] bg-white border-l-4 border-brand-gold shadow-2xl px-8 py-5 flex items-center gap-4 min-w-[300px]"
+            className="fixed bottom-24 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:right-auto z-[1001] bg-white border-l-4 border-brand-gold shadow-2xl px-6 md:px-8 py-4 md:py-5 flex items-center gap-4 md:min-w-[400px]"
           >
             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${notification.type === 'error' ? 'bg-red-50 text-red-500' : 'bg-brand-pink/10 text-brand-pink'}`}>
               {notification.type === 'error' ? '!' : <FiCheckCircle size={18} />}

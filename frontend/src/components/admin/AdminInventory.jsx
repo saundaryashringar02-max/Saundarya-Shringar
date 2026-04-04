@@ -142,8 +142,7 @@ const AdminInventory = () => {
                 <th className="px-6 py-4 text-[8px] font-black uppercase tracking-[0.2em]">Asset info</th>
                 <th className="px-6 py-4 text-[8px] font-black uppercase tracking-[0.2em]">Warehouse</th>
                 <th className="px-6 py-4 text-[8px] font-black uppercase tracking-[0.2em]">Stock Level</th>
-                <th className="px-6 py-4 text-[8px] font-black uppercase tracking-[0.2em]">Reserved</th>
-                <th className="px-6 py-4 text-[8px] font-black uppercase tracking-[0.2em] text-right">Valuation</th>
+                <th className="px-6 py-4 text-[8px] font-black uppercase tracking-[0.2em] text-right">Unit Price</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-brand-pink/5">
@@ -190,7 +189,7 @@ const AdminInventory = () => {
                       ) : (
                         <div className="flex justify-between items-center text-[8px] font-black uppercase group/edit cursor-pointer" onClick={() => { setEditingId(item.id); setEditStockValue(String(item.stock)); }}>
                           <span className={`${item.stock < 10 ? 'text-red-500 font-black animate-pulse' : 'text-gray-500'} flex items-center gap-1`}>
-                            {item.stock} Units <FiEdit3 size={10} className="opacity-0 group-hover/edit:opacity-100 transition-opacity text-brand-pink" />
+                            {item.stock} Units <FiEdit3 size={10} className="text-brand-pink/50" />
                           </span>
                           <span className={`${item.stock < 10 ? 'text-red-400' : 'text-gray-300'}`}>{item.stock === 0 ? 'Depleted' : 'In Stock'}</span>
                         </div>
@@ -211,19 +210,9 @@ const AdminInventory = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none">
-                        {item.reserved} <span className="text-[7px] font-medium opacity-50 ml-0.5">RES</span>
-                      </span>
-                      <span className={`text-[6px] font-bold uppercase tracking-tighter px-1.5 py-0.5 rounded-full w-fit ${item.stock < 10 ? 'bg-red-50 text-red-500' : 'bg-blue-50 text-blue-500'}`}>
-                        {item.stock < 10 ? 'Critical' : 'Secured'}
-                      </span>
-                    </div>
-                  </td>
                   <td className="px-6 py-4 text-right">
-                    <p className="text-[11px] font-black text-brand-dark leading-none">₹{item.price * item.stock}</p>
-                    <p className="text-[7px] text-gray-400 uppercase tracking-tighter mt-1">Live Valuation</p>
+                    <p className="text-[11px] font-black text-brand-dark leading-none">₹{item.price}</p>
+                    <p className="text-[7px] text-gray-400 uppercase tracking-tighter mt-1">Total: ₹{item.price * item.stock}</p>
                   </td>
                 </tr>
               ))}

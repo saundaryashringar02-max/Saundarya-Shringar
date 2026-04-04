@@ -37,15 +37,22 @@ const AdminProducts = () => {
     category: '',
     subCategory: '',
     price: '',
-    stock: true,
-    image: '',
-    description: '',
-    badge: '',
-    about: []
+    stock: 100,
+    about: [],
+    skinType: 'All',
+    skinConcern: 'All',
+    gallery: []
   });
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+
+    // Prevent negative price or stock
+    if ((name === 'price' || name === 'stock') && parseFloat(value) < 0) {
+      setForm(prev => ({ ...prev, [name]: '0' }));
+      return;
+    }
+
     setForm(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
@@ -123,11 +130,14 @@ const AdminProducts = () => {
       category: product.category,
       subCategory: product.subCategory || '',
       price: product.price,
-      stock: product.stock > 0,
+      stock: product.stock,
       image: product.image,
       description: product.description || '',
       badge: product.badge || '',
-      about: product.about || []
+      about: product.about || [],
+      skinType: product.skinType || 'All',
+      skinConcern: product.skinConcern || 'All',
+      gallery: product.gallery || []
     });
     setIsAdding(true);
   };
@@ -144,7 +154,7 @@ const AdminProducts = () => {
       const payload = {
         ...form,
         price: Number(form.price),
-        stock: form.stock ? 100 : 0, // Simplified stock for now
+        stock: Number(form.stock),
         status: 'active',
         about: form.about.filter(point => point.trim() !== '') // Clean empty points
       };
@@ -157,7 +167,7 @@ const AdminProducts = () => {
 
       setIsAdding(false);
       setEditingProduct(null);
-      setForm({ name: '', category: '', subCategory: '', price: '', stock: true, image: '', description: '', badge: '', about: [] });
+      setForm({ name: '', category: '', subCategory: '', price: '', stock: 100, image: '', description: '', badge: '', about: [], skinType: 'All', skinConcern: 'All', gallery: [] });
       fetchData();
     } catch (err) {
       alert('Error saving product: ' + (err.response?.data?.message || err.message));
@@ -196,7 +206,7 @@ const AdminProducts = () => {
               <button
                 onClick={() => {
                   setEditingProduct(null);
-                  setForm({ name: '', category: '', subCategory: '', price: '', stock: true, image: '', description: '', badge: '', about: [] });
+                  setForm({ name: '', category: '', subCategory: '', price: '', stock: 100, image: '', description: '', badge: '', about: [], skinType: 'All', skinConcern: 'All', gallery: [] });
                   setIsAdding(true);
                 }}
                 className="bg-brand-dark text-white px-6 py-2.5 rounded-lg text-xs font-bold flex items-center gap-2 shadow-lg shadow-black/10 hover:bg-black transition-all"
@@ -299,12 +309,12 @@ const AdminProducts = () => {
                           <span className="text-xs font-bold text-gray-800">₹{p.price}</span>
                         </td>
                         <td className="px-6 py-4 text-center">
-                          <span className={`inline-flex px-2 py-1 rounded-lg text-[9px] font-bold uppercase leading-none ${p.stock > 0 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
-                            {p.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                          <span className={`inline-flex px-2 py-1 rounded-lg text-[9px] font-black uppercase leading-none ${p.stock > 0 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                            {p.stock} Units
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <div className="flex items-center justify-end gap-2 text-gray-300">
+                          <div className="flex items-center justify-end gap-2 text-gray-400">
                             <button onClick={() => handleEdit(p)} className="p-1.5 hover:bg-blue-50 hover:text-blue-500 rounded-lg transition-colors"><FiEdit2 size={14} /></button>
                             <button onClick={() => handleDelete(p._id)} className="p-1.5 hover:bg-red-50 hover:text-red-500 rounded-lg transition-colors"><FiTrash2 size={14} /></button>
                           </div>
@@ -360,37 +370,69 @@ const AdminProducts = () => {
               <div className="lg:col-span-4 space-y-4">
                 {/* Visual Gallery */}
                 <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-3">
-                  <h3 className="text-[9px] font-bold text-gray-800 uppercase tracking-wider">Visual Gallery</h3>
+                  <h3 className="text-[9px] font-bold text-gray-800 uppercase tracking-wider">Visual Gallery (Portrait/Main)</h3>
                   <div
                     onClick={() => document.getElementById('product-upload').click()}
                     className="aspect-[4/3] bg-gray-50 rounded-xl border border-dashed border-gray-200 flex flex-col items-center justify-center gap-2 overflow-hidden relative cursor-pointer hover:bg-brand-pink/[0.02] transition-all"
                   >
                     {isUploading ? (
                       <div className="flex flex-col items-center animate-pulse gap-2">
-                        <FiUploadCloud className="text-brand-pink animate-bounce" size={32} />
-                        <span className="text-[10px] font-black text-brand-pink uppercase tracking-widest">Uploading Asset...</span>
+                        <FiUploadCloud className="text-brand-pink animate-bounce" size={24} />
+                        <span className="text-[10px] font-black text-brand-pink uppercase tracking-widest">Uploading...</span>
                       </div>
                     ) : form.image ? (
                       <img src={form.image} alt="Preview" className="w-full h-full object-contain p-2" />
                     ) : (
                       <div className="flex flex-col items-center space-y-2 text-gray-300">
                         <FiImage size={32} />
-                        <span className="text-[9px] font-bold uppercase tracking-widest">Select Visual Product</span>
+                        <span className="text-[9px] font-bold uppercase tracking-widest">Main Product Shot</span>
                       </div>
                     )}
+                    <input id="product-upload" type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
+                  </div>
 
-                    {!isUploading && form.image && (
-                      <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <FiUploadCloud className="text-white" size={32} />
-                      </div>
-                    )}
-                    <input
-                      id="product-upload"
-                      type="file"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                    />
+                  {/* Multi-Angle Gallery */}
+                  <div className="pt-3 border-t border-gray-50 mt-4">
+                     <h3 className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-3">Multi-Angle Perspective</h3>
+                     <div className="grid grid-cols-3 gap-2">
+                        {['FRONT', 'SIDE', 'BACK'].map((angle, idx) => (
+                           <div 
+                             key={angle}
+                             onClick={() => document.getElementById(`gallery-upload-${idx}`).click()}
+                             className="aspect-square bg-gray-50 border border-dashed border-gray-200 rounded-lg flex flex-col items-center justify-center relative cursor-pointer group overflow-hidden"
+                           >
+                              {form.gallery?.[idx] ? (
+                                 <img src={form.gallery[idx]} alt={angle} className="w-full h-full object-cover" />
+                              ) : (
+                                 <div className="flex flex-col items-center gap-1 text-gray-300 group-hover:text-brand-pink transition-colors">
+                                    <FiImage size={16} />
+                                    <span className="text-[7px] font-black">{angle}</span>
+                                 </div>
+                              )}
+                              <input 
+                                id={`gallery-upload-${idx}`} 
+                                type="file" 
+                                className="hidden" 
+                                accept="image/*" 
+                                onChange={async (e) => {
+                                   const file = e.target.files[0];
+                                   if (!file) return;
+                                   setIsUploading(true);
+                                   try {
+                                      const url = await uploadToCloudinary(file);
+                                      const newGallery = [...(form.gallery || [])];
+                                      newGallery[idx] = url;
+                                      setForm(prev => ({ ...prev, gallery: newGallery }));
+                                   } catch (err) {
+                                      alert(err.message);
+                                   } finally {
+                                      setIsUploading(false);
+                                   }
+                                }} 
+                              />
+                           </div>
+                        ))}
+                     </div>
                   </div>
                 </div>
 
@@ -402,9 +444,9 @@ const AdminProducts = () => {
                       <label className="text-[9px] font-bold text-gray-400 lowercase italic">Badge Promo (e.g. BESTSELLER)</label>
                       <input type="text" name="badge" value={form.badge} onChange={handleInputChange} placeholder="NEW ARRIVAL" className="w-full bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-[10px] font-bold outline-none focus:border-gray-300 transition-all uppercase" />
                     </div>
-                    <div className="flex items-center gap-3 pt-2">
-                      <input type="checkbox" name="stock" checked={form.stock} onChange={handleInputChange} id="stock-check" className="w-4 h-4 accent-brand-dark" />
-                      <label htmlFor="stock-check" className="text-[10px] font-bold text-gray-600 uppercase tracking-widest cursor-pointer">Live In Stock</label>
+                    <div className="space-y-1 pt-2">
+                      <label className="text-[9px] font-bold text-gray-400 lowercase italic">Units in Stock (no. to stock)</label>
+                      <input type="number" name="stock" value={form.stock} onChange={handleInputChange} min="0" placeholder="100" className="w-full bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-[10px] font-bold outline-none focus:border-gray-300 transition-all shadow-inner" />
                     </div>
                   </div>
                 </div>
@@ -452,7 +494,7 @@ const AdminProducts = () => {
                       </div>
                       <div className="space-y-1">
                         <label className="text-[10px] font-bold text-gray-500">Price (₹) <span className="text-red-500">*</span></label>
-                        <input type="number" name="price" value={form.price} onChange={handleInputChange} placeholder="999" className="w-full bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-[13px] font-bold outline-none focus:border-gray-300 transition-all shadow-inner" required />
+                        <input type="number" name="price" min="0" value={form.price} onChange={handleInputChange} placeholder="999" className="w-full bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-[13px] font-bold outline-none focus:border-gray-300 transition-all shadow-inner" required />
                       </div>
                     </div>
 
@@ -500,6 +542,43 @@ const AdminProducts = () => {
                       </button>
                     )}
                   </div>
+                </div>
+
+                {/* Dermatological Mapping (Filters) */}
+                <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-5">
+                   {/* Skin Type */}
+                   <div className="space-y-3">
+                      <h3 className="text-[9px] font-bold text-gray-800 uppercase tracking-wider">Skin Type Mapping</h3>
+                      <div className="grid grid-cols-5 gap-2">
+                        {['Dry', 'Oily', 'Combo', 'Sensitive', 'All'].map(type => (
+                          <button
+                            key={type}
+                            type="button"
+                            onClick={() => setForm(prev => ({ ...prev, skinType: type === 'Combo' ? 'Combination' : type }))}
+                            className={`py-2 border rounded-lg transition-all text-[8px] font-black uppercase tracking-widest ${form.skinType === (type === 'Combo' ? 'Combination' : type) ? 'bg-brand-dark text-white border-brand-dark shadow-lg' : 'bg-gray-50 border-gray-100 text-gray-400 hover:border-gray-200'}`}
+                          >
+                            {type}
+                          </button>
+                        ))}
+                      </div>
+                   </div>
+
+                   {/* Skin Concern */}
+                   <div className="space-y-3 pt-2 border-t border-gray-50">
+                      <h3 className="text-[9px] font-bold text-gray-800 uppercase tracking-wider">Targeted Concern</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {['Acne', 'Pigmentation', 'Anti-Aging', 'Glow', 'All'].map(concern => (
+                          <button
+                            key={concern}
+                            type="button"
+                            onClick={() => setForm(prev => ({ ...prev, skinConcern: concern }))}
+                            className={`py-2 px-4 border rounded-lg transition-all text-[9px] font-black uppercase tracking-widest ${form.skinConcern === concern ? 'bg-brand-pink text-white border-brand-pink shadow-lg' : 'bg-gray-50 border-gray-100 text-gray-400 hover:border-gray-200'}`}
+                          >
+                            {concern}
+                          </button>
+                        ))}
+                      </div>
+                   </div>
                 </div>
               </div>
             </div>

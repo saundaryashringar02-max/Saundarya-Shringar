@@ -5,6 +5,7 @@ import { FiSearch, FiChevronDown, FiGrid, FiList, FiCheck, FiFilter, FiX } from 
 
 import { useSearchParams } from 'react-router-dom';
 import { useShop } from '../../context/ShopContext';
+import ConsultationCTA from './ConsultationCTA';
 
 const Shop = () => {
   const { products, categories: dynamicCategories, loading } = useShop();
@@ -77,7 +78,7 @@ const Shop = () => {
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.subCategory?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesSkin = skinTypeFilter === 'All' || p.skinType === skinTypeFilter || p.skinType === 'All';
-    const matchesConcern = concernFilter === 'All' || p.concern === concernFilter;
+    const matchesConcern = concernFilter === 'All' || p.skinConcern === concernFilter || p.skinConcern === 'All';
     const matchesPrice = p.price <= priceRange;
 
     return matchesCategory && matchesSubCategory && matchesSearch && matchesSkin && matchesConcern && matchesPrice;
@@ -252,7 +253,7 @@ const Shop = () => {
               <div className="space-y-3 w-full">
                 <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]">Skin Concern</h4>
                 <div className="flex gap-2 overflow-x-auto flex-nowrap no-scrollbar pb-1">
-                  {['All', 'Acne', 'Pigmentation', 'Anti-aging', 'Dryness', 'Glow'].map(c => (
+                  {['All', 'Acne', 'Pigmentation', 'Anti-Aging', 'Glow'].map(c => (
                     <button
                       key={c}
                       onClick={() => setConcernFilter(c)}
@@ -271,7 +272,7 @@ const Shop = () => {
                   <span className="text-[9px] font-bold text-brand-gold">UP TO ₹{priceRange}</span>
                 </div>
                 <input
-                  type="range" min="50" max="50000" step="500"
+                  type="range" min="50" max="10000" step="100"
                   value={priceRange}
                   onChange={(e) => setPriceRange(e.target.value)}
                   className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-brand-gold"
@@ -315,28 +316,7 @@ const Shop = () => {
         )}
       </main>
 
-      {/* COMPACT CONSULTATION CTA */}
-      <section className="container mx-auto px-4 md:px-8 py-10">
-        <div className="bg-[#5C2E3E] rounded-[2.5rem] p-8 md:p-12 text-center relative overflow-hidden group">
-          <div className="absolute inset-0 bg-brand-pink opacity-0 group-hover:opacity-5 transition-opacity duration-1000"></div>
-          <div className="relative z-10 max-w-lg mx-auto">
-            <h2 className="text-2xl md:text-3xl font-serif font-black text-white mb-4 leading-tight italic">
-              Divine <span className="text-brand-gold">Personalization</span>
-            </h2>
-            <p className="text-white/60 text-[10px] md:text-xs mb-8 font-serif leading-relaxed px-4">
-              Connect with our master consultants for a bespoke organic curation tailored to your unique skin essence.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <button className="w-full sm:w-auto bg-brand-gold text-white px-8 py-3 rounded-full font-bold uppercase tracking-widest text-[9px] shadow-2xl hover:bg-white hover:text-brand-gold transition-all">
-                Book Ritual
-              </button>
-              <button className="w-full sm:w-auto bg-white/5 text-white backdrop-blur-md px-8 py-3 rounded-full font-bold uppercase tracking-widest text-[9px] border border-white/10">
-                WhatsApp Chat
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ConsultationCTA />
     </div>
   );
 };
