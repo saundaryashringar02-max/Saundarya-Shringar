@@ -34,13 +34,15 @@ const AdminFinance = () => {
   };
 
   const totalRevenue = data.stats.find(s => s._id === 'Completed')?.total || 0;
+  const refundedRevenue = data.stats.find(s => s._id === 'Refunded')?.total || 0;
   const pendingRevenue = data.stats.find(s => s._id === 'Pending')?.total || 0;
+  const netLiquidity = Math.max(0, totalRevenue - refundedRevenue);
   const totalOrders = data.stats.reduce((acc, s) => acc + s.count, 0);
   const avgOrderValue = totalOrders > 0 ? (totalRevenue / totalOrders).toFixed(0) : 0;
 
   const financeStatsCards = [
     { title: 'Gross Revenue', value: `₹${totalRevenue.toLocaleString()}`, change: '+100%', icon: <FiDollarSign />, color: 'text-green-600', bg: 'bg-green-50' },
-    { title: 'Net Liquidity', value: `₹${totalRevenue.toLocaleString()}`, change: '+100%', icon: <FiTrendingUp />, color: 'text-brand-pink', bg: 'bg-brand-light' },
+    { title: 'Net Liquidity', value: `₹${netLiquidity.toLocaleString()}`, change: refundedRevenue > 0 ? `-₹${refundedRevenue.toLocaleString()} Ref` : 'Stable', icon: <FiTrendingUp />, color: 'text-brand-pink', bg: 'bg-brand-light' },
     { title: 'Avg. Order', value: `₹${avgOrderValue.toLocaleString()}`, change: 'Real-time', icon: <FiShoppingBag />, color: 'text-orange-600', bg: 'bg-orange-50' },
     { title: 'Pending Dues', value: `₹${pendingRevenue.toLocaleString()}`, change: `${data.stats.find(s => s._id === 'Pending')?.count || 0} items`, icon: <FiClockIcon />, color: 'text-blue-600', bg: 'bg-blue-50' }
   ];
@@ -114,7 +116,7 @@ const AdminFinance = () => {
               {data.recentTransactions?.length > 0 ? (
                 data.recentTransactions.map((tr) => (
                   <tr key={tr._id} className="hover:bg-white/[0.02] transition-colors group text-[9px]">
-                    <td className="px-4 py-3 font-black text-brand-gold uppercase">#{tr._id.slice(-6)}</td>
+                    <td className="px-4 py-3 font-black text-brand-gold uppercase">#{tr.orderId}</td>
                     <td className="px-4 py-3 font-bold text-gray-300 uppercase">{tr.user?.name || 'Guest'}</td>
                     <td className="px-4 py-3 font-black">₹{tr.totalAmount}</td>
                     <td className="px-4 py-3 text-right">
@@ -123,10 +125,30 @@ const AdminFinance = () => {
                         onChange={(e) => handlePaymentStatusUpdate(tr._id, e.target.value)}
                         className={`px-2 py-1 rounded-none text-[7px] font-black uppercase tracking-widest border border-white/20 outline-none cursor-pointer transition-colors ${tr.paymentStatus === 'Completed' ? 'bg-green-500/10 text-green-500' : tr.paymentStatus === 'Failed' || tr.paymentStatus === 'Refunded' ? 'bg-red-500/10 text-red-500' : 'bg-brand-gold/10 text-brand-gold'}`}
                       >
-                        <option value="Pending" className="bg-brand-dark text-brand-gold">Pending</option>
-                        <option value="Completed" className="bg-brand-dark text-green-500">Completed</option>
-                        <option value="Failed" className="bg-brand-dark text-red-500">Failed</option>
-                        <option value="Refunded" className="bg-brand-dark text-red-500">Refunded</option>
+                        {['Pending', 'Completed', 'Failed', 'Refunded'].map((status) => {
+                          const flow = ['Pending', 'Completed', 'Failed', 'Refunded'];
+                          const currentIndex = flow.indexOf(tr.paymentStatus);
+                          const nextIndex = flow.indexOf(status);
+
+                          // Logic: Cannot go back to Pending from anything else.
+                          // Cannot change from Refunded to anything else.
+                          // Cannot change from Completed to Pending/Failed.
+                          let isDisabled = false;
+                          if (tr.paymentStatus === 'Refunded') isDisabled = status !== 'Refunded';
+                          if (tr.paymentStatus === 'Completed' && (status === 'Pending' || status === 'Failed')) isDisabled = true;
+                          if (tr.paymentStatus === 'Failed' && status === 'Pending') isDisabled = true;
+
+                          return (
+                            <option
+                              key={status}
+                              value={status}
+                              disabled={isDisabled}
+                              className={`bg-brand-dark ${status === 'Completed' ? 'text-green-500' : status === 'Failed' || status === 'Refunded' ? 'text-red-500' : 'text-brand-gold'}`}
+                            >
+                              {status}
+                            </option>
+                          );
+                        })}
                       </select>
                     </td>
                   </tr>

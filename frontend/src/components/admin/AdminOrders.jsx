@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import AdminLayout from './AdminLayout';
-import { FiSearch, FiFilter, FiExternalLink, FiTruck, FiCheckCircle, FiClock, FiMoreVertical, FiEye, FiArrowLeft, FiUsers, FiDownload } from 'react-icons/fi';
+import { FiSearch, FiFilter, FiExternalLink, FiTruck, FiCheckCircle, FiClock, FiMoreVertical, FiEye, FiArrowLeft, FiUsers, FiDownload, FiCreditCard } from 'react-icons/fi';
 import api from '../../utils/api';
+import { useShop } from '../../context/ShopContext';
 import html2pdf from 'html2pdf.js';
 
 const AdminOrders = () => {
+  const { fetchData: fetchGlobalData } = useShop(); // For inventory sync
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('All');
@@ -32,6 +34,7 @@ const AdminOrders = () => {
     try {
       await api.patch(`/orders/${orderId}`, { status });
       fetchOrders();
+      fetchGlobalData(); // SYNC INVENTORY
       if (selectedOrder && selectedOrder._id === orderId) {
         setSelectedOrder(prev => ({ ...prev, status }));
       }
@@ -167,6 +170,34 @@ const AdminOrders = () => {
                   {selectedOrder.shippingAddress?.address || 'No Address Provided'}
                 </p>
               </div>
+
+              {selectedOrder.returnAction === 'Refund' && selectedOrder.refundAccountDetails && (
+                <div className="pt-2 space-y-3 border-t border-brand-pink/10 mt-2">
+                  <h3 className="text-[10px] font-black text-brand-pink uppercase tracking-widest flex items-center gap-2 border-b border-gray-50 pb-2">
+                    <FiCreditCard size={12} /> Refund Destination
+                  </h3>
+                  <div className="space-y-1 bg-brand-pink/5 p-3 rounded-lg border border-brand-pink/10">
+                    <div>
+                      <p className="text-[7.5px] font-black uppercase text-gray-400">Account Holder</p>
+                      <p className="text-[10px] font-black text-brand-dark">{selectedOrder.refundAccountDetails.accountName}</p>
+                    </div>
+                    <div>
+                      <p className="text-[7.5px] font-black uppercase text-gray-400">Account Number</p>
+                      <p className="text-[10px] font-black text-brand-dark">{selectedOrder.refundAccountDetails.accountNumber}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <p className="text-[7.5px] font-black uppercase text-gray-400">Bank</p>
+                        <p className="text-[10px] font-bold text-gray-600 truncate">{selectedOrder.refundAccountDetails.bankName}</p>
+                      </div>
+                      <div>
+                        <p className="text-[7.5px] font-black uppercase text-gray-400">IFSC</p>
+                        <p className="text-[10px] font-bold text-gray-600">{selectedOrder.refundAccountDetails.ifscCode}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="bg-brand-light/20 border border-brand-pink/5 p-4 space-y-3" data-html2canvas-ignore="true">

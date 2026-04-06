@@ -10,6 +10,19 @@ exports.getAllCoupons = async (req, res, next) => {
 exports.createCoupon = async (req, res, next) => {
     try {
         const newCoupon = await Coupon.create(req.body);
+
+        // NOTIFICATION: Broadcast to all users about the new coupon
+        try {
+            const notificationService = require('../utils/notificationService');
+            notificationService.broadcast({
+                title: 'New Offer Unlocked! 🎁',
+                body: `Use code ${newCoupon.code} to get extra benefits on your next purchase. Limited time offer!`,
+                data: { type: 'new_coupon', code: newCoupon.code, discount: String(newCoupon.discount) }
+            });
+        } catch (notifErr) {
+            console.error("Failed to broadcast coupon notification:", notifErr);
+        }
+
         res.status(201).json({ status: 'success', data: { coupon: newCoupon } });
     } catch (err) { next(err); }
 };

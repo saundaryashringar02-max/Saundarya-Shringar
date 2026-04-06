@@ -1,16 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiPackage, FiTruck, FiCheckCircle, FiClock, FiBox, FiX, FiUploadCloud, FiImage, FiPlusCircle } from 'react-icons/fi';
+import { FiPackage, FiTruck, FiCheckCircle, FiClock, FiBox, FiX, FiUploadCloud, FiImage, FiPlusCircle, FiCreditCard } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import { useShop } from '../../context/ShopContext';
 import api from '../../utils/api';
 import { uploadToCloudinary } from '../../utils/cloudinary';
 
 const RMAModal = ({ order, onClose }) => {
+    const { user } = useShop();
     const [reason, setReason] = useState('');
     const [action, setAction] = useState('Refund'); // Default
     const [images, setImages] = useState([]);
     const [isUploading, setIsUploading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Bank Details State (Prefilled from profile)
+    const [bankDetails, setBankDetails] = useState({
+        accountName: user?.bankDetails?.accountName || '',
+        bankName: user?.bankDetails?.bankName || '',
+        accountNumber: user?.bankDetails?.accountNumber || '',
+        ifscCode: user?.bankDetails?.ifscCode || ''
+    });
 
     const handleFileChange = async (e) => {
         const files = Array.from(e.target.files);
@@ -32,11 +42,20 @@ const RMAModal = ({ order, onClose }) => {
         if (!reason.trim()) return alert("Please clarify the ritual defect.");
         setIsSubmitting(true);
         try {
-            await api.patch(`/orders/${order._id}/request-return`, {
+            const payload = {
                 returnReason: reason,
                 returnAction: action,
                 returnImages: images
-            });
+            };
+
+            if (action === 'Refund') {
+                if (!bankDetails.accountNumber || !bankDetails.ifscCode) {
+                    return alert("Bank Details are essential for sacred refunds.");
+                }
+                payload.refundAccountDetails = bankDetails;
+            }
+
+            await api.patch(`/orders/${order._id}/request-return`, payload);
             window.location.reload();
         } catch (error) {
             alert(error.response?.data?.message || "RMA Submission Failure.");
@@ -50,19 +69,20 @@ const RMAModal = ({ order, onClose }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[999] bg-brand-dark/80 backdrop-blur-sm flex items-center justify-center p-4"
+            className="fixed inset-0 z-[999] bg-brand-dark/80 backdrop-blur-sm flex items-start justify-center p-4 overflow-y-auto"
         >
             <motion.div
                 initial={{ scale: 0.95, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.95, y: 20 }}
-                className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden"
+                className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-y-auto max-h-[88dvh] mx-auto scrollbar-hide"
+                data-lenis-prevent
             >
                 {/* Header */}
-                <div className="bg-brand-dark px-6 py-4 flex justify-between items-center">
+                <div className="bg-brand-dark px-5 py-3 flex justify-between items-center sticky top-0 z-10">
                     <div>
-                        <h2 className="text-white text-[12px] font-black uppercase tracking-widest leading-none mb-1">Ritual Restoration</h2>
-                        <p className="text-white/40 text-[8px] font-bold uppercase tracking-widest">Order ID: {order.orderId}</p>
+                        <h2 className="text-white text-[10px] font-black uppercase tracking-widest leading-none mb-1">Ritual Restoration</h2>
+                        <p className="text-white/40 text-[7px] font-bold uppercase tracking-widest">Order ID: {order.orderId}</p>
                     </div>
                     <button onClick={onClose} className="text-white/60 hover:text-white transition-colors">
                         <FiX size={20} />
@@ -79,15 +99,15 @@ const RMAModal = ({ order, onClose }) => {
                                 onClick={() => setAction('Refund')}
                                 className={`py-4 px-4 border rounded-xl flex flex-col items-center gap-2 transition-all ${action === 'Refund' ? 'bg-brand-pink/10 border-brand-pink text-brand-pink shadow-inner' : 'bg-gray-50 border-gray-100 text-gray-400 hover:border-gray-200'}`}
                             >
-                                <FiTruck size={20} />
-                                <span className="text-[9px] font-black uppercase tracking-widest">Return & Refund</span>
+                                <FiTruck size={16} />
+                                <span className="text-[8px] font-black uppercase tracking-widest">Return & Refund</span>
                             </button>
                             <button
                                 onClick={() => setAction('Replace')}
-                                className={`py-4 px-4 border rounded-xl flex flex-col items-center gap-2 transition-all ${action === 'Replace' ? 'bg-brand-gold/10 border-brand-gold text-brand-gold shadow-inner' : 'bg-gray-50 border-gray-100 text-gray-400 hover:border-gray-200'}`}
+                                className={`py-3 px-3 border rounded-xl flex flex-col items-center gap-1.5 transition-all ${action === 'Replace' ? 'bg-brand-gold/10 border-brand-gold text-brand-gold shadow-inner' : 'bg-gray-50 border-gray-100 text-gray-400 hover:border-gray-200'}`}
                             >
-                                <FiBox size={20} />
-                                <span className="text-[9px] font-black uppercase tracking-widest">Replacement</span>
+                                <FiBox size={16} />
+                                <span className="text-[8px] font-black uppercase tracking-widest">Replacement</span>
                             </button>
                         </div>
                     </div>
@@ -98,8 +118,8 @@ const RMAModal = ({ order, onClose }) => {
                         <textarea
                             value={reason}
                             onChange={(e) => setReason(e.target.value)}
-                            placeholder="Detail the issue (e.g., Damaged, Wrong Item)..."
-                            className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-[11px] font-bold outline-none focus:border-brand-pink/30 h-24 resize-none transition-all"
+                            placeholder="Detail the issue..."
+                            className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 text-[10px] font-bold outline-none focus:border-brand-pink/30 h-20 resize-none transition-all"
                         />
                     </div>
 
@@ -121,14 +141,65 @@ const RMAModal = ({ order, onClose }) => {
                             </label>
                         </div>
                     </div>
+
+                    {/* Bank Details for Refund */}
+                    {action === 'Refund' && (
+                        <div className="p-4 bg-brand-pink/5 rounded-2xl border border-brand-pink/10 space-y-4">
+                            <h4 className="text-[9px] font-black text-brand-dark uppercase tracking-[0.2em] flex items-center gap-2">
+                                <FiCreditCard className="text-brand-pink" /> Sacred Refund Destination
+                            </h4>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1">
+                                    <label className="text-[7.5px] font-black uppercase text-gray-400">Account Holder</label>
+                                    <input
+                                        type="text"
+                                        value={bankDetails.accountName}
+                                        onChange={(e) => setBankDetails({ ...bankDetails, accountName: e.target.value })}
+                                        className="w-full bg-white border border-gray-100 rounded-lg px-2.5 py-1.5 text-[10px] font-bold text-brand-dark focus:border-brand-pink/30 outline-none"
+                                        placeholder="Name on account"
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[7.5px] font-black uppercase text-gray-400">Account Number</label>
+                                    <input
+                                        type="text"
+                                        value={bankDetails.accountNumber}
+                                        onChange={(e) => setBankDetails({ ...bankDetails, accountNumber: e.target.value })}
+                                        className="w-full bg-white border border-gray-100 rounded-lg px-2.5 py-1.5 text-[10px] font-bold text-brand-dark focus:border-brand-pink/30 outline-none"
+                                        placeholder="000000000000"
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[7.5px] font-black uppercase text-gray-400">Bank Name</label>
+                                    <input
+                                        type="text"
+                                        value={bankDetails.bankName}
+                                        onChange={(e) => setBankDetails({ ...bankDetails, bankName: e.target.value })}
+                                        className="w-full bg-white border border-gray-100 rounded-lg px-2.5 py-1.5 text-[10px] font-bold text-brand-dark focus:border-brand-pink/30 outline-none"
+                                        placeholder="Bank Name"
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[7.5px] font-black uppercase text-gray-400">IFSC Code</label>
+                                    <input
+                                        type="text"
+                                        value={bankDetails.ifscCode}
+                                        onChange={(e) => setBankDetails({ ...bankDetails, ifscCode: e.target.value.toUpperCase() })}
+                                        className="w-full bg-white border border-gray-100 rounded-lg px-2.5 py-1.5 text-[10px] font-bold text-brand-dark focus:border-brand-pink/30 outline-none"
+                                        placeholder="IFSC0000000"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
-                <div className="px-6 py-5 bg-gray-50 flex items-center justify-between">
-                    <button onClick={onClose} className="text-[10px] font-black uppercase text-gray-400">Cancel</button>
+                <div className="px-5 py-4 bg-gray-50 flex items-center justify-between sticky bottom-0 z-10 border-t border-gray-100">
+                    <button onClick={onClose} className="text-[9px] font-black uppercase text-gray-400">Cancel</button>
                     <button
                         onClick={handleSubmit}
                         disabled={isUploading || isSubmitting}
-                        className="bg-brand-dark text-white px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-brand-pink transition-all disabled:opacity-50"
+                        className="bg-brand-dark text-white px-6 py-2 rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl hover:bg-brand-pink transition-all disabled:opacity-50"
                     >
                         {isSubmitting ? 'Submitting...' : 'Submit Request'}
                     </button>

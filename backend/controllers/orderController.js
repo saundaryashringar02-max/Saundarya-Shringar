@@ -1,4 +1,5 @@
 const Order = require('../models/Order');
+const Product = require('../models/Product');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
@@ -84,6 +85,15 @@ exports.verifyRazorpayPayment = async (req, res, next) => {
             data: { type: 'order_update', id: newOrder._id.toString() }
         });
 
+        // DYNAMIC STOCK MANAGEMENT: Subtract on purchase
+        try {
+            for (const item of newOrder.items) {
+                if (item.product) {
+                    await Product.findByIdAndUpdate(item.product, { $inc: { stock: -Math.abs(item.quantity || 1) } });
+                }
+            }
+        } catch (err) { console.error("Stock update failed on purchase:", err); }
+
         res.status(201).json({ status: 'success', data: { order: newOrder } });
     } catch (err) {
         next(err);
@@ -117,6 +127,15 @@ exports.createOrder = async (req, res, next) => {
             body: `Your order #${newOrder.orderId} of ₹${newOrder.totalAmount} has been placed successfully. Thank you for choosing Saundarya Shringar!`,
             data: { type: 'order_update', id: newOrder._id.toString() }
         });
+
+        // DYNAMIC STOCK MANAGEMENT: Subtract on purchase
+        try {
+            for (const item of newOrder.items) {
+                if (item.product) {
+                    await Product.findByIdAndUpdate(item.product, { $inc: { stock: -Math.abs(item.quantity || 1) } });
+                }
+            }
+        } catch (err) { console.error("Stock update failed on purchase:", err); }
 
         res.status(201).json({ status: 'success', data: { order: newOrder } });
     } catch (err) {
@@ -191,6 +210,28 @@ exports.updateOrderStatus = async (req, res, next) => {
                 body: `Your order #${finalOrder.orderId} is now ${status}. Check tracking for more details.`,
                 data: { type: 'order_update', id: finalOrder._id.toString() }
             });
+
+            // If order transitioned to 'Delivered', handle final check if needed
+            if (status === 'Delivered' && order.status !== 'Delivered') {
+                // Already subtracted on purchase, but keeping here for manual/fallback logic if needed in future
+            }
+
+            // DYNAMIC RESTOCKING: Add back to stock if order is Cancelled
+            if (status === 'Cancelled' && order.status !== 'Cancelled') {
+                try {
+                    for (const item of finalOrder.items) {
+                        if (item.product) {
+                            await Product.findByIdAndUpdate(
+                                item.product,
+                                { $inc: { stock: Math.abs(item.quantity || 1) } },
+                                { new: true }
+                            );
+                        }
+                    }
+                } catch (stockErr) {
+                    console.error("Restocking failure on cancellation:", stockErr);
+                }
+            }
         }
 
         res.status(200).json({ status: 'success', data: { order: finalOrder } });
@@ -202,13 +243,13 @@ exports.updateOrderStatus = async (req, res, next) => {
 // Customer: Request Return/Replacement
 exports.requestReturn = async (req, res, next) => {
     try {
-        const { returnReason, returnAction, returnImages } = req.body;
+        const { returnReason, returnAction, returnImages, refundAccountDetails } = req.body;
         if (!['Refund', 'Replace'].includes(returnAction)) return res.status(400).json({ status: 'error', message: 'Invalid Action' });
 
         const statusMap = returnAction === 'Replace' ? 'Replacement Requested' : 'Return Requested';
         const order = await Order.findOneAndUpdate(
             { _id: req.params.id, user: req.user._id, status: 'Delivered' },
-            { returnReason, returnAction, returnStatus: statusMap, returnImages: returnImages || [] },
+            { returnReason, returnAction, returnStatus: statusMap, returnImages: returnImages || [], refundAccountDetails },
             { new: true, runValidators: true }
         );
 

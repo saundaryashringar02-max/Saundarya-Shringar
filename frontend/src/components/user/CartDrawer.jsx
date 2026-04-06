@@ -1,11 +1,12 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiX, FiMinus, FiPlus, FiTrash2, FiShoppingBag, FiArrowRight } from 'react-icons/fi';
+import { FiX, FiMinus, FiPlus, FiTrash2, FiShoppingBag, FiArrowRight, FiArrowLeft } from 'react-icons/fi';
 import { useShop } from '../../context/ShopContext';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const CartDrawer = () => {
   const { isCartDrawerOpen, setIsCartDrawerOpen, cart, removeFromCart, updateQuantity, cartTotal, cartCount } = useShop();
+  const navigate = useNavigate();
 
   return (
     <AnimatePresence>
@@ -31,7 +32,12 @@ const CartDrawer = () => {
             {/* Header */}
             <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-white">
               <div className="flex items-center gap-3">
-                <FiShoppingBag className="text-brand-pink text-xl" />
+                <button
+                  onClick={() => { setIsCartDrawerOpen(false); navigate('/', { replace: true }); }}
+                  className="p-2 -ml-2 hover:bg-gray-50 rounded-full transition-colors group"
+                >
+                  <FiArrowLeft className="text-[#5C2E3E] group-hover:text-brand-pink transition-colors" size={20} />
+                </button>
                 <h2 className="text-xs md:text-sm font-black uppercase tracking-[0.2em] text-[#5C2E3E]">
                   Your Selection <span className="text-brand-pink/50 ml-1">({cartCount})</span>
                 </h2>

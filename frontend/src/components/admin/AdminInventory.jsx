@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useShop } from '../../context/ShopContext';
 import api from '../../utils/api';
 import {
@@ -25,20 +25,53 @@ const AdminInventory = () => {
   const [editingId, setEditingId] = useState(null);
   const [editStockValue, setEditStockValue] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [orders, setOrders] = useState([]);
 
-  // Sync with live DB products
-  const inventoryItems = products.map(p => ({
-    ...p,
-    id: p._id,
-    stock: p.stock !== undefined ? p.stock : 100,
-    reserved: 0,
-    warehouse: 'Primary Vault',
-    lastUpdated: new Date(p.updatedAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  }));
+  // Fetch orders for reservation logic
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await api.get('/orders');
+        setOrders(res.data.data.orders);
+      } catch (err) {
+        console.error("Failed to fetch orders for inventory analysis:", err);
+      }
+    };
+    fetchOrders();
+  }, []);
+
+  // Sync with live DB products and calculate reservations
+  const inventoryItems = products.map(p => {
+    // Safety check for products
+    if (!p) return null;
+
+    // Calculate reserved quantities (Orders in Pending, Processing, or Shipped)
+    const reservedCount = (orders || []).reduce((acc, order) => {
+      // Skip null orders or those already Delivered/Cancelled
+      if (!order || !order.items || ['Delivered', 'Cancelled'].includes(order.status)) return acc;
+
+      const orderItem = order.items.find(item => {
+        const itemId = item?.product?._id || item?.product;
+        return String(itemId) === String(p._id);
+      });
+
+      return acc + (orderItem ? (Number(orderItem.quantity) || 0) : 0);
+    }, 0);
+
+    return {
+      ...p,
+      id: p._id,
+      stock: p.stock !== undefined ? p.stock : 100,
+      reserved: reservedCount,
+      warehouse: 'Primary Vault',
+      lastUpdated: new Date(p.updatedAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+  }).filter(Boolean); // Filter out any null entries
 
   const filteredItems = inventoryItems.filter(item => {
+    const displayId = item.id.slice(-6).toUpperCase();
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.id.toString().includes(searchQuery);
+      displayId.toLowerCase().includes(searchQuery.toLowerCase());
 
     if (filter === 'Low Stock') return matchesSearch && item.stock < 10 && item.stock > 0;
     if (filter === 'Out of Stock') return matchesSearch && item.stock === 0;
@@ -160,7 +193,7 @@ const AdminInventory = () => {
                       <div>
                         <h4 className="text-[10px] font-black text-brand-dark uppercase truncate max-w-[180px] leading-tight mb-1">{item.name}</h4>
                         <div className="flex items-center gap-2">
-                          <span className="text-[7px] font-black text-brand-pink uppercase">ID: {item.id}</span>
+                          <span className="text-[7px] font-black text-brand-pink uppercase">ID: {item.id.slice(-6).toUpperCase()}</span>
                           <span className="w-1 h-1 bg-gray-200 rounded-full" />
                           <span className="text-[7px] font-medium text-gray-400">CAT: {item.category}</span>
                         </div>

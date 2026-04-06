@@ -13,7 +13,13 @@ const Profile = () => {
     name: user?.name || '',
     email: user?.email || '',
     phone: user?.phone || '',
-    address: user?.address || '123, Rose Valley Apartments, Koramangala, Bangalore, Karnataka - 560034'
+    address: user?.address || '123, Rose Valley Apartments, Koramangala, Bangalore, Karnataka - 560034',
+    bankDetails: {
+      accountName: user?.bankDetails?.accountName || '',
+      bankName: user?.bankDetails?.bankName || '',
+      accountNumber: user?.bankDetails?.accountNumber || '',
+      ifscCode: user?.bankDetails?.ifscCode || ''
+    }
   });
 
   useEffect(() => {
@@ -23,7 +29,13 @@ const Profile = () => {
         name: user.name || '',
         email: user.email || '',
         phone: user.phone || '',
-        address: user.address || ''
+        address: user.address || '',
+        bankDetails: {
+          accountName: user.bankDetails?.accountName || '',
+          bankName: user.bankDetails?.bankName || '',
+          accountNumber: user.bankDetails?.accountNumber || '',
+          ifscCode: user.bankDetails?.ifscCode || ''
+        }
       });
       // Fetch dynamic order count
       api.get('/orders/my-orders').then(res => {
@@ -209,7 +221,7 @@ const Profile = () => {
                 {isEditing ? (
                   <div className="space-y-3">
                     <div className="absolute top-4 right-4 text-[8px] font-black uppercase tracking-widest text-brand-pink">
-                      Editing Address
+                      Editing
                     </div>
                     <h4 className="font-bold text-[#5C2E3E] text-xs uppercase tracking-widest">Primary Address</h4>
                     <textarea
@@ -231,6 +243,74 @@ const Profile = () => {
                     <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 border-t border-brand-pink/20 pt-2 w-max text-left mt-3 block w-full">+91 {user?.phone}</p>
                   </>
                 )}
+              </div>
+            </div>
+
+            {/* Refund Account Section */}
+            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-brand-pink/5 rounded-full -mr-16 -mt-16 -z-10"></div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#5C2E3E] flex items-center gap-2">
+                  <FiShoppingBag /> Refund Account Details
+                </h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[7.5px] font-black uppercase tracking-[0.2em] text-gray-400">Account Holder Name</label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editForm.bankDetails.accountName}
+                      onChange={(e) => setEditForm({ ...editForm, bankDetails: { ...editForm.bankDetails, accountName: e.target.value } })}
+                      className="w-full bg-gray-50/50 border border-gray-100 rounded-lg px-3 py-2 text-[11px] font-bold text-brand-dark outline-none focus:border-brand-pink/30"
+                      placeholder="Name per sacred records"
+                    />
+                  ) : (
+                    <p className="text-[11px] font-black text-brand-dark">{user?.bankDetails?.accountName || '---'}</p>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[7.5px] font-black uppercase tracking-[0.2em] text-gray-400">Account Number</label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editForm.bankDetails.accountNumber}
+                      onChange={(e) => setEditForm({ ...editForm, bankDetails: { ...editForm.bankDetails, accountNumber: e.target.value } })}
+                      className="w-full bg-gray-50/50 border border-gray-100 rounded-lg px-3 py-2 text-[11px] font-bold text-brand-dark outline-none focus:border-brand-pink/30"
+                      placeholder="000000000000"
+                    />
+                  ) : (
+                    <p className="text-[11px] font-black text-brand-dark">{user?.bankDetails?.accountNumber ? `•••• •••• ${user.bankDetails.accountNumber.slice(-4)}` : '---'}</p>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[7.5px] font-black uppercase tracking-[0.2em] text-gray-400">Bank Name</label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editForm.bankDetails.bankName}
+                      onChange={(e) => setEditForm({ ...editForm, bankDetails: { ...editForm.bankDetails, bankName: e.target.value } })}
+                      className="w-full bg-gray-50/50 border border-gray-100 rounded-lg px-3 py-2 text-[11px] font-bold text-brand-dark outline-none focus:border-brand-pink/30"
+                      placeholder="Bank Sanctuary Name"
+                    />
+                  ) : (
+                    <p className="text-[11px] font-black text-brand-dark">{user?.bankDetails?.bankName || '---'}</p>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[7.5px] font-black uppercase tracking-[0.2em] text-gray-400">IFSC Code</label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editForm.bankDetails.ifscCode}
+                      onChange={(e) => setEditForm({ ...editForm, bankDetails: { ...editForm.bankDetails, ifscCode: e.target.value.toUpperCase() } })}
+                      className="w-full bg-gray-50/50 border border-gray-100 rounded-lg px-3 py-2 text-[11px] font-bold text-brand-dark outline-none focus:border-brand-pink/30"
+                      placeholder="IFSC0000000"
+                    />
+                  ) : (
+                    <p className="text-[11px] font-black text-brand-dark">{user?.bankDetails?.ifscCode || '---'}</p>
+                  )}
+                </div>
               </div>
             </div>
           </div>

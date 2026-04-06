@@ -88,18 +88,41 @@ exports.sendToAdmin = async (payload) => {
  */
 exports.broadcast = async (payload) => {
     try {
-        // FCM Top-level topic
+        // Fetch all users who have at least one token
+        const users = await User.find({
+            $or: [
+                { fcmTokenWeb: { $exists: true, $ne: '' } },
+                { fcmTokenApp: { $exists: true, $ne: '' } }
+            ]
+        }).select('fcmTokenWeb fcmTokenApp');
+
+        let tokens = [];
+        users.forEach(u => {
+            if (u.fcmTokenWeb) tokens.push(u.fcmTokenWeb);
+            if (u.fcmTokenApp) tokens.push(u.fcmTokenApp);
+        });
+
+        // Unique tokens only
+        tokens = [...new Set(tokens)].filter(t => t && t !== '');
+
+        if (tokens.length === 0) {
+            console.log('No tokens found for broadcast');
+            return;
+        }
+
+        // Multicast logic (chunked to 500 tokens max per FCM limit if needed, 
+        // but for now a direct sendEachForMulticast is efficient)
         const message = {
-            topic: 'all',
             notification: {
                 title: payload.title,
                 body: payload.body,
             },
             data: payload.data || {},
+            tokens: tokens,
         };
 
-        await admin.messaging().send(message);
-        console.log('Broadcast message sent');
+        const response = await admin.messaging().sendEachForMulticast(message);
+        console.log(`Broadcast success: ${response.successCount} users notified.`);
     } catch (error) {
         console.error('Error broadcasting notification:', error);
     }

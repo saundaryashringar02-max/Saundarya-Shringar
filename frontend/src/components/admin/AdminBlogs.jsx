@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiLayers, FiCalendar, FiUser, FiClock, FiUploadCloud, FiImage } from 'react-icons/fi';
 import api from '../../utils/api';
 import { uploadToCloudinary } from '../../utils/cloudinary';
@@ -26,6 +27,15 @@ const AdminBlogs = () => {
     };
 
     useEffect(() => { fetchBlogs(); }, []);
+
+    useEffect(() => {
+        if (isModalOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => { document.body.style.overflow = 'unset'; };
+    }, [isModalOpen]);
 
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -121,8 +131,8 @@ const AdminBlogs = () => {
                 </div>
             )}
 
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-brand-dark/95 backdrop-blur-sm z-[2000] overflow-y-auto flex justify-center py-10 px-4">
+            {isModalOpen && createPortal(
+                <div data-lenis-prevent className="fixed inset-0 bg-brand-dark/95 backdrop-blur-sm z-[10000] overflow-y-auto flex justify-center py-10 px-4">
                     <div className="bg-white w-full max-w-4xl rounded-none shadow-2xl relative h-fit mb-10">
                         <div className="p-8 border-b border-gray-100 flex justify-between items-center bg-white z-10">
                             <h2 className="text-xl font-serif font-black text-brand-dark uppercase tracking-widest">{editingId ? 'Refine Article' : 'Compose New Story'}</h2>
@@ -193,7 +203,8 @@ const AdminBlogs = () => {
                             </div>
                         </form>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

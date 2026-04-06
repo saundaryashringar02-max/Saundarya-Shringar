@@ -52,6 +52,12 @@ const userSchema = new mongoose.Schema({
     fcmTokenApp: {
         type: String,
         default: ''
+    },
+    bankDetails: {
+        accountName: String,
+        bankName: String,
+        accountNumber: String,
+        ifscCode: String
     }
 }, { timestamps: true });
 

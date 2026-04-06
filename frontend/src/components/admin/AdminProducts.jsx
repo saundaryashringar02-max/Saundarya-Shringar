@@ -280,7 +280,7 @@ const AdminProducts = () => {
                             </div>
                             <div className="flex flex-col">
                               <span className="text-xs font-bold text-gray-800 group-hover:text-brand-pink transition-colors line-clamp-1">{p.name}</span>
-                              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">ID: {p._id.slice(-6)}</span>
+                              <span className="text-[10px] text-brand-pink font-bold uppercase tracking-wider">ID: {p._id.slice(-6).toUpperCase()}</span>
                             </div>
                           </div>
                         </td>
