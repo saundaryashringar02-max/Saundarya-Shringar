@@ -167,7 +167,7 @@ const TrackOrder = () => {
                   {orderData.timeline.map((step, idx) => (
                     <div key={idx} className="flex gap-6 relative z-10">
                       <div className={`w-7 h-7 flex items-center justify-center transition-all duration-500 border rounded-none ${step.completed ? 'bg-brand-gold border-brand-gold text-white scale-110 shadow-lg' :
-                          step.current ? 'bg-white border-brand-pink text-brand-pink animate-pulse' : 'bg-white border-gray-100 text-gray-200'
+                        step.current ? 'bg-white border-brand-pink text-brand-pink animate-pulse' : 'bg-white border-gray-100 text-gray-200'
                         }`}>
                         {step.completed ? <FiCheckCircle size={12} /> : (idx === 1 ? <FiClock size={12} /> : <FiMapPin size={12} />)}
                       </div>

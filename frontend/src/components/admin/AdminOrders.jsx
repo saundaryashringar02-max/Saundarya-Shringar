@@ -98,15 +98,20 @@ const AdminOrders = () => {
               <div className="absolute top-0 left-0 w-1 h-full bg-brand-pink" />
               <div className="space-y-3 flex-1">
                 <div>
-                  <h2 className="text-xl font-serif font-black text-brand-dark leading-none mb-0.5">#{selectedOrder._id.slice(-6)}</h2>
+                  <h2 className="text-xl font-serif font-black text-brand-dark leading-tight mb-1 uppercase tracking-tighter">{selectedOrder.orderId}</h2>
                   <p className="text-[9px] text-gray-400 font-bold uppercase tracking-[0.1em]">{new Date(selectedOrder.createdAt).toLocaleDateString()} • {selectedOrder.status}</p>
+                  {/* For PDF Visibility */}
+                  <div className="mt-2 text-[10px] text-[#5C2E3E] font-black uppercase tracking-tight leading-normal">
+                    <p>{selectedOrder.user?.name || selectedOrder.shippingAddress?.name || 'Valued Patron'}</p>
+                    <p className="text-[8px] font-bold text-brand-pink lowercase tracking-normal">{selectedOrder.user?.email || 'Identity Confirmed'}</p>
+                  </div>
                 </div>
                 <div className="space-y-1.5">
                   <h3 className="text-[8px] font-bold text-gray-800 uppercase tracking-widest opacity-60">Manifest</h3>
                   <div className="divide-y divide-gray-50 border border-gray-50 p-2.5 bg-gray-50/30">
                     {selectedOrder.items?.map((item, i) => (
-                      <div key={i} className="flex justify-between py-1.5 text-[10px] font-bold text-gray-700">
-                        <span className="truncate max-w-[250px]">{item.name || 'Unknown Product'} x{item.quantity}</span>
+                      <div key={i} className="flex justify-between py-3 text-[10px] font-bold text-gray-700 leading-normal">
+                        <span className="max-w-[250px]">{item.name || 'Unknown Product'} x{item.quantity}</span>
                         <span>₹{item.price * item.quantity}</span>
                       </div>
                     ))}
@@ -130,9 +135,11 @@ const AdminOrders = () => {
                     onChange={(e) => handleUpdateStatus(selectedOrder._id, e.target.value)}
                     className="bg-white border border-brand-pink/20 text-[10px] font-bold p-1 rounded outline-none"
                   >
-                    {['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].map(s => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
+                    {['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].map(s => {
+                      const flow = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+                      const isDisabled = flow.indexOf(s) < flow.indexOf(selectedOrder.status);
+                      return <option key={s} value={s} disabled={isDisabled}>{s}</option>;
+                    })}
                   </select>
                 </div>
               </div>
@@ -230,7 +237,7 @@ const AdminOrders = () => {
                 filteredOrders.map((order) => (
                   <tr key={order._id} className="hover:bg-brand-pink/[0.01] transition-colors group">
                     <td className="px-6 py-4">
-                      <span className="text-[10px] font-black text-brand-dark hover:text-brand-pink cursor-pointer transition-colors block">#{order._id.slice(-6)}</span>
+                      <span className="text-[10px] font-black text-brand-dark hover:text-brand-pink cursor-pointer transition-colors block uppercase">{order.orderId}</span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-col">

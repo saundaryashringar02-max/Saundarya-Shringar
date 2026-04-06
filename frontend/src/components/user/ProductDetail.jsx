@@ -274,7 +274,7 @@ const ProductDetail = () => {
                   </div>
                   <FiChevronRight className="w-3 h-3 text-gray-300" />
                 </div>
-                <span className="text-brand-pink font-bold hover:underline cursor-pointer">{product.reviews} verified reviews</span>
+                <span className="text-brand-pink font-bold hover:underline cursor-pointer">Verified Reviews</span>
                 <span className="h-4 w-[1px] bg-gray-200" />
                 <span className="text-gray-500 font-medium">Verified Purchases</span>
               </div>
@@ -450,9 +450,9 @@ const ProductDetail = () => {
                     <FiStar key={i} className={`w-4 h-4 ${i < Math.floor(product.rating) ? 'fill-brand-gold text-brand-gold' : 'text-gray-200'}`} />
                   ))}
                 </div>
-                <span className="text-lg font-black text-brand-dark">{product.rating} / 5.0</span>
+                <span className="text-lg font-black text-brand-dark">{Number(product.rating).toFixed(1)} / 5.0</span>
               </div>
-              <p className="text-xs text-gray-400 font-medium mb-6">{product.reviews} Global Ratings & Testimony</p>
+              <p className="text-xs text-gray-400 font-medium mb-6">Global Ratings & Testimony</p>
 
               {/* Write Review Trigger */}
               {canSubmitReview && (

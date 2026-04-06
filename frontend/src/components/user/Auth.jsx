@@ -75,7 +75,7 @@ const Auth = () => {
     try {
       if (step === 1) {
         if (form.phone && form.phone.length === 10) {
-          await api.post('/auth/send-otp', { phone: form.phone });
+          await api.post('/auth/send-otp', { phone: form.phone, isLogin: isLogin });
           setStep(2);
           showNotification("OTP sent successfully! (Check terminal for mock)");
         } else {

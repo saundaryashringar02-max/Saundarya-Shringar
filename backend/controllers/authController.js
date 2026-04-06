@@ -42,6 +42,9 @@ exports.sendOtp = async (req, res, next) => {
         // Find or create user to store OTP
         let user = await User.findOne({ phone });
         if (!user) {
+            if (req.body.isLogin) {
+                return res.status(404).json({ status: 'error', message: 'Phone number not registered. Please sign up first.' });
+            }
             user = new User({ phone, role: 'customer', name: 'Valued Customer' });
         }
 

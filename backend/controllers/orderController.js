@@ -148,7 +148,7 @@ exports.getOrder = async (req, res, next) => {
 // Admin: Get all orders
 exports.getAllOrders = async (req, res, next) => {
     try {
-        const orders = await Order.find().populate('user', 'name phone').sort('-date').lean();
+        const orders = await Order.find().populate('user', 'name phone email').sort('-date').lean();
         res.status(200).json({ status: 'success', data: { orders } });
     } catch (err) {
         next(err);
@@ -160,25 +160,40 @@ exports.updateOrderStatus = async (req, res, next) => {
     try {
         const { status, trackingId, paymentStatus } = req.body;
 
+        const order = await Order.findById(req.params.id);
+        if (!order) return res.status(404).json({ status: 'error', message: 'Order not found.' });
+
+        if (status) {
+            const statusFlow = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+            const currentIndex = statusFlow.indexOf(order.status);
+            const nextIndex = statusFlow.indexOf(status);
+
+            if (nextIndex < currentIndex) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: `Cannot change status from ${order.status} to ${status}.`
+                });
+            }
+        }
+
         let updatePayload = {};
         if (status) updatePayload.status = status;
         if (trackingId) updatePayload.trackingId = trackingId;
         if (paymentStatus) updatePayload.paymentStatus = paymentStatus;
 
-        const order = await Order.findByIdAndUpdate(req.params.id, updatePayload, { new: true, runValidators: true });
-        if (!order) return res.status(404).json({ status: 'error', message: 'Order not found.' });
+        const finalOrder = await Order.findByIdAndUpdate(req.params.id, updatePayload, { new: true, runValidators: true });
 
         // NOTIFICATION: User - Order Status Update
         if (status) {
             const notificationService = require('../utils/notificationService');
-            notificationService.sendToUser(order.user, {
+            notificationService.sendToUser(finalOrder.user, {
                 title: 'Order Update! 🚚',
-                body: `Your order #${order.orderId} is now ${status}. Check tracking for more details.`,
-                data: { type: 'order_update', id: order._id.toString() }
+                body: `Your order #${finalOrder.orderId} is now ${status}. Check tracking for more details.`,
+                data: { type: 'order_update', id: finalOrder._id.toString() }
             });
         }
 
-        res.status(200).json({ status: 'success', data: { order } });
+        res.status(200).json({ status: 'success', data: { order: finalOrder } });
     } catch (err) {
         next(err);
     }
