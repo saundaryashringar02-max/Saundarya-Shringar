@@ -37,12 +37,26 @@ exports.sendToUser = async (userId, payload) => {
 
         const response = await admin.messaging().sendEachForMulticast(message);
         console.log(`Sent to user ${userId}: ${response.successCount} success, ${response.failureCount} fail`);
+        
         if (response.failureCount > 0) {
+            let updatePayload = {};
             response.responses.forEach((resp, idx) => {
                 if (!resp.success) {
-                    console.error('FCM Error for token:', tokens[idx], resp.error);
+                    const errorToken = tokens[idx];
+                    console.error('FCM Error for token:', errorToken, resp.error.code);
+                    
+                    // Cleanup: Remove invalid/unregistered tokens from DB
+                    if (resp.error.code === 'messaging/registration-token-not-registered') {
+                        if (errorToken === user.fcmTokenWeb) updatePayload.fcmTokenWeb = '';
+                        if (errorToken === user.fcmTokenApp) updatePayload.fcmTokenApp = '';
+                    }
                 }
             });
+
+            if (Object.keys(updatePayload).length > 0) {
+                await User.findByIdAndUpdate(userId, { $set: updatePayload });
+                console.log(`Cleaned up ${Object.keys(updatePayload).length} invalid tokens for user ${userId}`);
+            }
         }
     } catch (error) {
         console.error('Error sending notification to user:', error);
@@ -77,6 +91,18 @@ exports.sendToAdmin = async (payload) => {
 
         const response = await admin.messaging().sendEachForMulticast(message);
         console.log(`Sent to admins: ${response.successCount} success, ${response.failureCount} fail`);
+        
+        if (response.failureCount > 0) {
+            for (let i = 0; i < response.responses.length; i++) {
+                const resp = response.responses[i];
+                if (!resp.success && resp.error.code === 'messaging/registration-token-not-registered') {
+                    const errorToken = tokens[i];
+                    await User.updateMany({ fcmTokenWeb: errorToken }, { $set: { fcmTokenWeb: '' } });
+                    await User.updateMany({ fcmTokenApp: errorToken }, { $set: { fcmTokenApp: '' } });
+                    console.log(`Global Clean Up: Removed dead token from admin archives.`);
+                }
+            }
+        }
     } catch (error) {
         console.error('Error sending notification to admins:', error);
     }
@@ -110,8 +136,6 @@ exports.broadcast = async (payload) => {
             return;
         }
 
-        // Multicast logic (chunked to 500 tokens max per FCM limit if needed, 
-        // but for now a direct sendEachForMulticast is efficient)
         const message = {
             notification: {
                 title: payload.title,
@@ -123,6 +147,18 @@ exports.broadcast = async (payload) => {
 
         const response = await admin.messaging().sendEachForMulticast(message);
         console.log(`Broadcast success: ${response.successCount} users notified.`);
+
+        if (response.failureCount > 0) {
+            for (let i = 0; i < response.responses.length; i++) {
+                const resp = response.responses[i];
+                if (!resp.success && resp.error.code === 'messaging/registration-token-not-registered') {
+                    const errorToken = tokens[i];
+                    await User.updateMany({ fcmTokenWeb: errorToken }, { $set: { fcmTokenWeb: '' } });
+                    await User.updateMany({ fcmTokenApp: errorToken }, { $set: { fcmTokenApp: '' } });
+                    console.log(`Global Clean Up: Removed dead token during broad broadcast.`);
+                }
+            }
+        }
     } catch (error) {
         console.error('Error broadcasting notification:', error);
     }

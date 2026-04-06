@@ -1,6 +1,7 @@
 import { useShop } from '../../context/ShopContext';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import offersVideo from '../../assets/videos/offers_video.mp4';
 
 const OffersBanner = () => {
   const { banners } = useShop();
@@ -14,7 +15,18 @@ const OffersBanner = () => {
     <section className="py-12 md:py-20 bg-brand-pink/10">
       <div className="container mx-auto px-4 md:px-8">
         <div className="relative rounded-none overflow-hidden h-[400px] md:h-[450px] shadow-2xl group">
-          {isVideo ? (
+          {offersVideo ? (
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105"
+            >
+              <source src={offersVideo} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          ) : isVideo ? (
             <video
               autoPlay
               loop

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { FiPlus, FiEdit2, FiTrash2, FiUsers, FiStar, FiCheckCircle, FiUpload } from 'react-icons/fi';
 import api from '../../utils/api';
 import { uploadToCloudinary } from '../../utils/cloudinary';
@@ -130,14 +131,14 @@ const AdminTestimonials = () => {
                 </div>
             )}
 
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-brand-dark/95 backdrop-blur-sm z-[2000] flex items-center justify-center p-4">
+            {isModalOpen && createPortal(
+                <div data-lenis-prevent className="fixed inset-0 bg-brand-dark/95 backdrop-blur-sm z-[10000] flex items-center justify-center p-4">
                     <div className="bg-white w-full max-w-xl rounded-none shadow-2xl">
                         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white">
                             <h2 className="text-lg font-black text-brand-dark uppercase tracking-widest">Document Authority Evidence</h2>
                             <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-brand-dark">✕</button>
                         </div>
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4 font-sans">
+                        <form onSubmit={handleSubmit} className="p-6 space-y-4 font-sans max-h-[85vh] overflow-y-auto custom-scrollbar">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-1 col-span-2">
                                     <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Display Name</label>
@@ -193,7 +194,8 @@ const AdminTestimonials = () => {
                             </div>
                         </form>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

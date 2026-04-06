@@ -103,9 +103,6 @@ const AdminCoupons = () => {
                                 <p className="text-[8px] text-gray-400 font-bold uppercase tracking-[0.2em] opacity-60">Manage Store Discount Vectors</p>
                             </div>
                             <div className="flex items-center gap-2">
-                                <button onClick={fetchCoupons} className="flex items-center gap-1.5 bg-brand-light/20 px-3 py-1.5 border border-brand-pink/10 text-[8px] font-black uppercase tracking-widest text-[#5C2E3E] shadow-sm hover:bg-white transition-colors">
-                                    <FiRefreshCw size={10} /> Sync Database
-                                </button>
                                 <button
                                     onClick={() => { setEditingCoupon(null); setForm({ code: '', discountType: 'percentage', discountValue: '', isActive: true, usageLimit: '', expiryDate: '' }); setIsAdding(true); }}
                                     className="bg-brand-dark text-white px-5 py-1.5 rounded-none text-[8px] font-black uppercase tracking-widest shadow-xl shadow-brand-dark/20 flex items-center gap-2 hover:bg-black transition-all"
@@ -122,7 +119,7 @@ const AdminCoupons = () => {
                                         <tr className="border-b border-gray-50">
                                             <th className="px-6 py-4 text-[7px] font-black uppercase tracking-widest text-brand-dark/40">Code</th>
                                             <th className="px-6 py-4 text-[7px] font-black uppercase tracking-widest text-brand-dark/40">Discount</th>
-                                            <th className="px-6 py-4 text-[7px] font-black uppercase tracking-widest text-brand-dark/40">Redemptions</th>
+                                            <th className="px-6 py-4 text-[7px] font-black uppercase tracking-widest text-brand-dark/40">Redemption Count</th>
                                             <th className="px-6 py-4 text-[7px] font-black uppercase tracking-widest text-brand-dark/40">Expires</th>
                                             <th className="px-6 py-4 text-[7px] font-black uppercase tracking-widest text-brand-dark/40">Status</th>
                                             <th className="px-6 py-4 text-[7px] font-black uppercase tracking-widest text-brand-dark/40 text-right">Actions</th>
@@ -166,7 +163,7 @@ const AdminCoupons = () => {
                                                         </button>
                                                     </td>
                                                     <td className="px-6 py-4 text-right">
-                                                        <div className="flex items-center gap-2 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <div className="flex items-center gap-2 justify-end">
                                                             <button onClick={() => startEdit(c)} className="p-1.5 text-brand-dark hover:bg-brand-pink/10 rounded-md transition-all"><FiEdit2 size={12} /></button>
                                                             <button onClick={() => handleDelete(c._id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded-md transition-all"><FiTrash2 size={12} /></button>
                                                         </div>
@@ -220,8 +217,8 @@ const AdminCoupons = () => {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
-                                    <label className="text-[8px] font-black text-brand-dark/50 uppercase tracking-widest ml-1">Redemption Cap (Optional)</label>
-                                    <input type="number" placeholder="Leave empty for infinite" className="w-full bg-gray-50 border border-gray-100 p-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider outline-none focus:border-brand-pink/30 focus:bg-white transition-all" value={form.usageLimit} onChange={(e) => setForm({ ...form, usageLimit: e.target.value })} min="1" />
+                                    <label className="text-[8px] font-black text-brand-dark/50 uppercase tracking-widest ml-1">Redemption Count (Optional)</label>
+                                    <input type="number" placeholder="Leave empty for infinite usage" className="w-full bg-gray-50 border border-gray-100 p-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider outline-none focus:border-brand-pink/30 focus:bg-white transition-all" value={form.usageLimit} onChange={(e) => setForm({ ...form, usageLimit: e.target.value })} min="1" />
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="text-[8px] font-black text-brand-dark/50 uppercase tracking-widest ml-1">Expiry Horizon</label>

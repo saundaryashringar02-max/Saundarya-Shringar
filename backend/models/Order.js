@@ -40,6 +40,7 @@ const orderSchema = new mongoose.Schema({
     },
     shippingAddress: {
         name: String,
+        email: String,
         phone: String,
         address: String
     },
@@ -70,9 +71,25 @@ const orderSchema = new mongoose.Schema({
     razorpayOrderId: String,
     razorpayPaymentId: String,
     razorpaySignature: String,
+    couponApplied: {
+        type: String,
+        default: null
+    },
     date: {
         type: Date,
         default: Date.now
+    },
+    statusHistory: {
+        type: [
+            {
+                status: String,
+                timestamp: {
+                    type: Date,
+                    default: Date.now
+                }
+            }
+        ],
+        default: () => [{ status: 'Processing', timestamp: new Date() }]
     }
 }, { timestamps: true });
 

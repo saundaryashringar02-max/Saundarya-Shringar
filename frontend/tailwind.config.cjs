@@ -9,11 +9,11 @@ module.exports = {
       colors: {
         brand: {
           gold: '#D4AF37',
-          pink: '#E8B4B8',
+          pink: '#D29498',
           beige: '#F5F5DC',
-          cream: '#FCF8F4',
-          dark: '#3D1C1F',
-          light: '#FFF5F6',
+          cream: '#EFEDED',
+          dark: '#2A1416',
+          light: '#E8E4E4',
         }
       },
       fontFamily: {

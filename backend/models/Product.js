@@ -9,7 +9,8 @@ const productSchema = new mongoose.Schema({
     },
     price: {
         type: Number,
-        required: [true, 'Product must have a price']
+        required: [true, 'Product must have a price'],
+        min: [0, 'Price cannot be negative']
     },
     oldPrice: Number,
     discount: String, // e.g. "10%"
@@ -27,6 +28,7 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Product must have an image path']
     },
+    gallery: [String], // Additional images for FRONT, SIDE, DETAIL views
     category: {
         type: String,
         required: [true, 'Product must belong to a category'],
@@ -61,7 +63,17 @@ const productSchema = new mongoose.Schema({
         enum: ['active', 'draft', 'archived'],
         default: 'active'
     },
-    about: [String]
+    about: [String],
+    skinType: {
+        type: String,
+        enum: ['Dry', 'Oily', 'Combination', 'Sensitive', 'All'],
+        default: 'All'
+    },
+    skinConcern: {
+        type: String,
+        enum: ['Acne', 'Pigmentation', 'Anti-Aging', 'Glow', 'All'],
+        default: 'All'
+    }
 }, { timestamps: true });
 
 // Create text index for optimized searching

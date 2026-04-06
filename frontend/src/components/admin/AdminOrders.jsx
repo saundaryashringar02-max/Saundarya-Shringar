@@ -158,7 +158,7 @@ const AdminOrders = () => {
                 </h3>
                 <div className="space-y-0.5">
                   <p className="text-[11px] font-black text-gray-800 uppercase tracking-tight">{selectedOrder.user?.name || selectedOrder.shippingAddress?.name || 'Unknown'}</p>
-                  <p className="text-[9px] font-medium text-gray-400">{selectedOrder.user?.email || 'No email'}</p>
+                  <p className="text-[9px] font-medium text-gray-400">{selectedOrder.shippingAddress?.email || selectedOrder.user?.email || 'No email'}</p>
                   <p className="text-[9px] font-medium text-gray-400">{selectedOrder.user?.phone || selectedOrder.shippingAddress?.phone || 'No phone'}</p>
                 </div>
               </div>
@@ -209,7 +209,6 @@ const AdminOrders = () => {
                 className="w-full h-16 bg-white/50 border border-brand-pink/10 p-2.5 text-[9px] font-medium outline-none focus:bg-white transition-all uppercase leading-relaxed text-gray-500"
                 placeholder="ADD TRACKING ID OR NOTES..."
               ></textarea>
-              <button onClick={handleUpdateTracking} className="w-full py-1.5 bg-brand-pink/10 text-brand-pink text-[8px] font-black uppercase tracking-widest hover:bg-brand-pink hover:text-white transition-all">Submit Sync</button>
             </div>
           </div>
         </div>
@@ -258,9 +257,9 @@ const AdminOrders = () => {
               <tr className="border-b border-gray-50">
                 <th className="px-6 py-4 text-[7px] font-black uppercase tracking-widest text-brand-dark/40">Order ID</th>
                 <th className="px-6 py-4 text-[7px] font-black uppercase tracking-widest text-brand-dark/40">Customer</th>
-                <th className="px-6 py-4 text-[7px] font-black uppercase tracking-widest text-brand-dark/40">Total</th>
-                <th className="px-6 py-4 text-[7px] font-black uppercase tracking-widest text-brand-dark/40">Status</th>
-                <th className="px-6 py-4 text-[7px] font-black uppercase tracking-widest text-brand-dark/40 text-right">Actions</th>
+                <th className="px-6 py-4 text-[7px] font-black uppercase tracking-widest text-brand-dark/40 text-left">Total</th>
+                <th className="px-6 py-4 text-[7px] font-black uppercase tracking-widest text-brand-dark/40 text-left">Status</th>
+                <th className="px-6 py-4 text-[7px] font-black uppercase tracking-widest text-brand-dark/40 text-left">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -276,8 +275,8 @@ const AdminOrders = () => {
                         <span className="text-[7px] font-bold text-gray-300 uppercase tracking-widest mt-0.5">{new Date(order.createdAt).toLocaleDateString()}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-[11px] font-black text-brand-dark">₹{order.totalAmount}</td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 text-[11px] font-black text-brand-dark text-left">₹{order.totalAmount}</td>
+                    <td className="px-6 py-4 text-left">
                       <span className={`px-2.5 py-1 rounded-lg text-[6px] font-black uppercase tracking-widest border shadow-sm ${order.status === 'Delivered' ? 'bg-green-50 text-green-600 border-green-100' :
                         order.status === 'Shipped' ? 'bg-blue-50 text-blue-600 border-blue-100' :
                           order.status === 'Pending' ? 'bg-orange-50 text-orange-600 border-orange-100' :
@@ -286,7 +285,7 @@ const AdminOrders = () => {
                         {order.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-left">
                       <button
                         onClick={() => setSelectedOrder(order)}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-brand-pink/10 text-brand-pink text-[7px] font-black uppercase tracking-widest rounded-lg shadow-sm hover:bg-brand-pink hover:text-white transition-all transform group-hover:scale-105"

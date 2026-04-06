@@ -17,7 +17,7 @@ const TermsAndConditions = () => {
             <h2 className="text-lg font-bold uppercase tracking-widest">Platform Usage</h2>
           </div>
           <p className="text-gray-600 text-xs leading-relaxed">
-            By accessing or using the Saundarya Shrinagar website, you agree to comply with and be bound by these terms. This site is intended for personal use by individuals who wish to purchase high-quality cosmetics and organic products.
+            By accessing or using the Saundarya Shringar website, you agree to comply with and be bound by these terms. This site is intended for personal use by individuals who wish to purchase high-quality cosmetics and organic products.
           </p>
         </section>
 
@@ -37,7 +37,7 @@ const TermsAndConditions = () => {
             <h2 className="text-lg font-bold uppercase tracking-widest">Intellectual Property</h2>
           </div>
           <p className="text-gray-600 text-sm leading-relaxed">
-            All text, logos, imagery, and other content on Saundarya Shrinagar is the property of Saundarya Shrinagar Pvt Ltd and is protected by copyright laws. Unauthorized reproduction or use is strictly prohibited.
+            All text, logos, imagery, and other content on Saundarya Shringar is the property of Saundarya Shringar Pvt Ltd and is protected by copyright laws. Unauthorized reproduction or use is strictly prohibited.
           </p>
         </section>
 

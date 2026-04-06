@@ -116,7 +116,7 @@ const AdminCategories = () => {
                       <h3 className="text-[9px] font-black text-brand-dark uppercase tracking-wider leading-none mb-1 group-hover:text-brand-pink transition-colors truncate">{cat.name}</h3>
                       <div className="flex items-center justify-between">
                         <span className="text-[7px] text-brand-pink font-black uppercase tracking-tighter">{productCount} Items</span>
-                        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex items-center gap-0.5">
                           <button onClick={(e) => { e.stopPropagation(); startEdit(cat); }} className="p-1 text-brand-dark hover:bg-brand-pink/10 transition-all"><FiEdit2 size={10} /></button>
                           <button onClick={(e) => { e.stopPropagation(); handleDelete(cat._id); }} className="p-1 text-red-500 hover:bg-red-50 transition-all"><FiTrash2 size={10} /></button>
                         </div>

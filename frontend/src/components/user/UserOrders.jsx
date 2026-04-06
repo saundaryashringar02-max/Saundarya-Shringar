@@ -326,18 +326,22 @@ const UserOrders = () => {
                             <div className="p-6">
                                 <div className="space-y-4">
                                     {order.items.map((item, index) => (
-                                        <div key={index} className="flex gap-4 items-center">
+                                        <Link 
+                                            key={index} 
+                                            to={`/track-order?id=${order.orderId}`}
+                                            className="flex gap-4 items-center p-3 hover:bg-gray-50 transition-colors rounded-xl group/item border border-transparent hover:border-brand-pink/10"
+                                        >
                                             <div className="w-16 h-16 bg-[#F9F6F4] rounded-xl overflow-hidden shrink-0 border border-gray-100">
                                                 <img src={item.image || 'https://via.placeholder.com/150'} alt={item.name} className="w-full h-full object-cover mix-blend-multiply" />
                                             </div>
                                             <div className="flex-1 text-left">
-                                                <h4 className="text-[11px] font-black font-serif text-[#5C2E3E] uppercase tracking-widest">{item.name}</h4>
+                                                <h4 className="text-[11px] font-black font-serif text-[#5C2E3E] uppercase tracking-widest group-hover/item:text-brand-pink transition-colors">{item.name}</h4>
                                                 <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Qty: {item.quantity}</p>
                                             </div>
                                             <div className="text-right">
                                                 <span className="text-[11px] font-black text-gray-600">₹{item.price}</span>
                                             </div>
-                                        </div>
+                                        </Link>
                                     ))}
                                 </div>
 

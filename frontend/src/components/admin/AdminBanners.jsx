@@ -180,34 +180,43 @@ const AdminBanners = () => {
       </AnimatePresence>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-        {banners.map((banner) => (
-          <div key={banner._id} className="bg-white rounded-none border border-brand-pink/10 shadow-sm group relative overflow-hidden">
-            <div className="p-1">
-              <div className="relative aspect-[21/9] bg-brand-light overflow-hidden rounded-none">
-                <img src={banner.image} alt={banner.title} className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all group-hover:scale-105" />
-                <div className="absolute top-1 left-1 flex gap-1">
-                  <span className="bg-brand-dark/80 text-white text-[5px] font-black px-1 py-0.5 rounded-none uppercase tracking-widest backdrop-blur-sm">{banner.type}</span>
-                </div>
+        {banners.map((banner) => {
+          return (
+            <div key={banner._id} className="bg-white rounded-none border border-brand-pink/10 shadow-sm group relative overflow-hidden">
+              <div className="p-1">
+                <div className="relative aspect-[21/9] bg-brand-light overflow-hidden rounded-none">
+                  <img src={banner.image} alt={banner.title} className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all group-hover:scale-105" />
+                  <div className="absolute top-1 left-1 flex gap-1">
+                    <span className="bg-brand-dark/80 text-white text-[5px] font-black px-1 py-0.5 rounded-none uppercase tracking-widest backdrop-blur-sm">{banner.type}</span>
+                  </div>
 
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
-                  <button onClick={() => window.open(banner.image, '_blank')} className="p-1.5 bg-white text-brand-dark rounded-none hover:bg-brand-pink hover:text-white transition-all"><FiEye size={10} /></button>
-                  <button onClick={() => handleDelete(banner._id)} className="p-1.5 bg-red-500 text-white rounded-none hover:bg-red-600 transition-all font-bold"><FiTrash2 size={10} /></button>
+                </div>
+              </div>
+
+              <div className="p-3 bg-white border-t border-brand-pink/5 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="min-w-0">
+                    <h3 className="text-[9px] font-black text-brand-dark uppercase tracking-widest mb-0.5 truncate">{banner.title}</h3>
+                    <span className="text-[7px] text-gray-400 font-bold uppercase tracking-tighter block">URL: {banner.link || 'Internal'}</span>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-sm shadow-green-500/50" />
+                    <span className="text-[7px] font-black text-green-500 uppercase tracking-tighter">Live</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 pt-1 border-t border-gray-50/50">
+                  <button onClick={() => window.open(banner.image, '_blank')} className="flex items-center gap-1.5 text-[8px] font-black uppercase text-brand-dark hover:text-brand-pink transition-colors">
+                    <FiEye size={10} /> View
+                  </button>
+                  <span className="text-gray-100">|</span>
+                  <button onClick={() => handleDelete(banner._id)} className="flex items-center gap-1.5 text-[8px] font-black uppercase text-red-400 hover:text-red-600 transition-colors">
+                    <FiTrash2 size={10} /> Remove
+                  </button>
                 </div>
               </div>
             </div>
-
-            <div className="p-2 bg-white border-t border-brand-pink/5 flex items-center justify-between">
-              <div className="min-w-0">
-                <h3 className="text-[8px] font-bold text-brand-dark uppercase tracking-wider mb-0.5 truncate">{banner.title}</h3>
-                <span className="text-[6px] text-gray-400 font-medium uppercase tracking-tighter">URL: {banner.link || 'Internal'}</span>
-              </div>
-              <div className="flex items-center gap-1 shrink-0">
-                <div className="w-1 h-1 rounded-none bg-green-500" />
-                <span className="text-[6px] font-bold text-green-500 uppercase">Live</span>
-              </div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
 
         <button
           onClick={() => setIsAdding(true)}

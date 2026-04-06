@@ -21,7 +21,9 @@ import {
   FiTag,
   FiDollarSign,
   FiUser,
-  FiMessageSquare
+  FiMessageSquare,
+  FiHelpCircle,
+  FiTruck
 } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { onMessageListener } from '../../utils/firebase-config';
@@ -85,6 +87,7 @@ const AdminLayout = () => {
     { title: 'Products', path: '/admin/products', icon: <FiShoppingBag /> },
     { title: 'Inventory', path: '/admin/inventory', icon: <FiBox /> },
     { title: 'Orders', path: '/admin/orders', icon: <FiShoppingBag /> },
+    { title: 'Logistics & Taxes', path: '/admin/logistics', icon: <FiTruck /> },
     { title: 'Finance', path: '/admin/finance', icon: <FiDollarSign /> },
     { title: 'Customers', path: '/admin/customers', icon: <FiUsers /> },
     { title: 'Returns & Replace', path: '/admin/returns', icon: <FiRotateCcw /> },
@@ -94,6 +97,7 @@ const AdminLayout = () => {
     { title: 'Testimonials', path: '/admin/testimonials', icon: <FiUsers /> },
     { title: 'Instagram Feed', path: '/admin/instagram', icon: <FiTrendingUp /> },
     { title: 'Feedback Ledger', path: '/admin/reviews', icon: <FiMessageSquare /> },
+    { title: 'Support Archive', path: '/admin/support', icon: <FiHelpCircle /> },
     { title: 'Settings', path: '/admin/settings', icon: <FiSettings /> },
   ];
 
@@ -112,77 +116,91 @@ const AdminLayout = () => {
         )}
       </AnimatePresence>
 
-      {/* Sidebar - Persistent and Toggleable */}
-      <AnimatePresence>
-        {isSidebarOpen && (
-          <motion.aside
-            initial={{ x: -280 }}
-            animate={{ x: 0 }}
-            exit={{ x: -280 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="w-64 bg-[#3D2522] text-white flex flex-col fixed h-screen z-50 shadow-2xl overflow-hidden"
+      {/* Sidebar - Persistent Mini Mode or Full Mode */}
+      <motion.aside
+        initial={false}
+        animate={{ 
+          width: isSidebarOpen ? (window.innerWidth < 1024 ? 280 : 256) : (window.innerWidth < 1024 ? 0 : 64),
+          x: window.innerWidth < 1024 && !isSidebarOpen ? -280 : 0
+        }}
+        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+        className="bg-brand-dark text-white flex flex-col fixed h-screen z-50 shadow-2xl overflow-hidden border-r border-white/5"
+      >
+        <div className={`p-3 pt-6 mb-2 flex items-center gap-3 ${!isSidebarOpen ? 'justify-center' : 'pl-4'} transition-all`}>
+          <div className="w-11 h-11 rounded-xl bg-white/5 flex items-center justify-center shrink-0 border border-white/10 shadow-xl overflow-hidden group">
+            <img src="/admin_logo.png" alt="S" className="w-full h-full object-cover" />
+          </div>
+          {isSidebarOpen && (
+            <div className="flex flex-col leading-none">
+              <span className="text-[11px] font-black tracking-[0.1em] text-white uppercase" style={{ fontFamily: "'Cinzel Decorative', serif" }}>
+                Saundarya
+              </span>
+              <span className="text-[7px] text-white/40 tracking-[0.3em] uppercase font-bold mt-0.5" style={{ fontFamily: "'Cinzel', serif" }}>
+                Shringar
+              </span>
+            </div>
+          )}
+        </div>
+
+        <nav 
+          className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto custom-sidebar-scrollbar" 
+          data-lenis-prevent
+        >
+          {menuItems.map((item) => (
+            <Link
+              key={item.title}
+              to={item.path}
+              title={!isSidebarOpen ? item.title : ''}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group relative ${location.pathname === item.path
+                ? 'bg-white/10 text-white'
+                : 'text-white/40 hover:text-white hover:bg-white/5'
+                }`}
+            >
+              <div className={`shrink-0 transition-all duration-300 ${location.pathname === item.path ? 'scale-110 text-white' : 'group-hover:scale-110'}`}>
+                {React.cloneElement(item.icon, { size: 20 })}
+              </div>
+              
+              <AnimatePresence>
+                {isSidebarOpen && (
+                  <motion.span 
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    className="text-[11px] font-bold tracking-wide whitespace-nowrap overflow-hidden"
+                  >
+                    {item.title}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+
+              {location.pathname === item.path && (
+                <motion.div 
+                  layoutId="active-pill"
+                  className="absolute left-0 w-1 bg-brand-gold h-4 top-1/2 -translate-y-1/2 rounded-r-full" 
+                />
+              )}
+            </Link>
+          ))}
+          <div className="h-20 w-full flex-shrink-0" />
+        </nav>
+
+        <div className="p-4 border-t border-white/5 flex-shrink-0">
+          <button
+            onClick={handleLogout}
+            className={`w-full flex items-center ${isSidebarOpen ? 'gap-4 px-4' : 'justify-center'} py-2 text-white/40 hover:text-white transition-all group`}
           >
-            <div className="p-8 flex items-center justify-center flex-shrink-0">
-              <Link to="/admin" className="flex flex-col items-center gap-1 group">
-                <div className="flex flex-col items-center leading-none">
-                  <span
-                    className="text-[14px] font-black tracking-[0.12em] text-white uppercase leading-none"
-                    style={{ fontFamily: "'Cinzel Decorative', 'Cinzel', serif" }}
-                  >
-                    Saundarya
-                  </span>
-                  <span
-                    className="text-[8px] tracking-[0.45em] text-white/60 mt-1 uppercase font-bold"
-                    style={{ fontFamily: "'Cinzel', serif" }}
-                  >
-                    Shrinagar
-                  </span>
-                </div>
-              </Link>
-            </div>
-
-            <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-scroll custom-sidebar-scrollbar min-h-0">
-              {menuItems.map((item) => (
-                <Link
-                  key={item.title}
-                  to={item.path}
-                  className={`flex items-center gap-4 px-4 py-3.5 rounded-none transition-all duration-300 group relative ${location.pathname === item.path
-                    ? 'bg-white/10 text-white font-bold'
-                    : 'text-white/70 hover:text-white'
-                    }`}
-                >
-                  <div className={`transition-all duration-300 ${location.pathname === item.path ? 'scale-110' : 'group-hover:scale-110 opacity-70 group-hover:opacity-100'}`}>
-                    {React.cloneElement(item.icon, { size: 18 })}
-                  </div>
-                  <span className="text-[12px] font-bold tracking-wide">{item.title}</span>
-                  {item.hasSubmenu && (
-                    <FiChevronDown size={14} className="ml-auto opacity-50" />
-                  )}
-                  {location.pathname === item.path && (
-                    <div className="absolute left-0 w-1.5 h-1/2 top-1/4 bg-white rounded-r-full" />
-                  )}
-                </Link>
-              ))}
-              <div className="h-20 w-full flex-shrink-0" />
-            </nav>
-
-            <div className="p-6 border-t border-white/10 flex-shrink-0">
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center gap-4 px-4 py-2 text-white/70 hover:text-white transition-all group"
-              >
-                <FiLogOut className="text-xl rotate-180" />
-                <span className="text-[12px] font-bold tracking-widest uppercase">Logout</span>
-              </button>
-            </div>
-          </motion.aside>
-        )}
-      </AnimatePresence>
+            <FiLogOut className={`text-xl ${isSidebarOpen ? 'rotate-180' : ''}`} />
+            {isSidebarOpen && (
+              <span className="text-[12px] font-bold tracking-widest uppercase">Logout</span>
+            )}
+          </button>
+        </div>
+      </motion.aside>
 
       {/* Main Content Area */}
-      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64' : 'ml-0'}`}>
+      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-500 ${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-16'}`}>
         {/* Header - Premium Navigation */}
-        <header className="h-12 bg-white/80 backdrop-blur-xl border-b border-brand-pink/5 flex items-center justify-between px-4 sticky top-0 z-40 transition-all">
+        <header className="h-12 bg-brand-light/80 backdrop-blur-xl border-b border-brand-pink/5 flex items-center justify-between px-4 sticky top-0 z-40 transition-all">
           <div className="flex items-center gap-4">
             <button
               onClick={(e) => {
@@ -265,7 +283,7 @@ const AdminLayout = () => {
         </header>
 
         {/* Content Container */}
-        <main className="p-3 md:p-4 min-h-[calc(100vh-48px)] bg-[#FAF7F8] relative">
+        <main className="p-3 md:p-4 min-h-[calc(100vh-48px)] bg-[#F2EDED] relative">
           <Outlet />
         </main>
       </div>

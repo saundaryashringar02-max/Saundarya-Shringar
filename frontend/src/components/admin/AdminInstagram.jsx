@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { FiPlus, FiEdit2, FiTrash2, FiTrendingUp, FiInstagram, FiEye, FiEyeOff, FiUpload } from 'react-icons/fi';
 import api from '../../utils/api';
 import { uploadToCloudinary } from '../../utils/cloudinary';
@@ -122,14 +123,14 @@ const AdminInstagram = () => {
                 </div>
             )}
 
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-brand-dark/98 backdrop-blur-xl z-[2000] flex items-center justify-center p-4">
+            {isModalOpen && createPortal(
+                <div data-lenis-prevent className="fixed inset-0 bg-brand-dark/98 backdrop-blur-xl z-[10000] flex items-center justify-center p-4">
                     <div className="bg-white w-full max-w-lg rounded-none shadow-2xl relative">
                         <div className="px-8 py-5 border-b border-gray-50 flex justify-between items-center bg-white z-10">
                             <h2 className="text-lg font-black text-brand-dark uppercase tracking-widest leading-none">Moment Synchronizer</h2>
                             <button onClick={() => setIsModalOpen(false)} className="text-gray-300 hover:text-brand-dark transition-colors">✕</button>
                         </div>
-                        <form onSubmit={handleSubmit} className="p-8 space-y-5">
+                        <form onSubmit={handleSubmit} className="p-8 space-y-5 max-h-[85vh] overflow-y-auto custom-scrollbar italic-placeholder">
                             <div className="space-y-4">
                                 <div className="space-y-1.5">
                                     <label className="text-[8px] font-bold text-gray-400 uppercase tracking-[0.2em] pl-1">Aesthetic Narrative (Caption)</label>
@@ -173,7 +174,8 @@ const AdminInstagram = () => {
                             </div>
                         </form>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

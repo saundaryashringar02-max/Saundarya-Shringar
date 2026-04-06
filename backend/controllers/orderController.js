@@ -1,5 +1,6 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const Coupon = require('../models/Coupon');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
@@ -67,32 +68,9 @@ exports.verifyRazorpayPayment = async (req, res, next) => {
             paymentStatus: 'Completed',
             razorpayOrderId: razorpay_order_id,
             razorpayPaymentId: razorpay_payment_id,
-            razorpaySignature: razorpay_signature
+            razorpaySignature: razorpay_signature,
+            couponApplied: orderDetails.couponCode || null
         });
-
-        // NOTIFICATION: Admin - New Order
-        const notificationService = require('../utils/notificationService');
-        notificationService.sendToAdmin({
-            title: 'New Order Received! 🎉',
-            body: `Order #${newOrder.orderId} of ₹${newOrder.totalAmount} has been placed by ${req.user.name}.`,
-            data: { type: 'new_order', id: newOrder._id.toString() }
-        });
-
-        // NOTIFICATION: User - Order Confirmed
-        notificationService.sendToUser(req.user._id, {
-            title: 'Order Confirmed! ✨',
-            body: `Your order #${newOrder.orderId} of ₹${newOrder.totalAmount} has been placed successfully. Thank you for choosing Saundarya Shringar!`,
-            data: { type: 'order_update', id: newOrder._id.toString() }
-        });
-
-        // DYNAMIC STOCK MANAGEMENT: Subtract on purchase
-        try {
-            for (const item of newOrder.items) {
-                if (item.product) {
-                    await Product.findByIdAndUpdate(item.product, { $inc: { stock: -Math.abs(item.quantity || 1) } });
-                }
-            }
-        } catch (err) { console.error("Stock update failed on purchase:", err); }
 
         res.status(201).json({ status: 'success', data: { order: newOrder } });
     } catch (err) {
@@ -110,8 +88,18 @@ exports.createOrder = async (req, res, next) => {
             user: req.user._id,
             items,
             totalAmount,
-            shippingAddress
+            shippingAddress,
+            couponApplied: req.body.couponCode || null
         });
+
+        // Decrement Stock & Increment Coupon
+        for (const item of items) {
+            await Product.findByIdAndUpdate(item.product || item._id, { $inc: { stock: -Number(item.quantity) } });
+        }
+
+        if (req.body.couponCode) {
+            await Coupon.findOneAndUpdate({ code: req.body.couponCode.toUpperCase() }, { $inc: { usedCount: 1 } });
+        }
 
         // NOTIFICATION: Admin - New Order
         const notificationService = require('../utils/notificationService');
@@ -156,7 +144,7 @@ exports.getMyOrders = async (req, res, next) => {
 // Public/Customer: Track Order
 exports.getOrder = async (req, res, next) => {
     try {
-        const order = await Order.findOne({ orderId: req.params.orderId }).lean();
+        const order = await Order.findOne({ orderId: req.params.orderId }).populate('user', 'name email phone').lean();
         if (!order) return res.status(404).json({ status: 'error', message: 'Order not found.' });
         res.status(200).json({ status: 'success', data: { order } });
     } catch (err) {
@@ -167,7 +155,7 @@ exports.getOrder = async (req, res, next) => {
 // Admin: Get all orders
 exports.getAllOrders = async (req, res, next) => {
     try {
-        const orders = await Order.find().populate('user', 'name phone email').sort('-date').lean();
+        const orders = await Order.find().populate('user', 'name email phone').sort('-date').lean();
         res.status(200).json({ status: 'success', data: { orders } });
     } catch (err) {
         next(err);
@@ -178,53 +166,50 @@ exports.getAllOrders = async (req, res, next) => {
 exports.updateOrderStatus = async (req, res, next) => {
     try {
         const { status, trackingId, paymentStatus } = req.body;
-
         const order = await Order.findById(req.params.id);
         if (!order) return res.status(404).json({ status: 'error', message: 'Order not found.' });
 
-        if (status) {
+        const oldStatus = order.status;
+
+        // Prevent moving backwards in status
+        if (status && status !== oldStatus) {
             const statusFlow = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
-            const currentIndex = statusFlow.indexOf(order.status);
+            const currentIndex = statusFlow.indexOf(oldStatus);
             const nextIndex = statusFlow.indexOf(status);
 
-            if (nextIndex < currentIndex) {
+            if (nextIndex < currentIndex && status !== 'Cancelled') {
                 return res.status(400).json({
                     status: 'error',
-                    message: `Cannot change status from ${order.status} to ${status}.`
+                    message: `Cannot change status from ${oldStatus} to ${status}.`
                 });
             }
+
+            order.status = status;
+            order.statusHistory.push({ status, timestamp: new Date() });
         }
 
-        let updatePayload = {};
-        if (status) updatePayload.status = status;
-        if (trackingId) updatePayload.trackingId = trackingId;
-        if (paymentStatus) updatePayload.paymentStatus = paymentStatus;
+        if (trackingId) order.trackingId = trackingId;
+        if (paymentStatus) order.paymentStatus = paymentStatus;
 
-        const finalOrder = await Order.findByIdAndUpdate(req.params.id, updatePayload, { new: true, runValidators: true });
+        await order.save();
 
         // NOTIFICATION: User - Order Status Update
-        if (status) {
+        if (status && status !== oldStatus) {
             const notificationService = require('../utils/notificationService');
-            notificationService.sendToUser(finalOrder.user, {
+            notificationService.sendToUser(order.user, {
                 title: 'Order Update! 🚚',
-                body: `Your order #${finalOrder.orderId} is now ${status}. Check tracking for more details.`,
-                data: { type: 'order_update', id: finalOrder._id.toString() }
+                body: `Your order #${order.orderId} is now ${status}. Check tracking for more details.`,
+                data: { type: 'order_update', id: order._id.toString() }
             });
 
-            // If order transitioned to 'Delivered', handle final check if needed
-            if (status === 'Delivered' && order.status !== 'Delivered') {
-                // Already subtracted on purchase, but keeping here for manual/fallback logic if needed in future
-            }
-
             // DYNAMIC RESTOCKING: Add back to stock if order is Cancelled
-            if (status === 'Cancelled' && order.status !== 'Cancelled') {
+            if (status === 'Cancelled' && oldStatus !== 'Cancelled') {
                 try {
-                    for (const item of finalOrder.items) {
+                    for (const item of order.items) {
                         if (item.product) {
                             await Product.findByIdAndUpdate(
                                 item.product,
-                                { $inc: { stock: Math.abs(item.quantity || 1) } },
-                                { new: true }
+                                { $inc: { stock: Math.abs(item.quantity || 1) } }
                             );
                         }
                     }
@@ -234,7 +219,7 @@ exports.updateOrderStatus = async (req, res, next) => {
             }
         }
 
-        res.status(200).json({ status: 'success', data: { order: finalOrder } });
+        res.status(200).json({ status: 'success', data: { order } });
     } catch (err) {
         next(err);
     }

@@ -11,6 +11,15 @@ export const ShopProvider = ({ children }) => {
   const [banners, setBanners] = useState([]);
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
+  const [settings, setSettings] = useState({
+    taxRate: 18,
+    deliveryCharge: 50,
+    freeDeliveryThreshold: 1000,
+    estDeliveryDays: '3-5 Business Days',
+    shippingPartner: 'Standard Courier',
+    trackingUrl: 'https://shiprocket.co/tracking/',
+    supportContact: '+91 74071 75567'
+  });
   const [loading, setLoading] = useState(true);
 
   // Order States
@@ -28,15 +37,19 @@ export const ShopProvider = ({ children }) => {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const [prodRes, catRes, banRes] = await Promise.all([
+      const [prodRes, catRes, banRes, setRes] = await Promise.all([
         api.get('/products'),
         api.get('/categories'),
-        api.get('/banners')
+        api.get('/banners'),
+        api.get('/settings')
       ]);
 
       setProducts(prodRes.data.data.products);
       setCategories(catRes.data.data.categories);
       setBanners(banRes.data.data.banners);
+      if (setRes.data.data.settings) {
+        setSettings(setRes.data.data.settings);
+      }
     } catch (err) {
       console.error("Failed to fetch store data:", err.message);
     } finally {
@@ -242,6 +255,7 @@ export const ShopProvider = ({ children }) => {
       orderDetails,
       clearCart,
       verifyAndClearCart,
+      settings,
       cartCount: cart.reduce((acc, item) => acc + item.quantity, 0),
       wishlistCount: wishlist.length,
       cartTotal: cart.reduce((acc, item) => acc + (item.price * item.quantity), 0)

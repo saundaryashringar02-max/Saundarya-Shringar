@@ -21,11 +21,11 @@ const MiniTimer = () => {
   }, []);
 
   return (
-    <div className="absolute bottom-2 left-2 z-40 bg-brand-pink/90 backdrop-blur-sm text-white px-2 py-1 rounded-sm shadow-xl flex items-center gap-1.5 border border-white/20">
-      <FiClock className="w-2.5 h-2.5 text-brand-gold animate-pulse" />
-      <div className="flex gap-1">
+    <div className="z-40 bg-brand-pink/90 backdrop-blur-sm text-white px-1.5 py-0.5 rounded-sm shadow-lg flex items-center gap-1 border border-white/20">
+      <FiClock className="w-2 h-2 text-brand-gold animate-pulse" />
+      <div className="flex gap-0.5">
         {[timeLeft.h, timeLeft.m, timeLeft.s].map((v, i) => (
-          <span key={i} className="text-[8px] font-black tracking-tighter tabular-nums">
+          <span key={i} className="text-[6.5px] font-black tracking-tighter tabular-nums text-white">
             {String(v).padStart(2, '0')}{i < 2 ? ':' : ''}
           </span>
         ))}
@@ -82,24 +82,22 @@ const ProductCard = ({ product }) => {
       className="bg-[#FFF8F9] border border-brand-pink/5 rounded-2xl flex flex-col h-full group relative cursor-pointer hover:shadow-2xl hover:shadow-brand-pink/10 transition-all duration-500 overflow-hidden"
     >
       <div className="relative aspect-square overflow-hidden p-3 bg-white/20">
-        {/* Timer Overlay if applicable */}
-        {product.hasTimer && <MiniTimer />}
-
         {/* Minimalist Labels */}
         <AnimatePresence>
           <div className="absolute top-2 left-2 z-20 flex flex-col gap-1.5 items-start">
             {(product.discount || product.flashSale) && (
               <>
                 <div className="flex items-center">
-                  <span className="bg-[#5C2E3E] text-white text-[7px] font-black px-2 py-1 rounded-sm shadow-sm uppercase tracking-widest border border-white/10">
+                  <span className="bg-[#5C2E3E] text-white text-[6px] font-black px-1.5 py-0.5 rounded-sm shadow-sm uppercase tracking-widest border border-white/10">
                     Running Sale
                   </span>
                 </div>
                 {product.discount && (
-                  <span className="bg-brand-pink text-white text-[8px] font-black px-2 py-1 rounded-sm shadow-md flex items-center gap-1">
+                  <span className="bg-brand-pink text-white text-[6px] font-black px-1.5 py-0.5 rounded-sm shadow-md flex items-center gap-1">
                     {product.discount} OFF
                   </span>
                 )}
+                {product.hasTimer && <MiniTimer />}
               </>
             )}
           </div>

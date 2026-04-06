@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiHeart, FiShoppingBag, FiUser, FiMenu, FiX, FiHome, FiPercent } from 'react-icons/fi';
+import { FiHeart, FiShoppingBag, FiUser, FiMenu, FiX, FiHome, FiPercent, FiGrid } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { useShop } from '../../context/ShopContext';
@@ -33,7 +33,7 @@ const Navbar = () => {
             <Link to="/" className="flex items-center gap-3 shrink-0 cursor-pointer group">
               <img
                 src="/logo.png"
-                alt="Saundarya Shrinagar Logo"
+                alt="Saundarya Shringar Logo"
                 className="h-10 w-auto md:h-14 logo-blend transition-transform group-hover:scale-105"
               />
 
@@ -48,7 +48,7 @@ const Navbar = () => {
                   className="text-[7px] md:text-[9px] tracking-[0.45em] text-white/80 mt-1 uppercase font-bold"
                   style={{ fontFamily: "'Cinzel', serif" }}
                 >
-                  Shrinagar
+                  Shringar
                 </span>
               </div>
             </Link>
@@ -127,15 +127,16 @@ const Navbar = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ x: '-100%' }}
+            initial={{ x: '100%' }}
             animate={{ x: 0 }}
-            exit={{ x: '-100%' }}
+            exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="fixed inset-0 z-[60] lg:hidden flex"
           >
+            <div className="flex-1 bg-black/40 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
             <div className="w-4/5 bg-brand-pink h-full shadow-2xl p-8 relative overflow-y-auto">
               <button
-                className="absolute top-6 right-6 text-2xl text-black outline-none"
+                className="absolute top-6 left-6 text-2xl text-black outline-none"
                 onClick={() => setIsOpen(false)}
               >
                 <FiX />
@@ -153,7 +154,7 @@ const Navbar = () => {
                   className="text-[9px] text-white/80 tracking-[0.45em] uppercase mt-1.5 block font-bold"
                   style={{ fontFamily: "'Cinzel', serif" }}
                 >
-                  Shrinagar
+                  Shringar
                 </span>
               </div>
 
@@ -171,47 +172,25 @@ const Navbar = () => {
                 ))}
               </div>
             </div>
-            <div className="flex-1 bg-black/40 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Mobile Bottom Navigation */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] px-6 py-2">
-        <div className="flex justify-between items-center h-12">
+        <div className="flex justify-around items-center h-12">
           <Link to="/" className={`flex flex-col items-center gap-1 group transition-colors ${location.pathname === '/' ? 'text-brand-pink' : 'text-brand-dark/40'}`}>
             <FiHome className={`text-xl ${location.pathname === '/' ? 'scale-110' : ''}`} />
             <span className="text-[9px] font-bold uppercase tracking-widest">Home</span>
           </Link>
           <Link to="/shop" className={`flex flex-col items-center gap-1 group transition-colors ${location.pathname === '/shop' ? 'text-brand-pink' : 'text-brand-dark/40'}`}>
-            <FiShoppingBag className={`text-xl ${location.pathname === '/shop' ? 'scale-110' : ''}`} />
+            <FiGrid className={`text-xl ${location.pathname === '/shop' ? 'scale-110' : ''}`} />
             <span className="text-[9px] font-bold uppercase tracking-widest">Shop</span>
           </Link>
-          <Link to="/wishlist" className={`flex flex-col items-center gap-1 group transition-colors ${location.pathname === '/wishlist' ? 'text-brand-pink' : 'text-brand-dark/40'}`}>
-            <div className="relative">
-              <FiHeart className={`text-xl ${location.pathname === '/wishlist' ? 'scale-110' : ''}`} />
-              {wishlistCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-brand-gold text-white text-[7px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">
-                  {wishlistCount}
-                </span>
-              )}
-            </div>
-            <span className="text-[9px] font-bold uppercase tracking-widest">Like</span>
+          <Link to="/offers" className={`flex flex-col items-center gap-1 group transition-colors ${location.pathname === '/offers' ? 'text-brand-pink' : 'text-brand-dark/40'}`}>
+            <FiPercent className={`text-xl ${location.pathname === '/offers' ? 'scale-110' : ''}`} />
+            <span className="text-[9px] font-bold uppercase tracking-widest">Offers</span>
           </Link>
-          <div 
-            onClick={() => setIsCartDrawerOpen(true)}
-            className="flex flex-col items-center gap-1 group transition-colors text-brand-dark/40 cursor-pointer"
-          >
-            <div className="relative">
-              <FiShoppingBag className="text-xl" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-brand-gold text-white text-[7px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">
-                  {cartCount}
-                </span>
-              )}
-            </div>
-            <span className="text-[9px] font-bold uppercase tracking-widest">Bag</span>
-          </div>
 
           <Link to={isAuthenticated ? "/profile" : "/login"} className={`flex flex-col items-center gap-1 group transition-colors ${location.pathname === '/profile' || location.pathname === '/login' ? 'text-brand-pink' : 'text-brand-dark/40'}`}>
             <FiUser className={`text-xl ${location.pathname === '/profile' || location.pathname === '/login' ? 'scale-110' : ''}`} />

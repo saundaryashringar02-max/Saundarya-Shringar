@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { FiPercent } from 'react-icons/fi';
 import ProductCard from './ProductCard';
 import { useShop } from '../../context/ShopContext';
 
@@ -15,7 +16,7 @@ import imgMascara from '../../assets/products/volumizing_mascara.png';
 
 const offerProducts = [
   {
-    id: 1,
+    _id: 1,
     name: 'TIRTIR Mask Fit Red Cushion',
     price: 899,
     oldPrice: 1650,
@@ -27,7 +28,7 @@ const offerProducts = [
     label: 'Big Drop'
   },
   {
-    id: 103,
+    _id: 103,
     name: 'Glow Vit-C Serum',
     price: 549,
     oldPrice: 1250,
@@ -39,7 +40,7 @@ const offerProducts = [
     label: 'Pocket Deal'
   },
   {
-    id: 201,
+    _id: 201,
     name: 'Oriental Silk Foundation',
     price: 799,
     oldPrice: 1899,
@@ -51,7 +52,7 @@ const offerProducts = [
     label: 'Mega Sale'
   },
   {
-    id: 5,
+    _id: 5,
     name: 'Verymiss Kiss Proof Trio',
     price: 399,
     oldPrice: 999,
@@ -63,7 +64,7 @@ const offerProducts = [
     label: 'Super Budget'
   },
   {
-    id: 6,
+    _id: 6,
     name: 'Rose Gold Eyeshadow Palette',
     price: 649,
     oldPrice: 1550,
@@ -75,7 +76,7 @@ const offerProducts = [
     label: 'Lowest Ever'
   },
   {
-    id: 351,
+    _id: 351,
     name: 'Bridal Radiance Kit',
     price: 999,
     oldPrice: 2800,
@@ -87,7 +88,7 @@ const offerProducts = [
     label: 'Steal Price'
   },
   {
-    id: 3,
+    _id: 3,
     name: 'Dual Concealer Stick',
     price: 349,
     oldPrice: 899,
@@ -99,7 +100,7 @@ const offerProducts = [
     label: 'Budget Find'
   },
   {
-    id: 401,
+    _id: 401,
     name: 'Oud Majesty Perfume',
     price: 199,
     oldPrice: 450,
@@ -113,13 +114,28 @@ const offerProducts = [
 ];
 
 const Offers = () => {
+  const [coupons, setCoupons] = useState([]);
+  const [loadingCoupons, setLoadingCoupons] = useState(true);
   const [timeLeft, setTimeLeft] = useState({
     hours: 5,
     minutes: 45,
     seconds: 0
   });
 
+  const fetchCoupons = async () => {
+    try {
+      setLoadingCoupons(true);
+      const res = await api.get('/coupons');
+      setCoupons(res.data.data.coupons.filter(c => c.isActive));
+    } catch (err) {
+      console.error("Failed to fetch divine offers:", err);
+    } finally {
+      setLoadingCoupons(false);
+    }
+  };
+
   useEffect(() => {
+    fetchCoupons();
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         let { hours, minutes, seconds } = prev;
@@ -142,7 +158,7 @@ const Offers = () => {
   return (
     <div className="min-h-screen bg-[#FEFAF6] pb-20">
       {/* Premium Hero Section */}
-      <section className="relative h-[40vh] md:h-[50vh] flex items-center justify-center overflow-hidden bg-brand-dark">
+      <section className="relative h-[30vh] md:h-[40vh] flex items-center justify-center overflow-hidden bg-brand-dark">
         <div className="absolute inset-0 opacity-40">
            {/* Decorative background pattern or image could go here */}
            <div className="absolute inset-0 bg-gradient-to-r from-brand-pink/20 to-brand-gold/20 mix-blend-overlay"></div>
@@ -150,9 +166,9 @@ const Offers = () => {
         
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
           <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="inline-block bg-[#FF9900] text-brand-dark font-black uppercase tracking-[0.4em] text-[8px] md:text-xs px-4 py-1.5 mb-8 shadow-[0_5px_30px_rgba(255,153,0,0.3)]"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-block bg-[#FF9900] text-brand-dark font-black uppercase tracking-[0.3em] text-[7px] md:text-[9px] px-3 py-1 md:mb-4 shadow-xl"
           >
             Big Beauty Deals | Limited Time 
           </motion.div>
@@ -160,15 +176,15 @@ const Offers = () => {
             initial={{ opacity: 0, tracking: '0.2em' }}
             animate={{ opacity: 1, tracking: '-0.05em' }}
             transition={{ duration: 1, delay: 0.1 }}
-            className="text-5xl md:text-9xl font-sans font-black text-white mb-6 uppercase leading-none drop-shadow-2xl"
+            className="text-4xl md:text-6xl font-sans font-black text-white mb-3 uppercase leading-none drop-shadow-2xl"
           >
-            Divine <br/> <span className="text-brand-gold underline decoration-brand-pink decoration-8 md:decoration-[16px] underline-offset-[10px] md:underline-offset-[20px]">SAVINGS</span>
+            Divine <br/> <span className="text-brand-gold underline decoration-brand-pink decoration-4 md:decoration-[8px] underline-offset-[8px] md:underline-offset-[12px]">SAVINGS</span>
           </motion.h1>
           <motion.p 
              initial={{ opacity: 0 }}
              animate={{ opacity: 1 }}
              transition={{ delay: 0.4 }}
-             className="text-white text-lg md:text-3xl font-sans font-black mb-10 tracking-tight"
+             className="text-sm md:text-lg font-sans font-black mb-5 tracking-tight text-white/90"
           >
             Up to <span className="text-brand-gold">50% OFF</span> | Starting at <span className="text-brand-pink">₹199</span>
           </motion.p>
@@ -190,36 +206,84 @@ const Offers = () => {
           </motion.div>
         </div>
       </section>
+      
+      {/* Promo Codes Section */}
+      <section className="container mx-auto px-4 md:px-8 mt-6">
+        <div className="bg-white rounded-3xl p-4 md:p-6 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-brand-gold/5 -translate-y-16 translate-x-16 rotate-45" />
+          <h2 className="text-xl font-serif font-black text-brand-dark uppercase tracking-widest mb-1 flex items-center gap-3">
+             <FiPercent className="text-brand-pink" /> Promo Architect
+          </h2>
+          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.3em] mb-4">Copy & Apply at checkout for instant divinity</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {!loadingCoupons ? coupons.map(coupon => (
+              <motion.div 
+                key={coupon._id}
+                whileHover={{ y: -5 }}
+                className="bg-brand-light/10 border border-brand-pink/5 rounded-2xl p-4 flex items-center justify-between group overflow-hidden relative"
+              >
+                <div className="absolute top-0 left-0 w-1 h-full bg-brand-gold" />
+                <div>
+                   <h3 className="text-xl font-black text-brand-dark tracking-tight">{coupon.code}</h3>
+                   <p className="text-[9px] font-black text-brand-pink uppercase tracking-widest mt-1">
+                     {coupon.discountType === 'percentage' ? `${coupon.discountValue}% OFF` : `₹${coupon.discountValue} FLAT OFF`}
+                   </p>
+                   <p className="text-[8px] text-gray-400 font-serif italic mt-2">
+                     Expires: {new Date(coupon.expiryDate).toLocaleDateString()}
+                   </p>
+                </div>
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(coupon.code);
+                    alert("Promo Code Transmitted to Clipboard.");
+                  }}
+                  className="bg-brand-dark text-white text-[10px] font-black uppercase tracking-widest px-6 py-3 rounded-full hover:bg-black transition-all shadow-xl shadow-brand-dark/20"
+                >
+                  Copy Code
+                </button>
+              </motion.div>
+            )) : (
+              [1, 2, 3].map(i => <div key={i} className="h-24 bg-gray-50 rounded-2xl animate-pulse" />)
+            )}
+            {!loadingCoupons && coupons.length === 0 && (
+              <div className="col-span-full py-4 text-center text-gray-300 font-black uppercase text-[10px] tracking-widest italic border border-dashed border-gray-100 rounded-2xl">
+                No active promo architect found at this moment
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
 
       {/* Offers Grid */}
-      <main className="container mx-auto px-4 md:px-8 -mt-10 relative z-20">
-        <div className="bg-white rounded-[2rem] shadow-2xl p-6 md:p-12">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 border-b border-gray-100 pb-8">
+      <main className="container mx-auto px-4 md:px-8 mt-6 relative z-20">
+        <div className="bg-white rounded-[2rem] shadow-2xl p-4 md:p-6 pt-6 md:pt-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-gray-100 pb-6">
             <div>
-              <h2 className="text-xl md:text-2xl font-serif font-black text-brand-dark uppercase tracking-wide">
+              <h2 className="text-lg md:text-xl font-serif font-black text-brand-dark uppercase tracking-wide">
                 Active <span className="text-brand-pink">Curation</span>
               </h2>
-              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">
+              <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">
                 {offerProducts.length} Premium items on sale
               </p>
             </div>
             
-            <div className="flex flex-wrap gap-4">
-               <div className="flex flex-col items-center justify-center bg-brand-dark text-white px-4 py-2 rounded-xl border border-white/10 shadow-lg">
-                  <span className="text-[8px] font-black uppercase tracking-widest opacity-60">Offer Ends In</span>
-                  <div className="flex gap-2 font-black text-sm">
-                    <span>{String(timeLeft.hours).padStart(2, '0')}h</span>
-                    <span>{String(timeLeft.minutes).padStart(2, '0')}m</span>
-                    <span>{String(timeLeft.seconds).padStart(2, '0')}s</span>
+            <div className="flex flex-wrap gap-2 md:gap-3">
+               <div className="flex flex-col items-center justify-center bg-brand-dark text-white px-3 py-1.5 rounded-lg border border-white/10 shadow-lg">
+                  <span className="text-[7px] font-black uppercase tracking-widest opacity-60">Offer Ends In</span>
+                  <div className="flex gap-1.5 font-bold text-xs uppercase">
+                    <span>{String(timeLeft.hours).padStart(2, '0')}H</span>
+                    <span>{String(timeLeft.minutes).padStart(2, '0')}M</span>
+                    <span>{String(timeLeft.seconds).padStart(2, '0')}S</span>
                   </div>
                </div>
-               <div className="flex flex-col items-center justify-center bg-[#5C2E3E]/5 text-[#5C2E3E] px-4 py-2 rounded-xl border border-[#5C2E3E]/10">
-                  <span className="text-[8px] font-black uppercase tracking-widest opacity-60">Cashback Offer</span>
-                  <span className="text-sm font-black">Flat 15% CBC</span>
+               <div className="flex flex-col items-center justify-center bg-brand-pink/5 text-brand-pink px-3 py-1.5 rounded-lg border border-brand-pink/10">
+                  <span className="text-[7px] font-black uppercase tracking-widest opacity-60">Cashback Offer</span>
+                  <span className="text-xs font-black">15% CBC</span>
                </div>
-               <div className="flex flex-col items-center justify-center bg-brand-gold/10 text-brand-gold px-4 py-2 rounded-xl border border-brand-gold/10">
-                  <span className="text-[8px] font-black uppercase tracking-widest opacity-60">Today's Perk</span>
-                  <span className="text-sm font-black">Free Delivery</span>
+               <div className="flex flex-col items-center justify-center bg-brand-gold/10 text-brand-gold px-3 py-1.5 rounded-lg border border-brand-gold/10">
+                  <span className="text-[7px] font-black uppercase tracking-widest opacity-40">Today's Perk</span>
+                  <span className="text-xs font-black">Free Delivery</span>
                </div>
             </div>
           </div>
@@ -234,10 +298,6 @@ const Offers = () => {
                 transition={{ delay: index * 0.05 }}
               >
                 <div className="group relative">
-                  {/* Custom Discount Badge for Offers Page */}
-                  <div className="absolute top-4 right-4 z-20 bg-brand-pink text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg transform group-hover:scale-110 transition-transform">
-                    {product.discount} OFF
-                  </div>
                   <ProductCard product={product} />
                 </div>
               </motion.div>
@@ -247,7 +307,7 @@ const Offers = () => {
       </main>
 
       {/* Special Offer Banner */}
-      <section className="container mx-auto px-4 md:px-8 mt-20">
+      <section className="container mx-auto px-4 md:px-8 mt-12">
          <div className="bg-brand-pink/5 border border-brand-pink/10 rounded-[2.5rem] p-8 md:p-16 flex flex-col md:flex-row items-center gap-12 overflow-hidden relative">
             <div className="absolute -top-24 -left-24 w-64 h-64 bg-brand-gold/10 rounded-full blur-3xl"></div>
             <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-brand-pink/10 rounded-full blur-3xl"></div>
