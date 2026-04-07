@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiLayers, FiCalendar, FiUser, FiClock, FiUploadCloud, FiImage } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiTrash2, FiLayers, FiCalendar, FiClock, FiUploadCloud } from 'react-icons/fi';
 import api from '../../utils/api';
 import { uploadToCloudinary } from '../../utils/cloudinary';
 
@@ -28,7 +28,6 @@ const AdminBlogs = () => {
 
     useEffect(() => { fetchBlogs(); }, []);
 
-    // Prevent background scrolling when modal is open
     useEffect(() => {
         if (isModalOpen) {
             document.body.style.overflow = 'hidden';
@@ -92,7 +91,11 @@ const AdminBlogs = () => {
                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em] mt-1">Editorial Content & Storytelling</p>
                 </div>
                 <button
-                    onClick={() => { setEditingId(null); setFormData({ title: '', category: '', excerpt: '', content: '', image: '', author: 'Saundarya Team', status: 'Published' }); setIsModalOpen(true); }}
+                    onClick={() => { 
+                        setEditingId(null); 
+                        setFormData({ title: '', category: '', excerpt: '', content: '', image: '', author: 'Saundarya Team', status: 'Published' }); 
+                        setIsModalOpen(true); 
+                    }}
                     className="bg-brand-dark text-white px-8 py-3 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-black transition-all shadow-xl"
                 >
                     <FiPlus /> New Article
@@ -114,8 +117,8 @@ const AdminBlogs = () => {
                             </div>
                             <div className="p-4 flex flex-col flex-grow min-h-0">
                                 <div className="flex items-center gap-3 text-[7px] text-gray-400 font-bold uppercase tracking-widest pt-0.5 mb-1.5">
-                                    <span className="flex items-center gap-1"><FiCalendar className="text-brand-pink" size={10} /> {blog.date}</span>
-                                    <span className="flex items-center gap-1"><FiClock className="text-brand-gold" size={10} /> {blog.readTime}</span>
+                                    <span className="flex items-center gap-1"><FiCalendar className="text-brand-pink" size={10} /> {new Date(blog.createdAt).toLocaleDateString()}</span>
+                                    <span className="flex items-center gap-1"><FiClock className="text-brand-gold" size={10} /> {blog.readTime || '5 min'}</span>
                                 </div>
                                 <h3 className="text-sm font-serif font-black text-brand-dark line-clamp-1 mb-1 italic tracking-tight">{blog.title}</h3>
                                 <p className="text-[10px] text-gray-500 leading-tight line-clamp-3 font-medium">{blog.excerpt}</p>
@@ -137,7 +140,9 @@ const AdminBlogs = () => {
                 <div data-lenis-prevent className="fixed inset-0 bg-brand-dark/95 backdrop-blur-sm z-[10000] overflow-y-auto flex justify-center py-10 px-4">
                     <div className="bg-white w-full max-w-4xl rounded-none shadow-2xl relative h-fit mb-10 overflow-hidden">
                         <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white z-[60] sticky top-0 shadow-sm">
-                            <h2 className="text-xl font-serif font-black text-brand-dark uppercase tracking-widest leading-none">{editingId ? 'Refine Article' : 'Compose New Story'}</h2>
+                            <h2 className="text-xl font-serif font-black text-brand-dark uppercase tracking-widest leading-none">
+                                {editingId ? 'Refine Article' : 'Compose New Story'}
+                            </h2>
                             <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-brand-dark p-2 leading-none text-xl transition-colors">✕</button>
                         </div>
                         <form onSubmit={handleSubmit} className="p-6 space-y-4">
@@ -162,7 +167,14 @@ const AdminBlogs = () => {
                                 </div>
                                 <div className="md:col-span-1 lg:col-span-2 space-y-1">
                                     <label className="text-[8px] font-black text-gray-300 uppercase tracking-widest">Image URL Override</label>
-                                    <textarea name="image" value={formData.image} onChange={handleChange} required className="w-full h-[calc(100%-16px)] bg-gray-50 border border-transparent p-2 text-[10px] font-bold font-mono text-gray-400 outline-none focus:bg-white focus:border-brand-pink-lite transition-all resize-none" placeholder="https://res.cloudinary.com/..." />
+                                    <textarea 
+                                        name="image" 
+                                        value={formData.image} 
+                                        onChange={handleChange} 
+                                        required 
+                                        className="w-full h-[calc(100%-16px)] bg-gray-50 border border-transparent p-2 text-[10px] font-bold font-mono text-gray-400 outline-none focus:bg-white focus:border-brand-pink-lite transition-all resize-none" 
+                                        placeholder="https://res.cloudinary.com/..." 
+                                    />
                                 </div>
 
                                 <div className="md:col-span-2 lg:col-span-1 space-y-1.5">
@@ -183,11 +195,11 @@ const AdminBlogs = () => {
 
                                 <div className="md:col-span-2 space-y-1.5">
                                     <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Editorial Excerpt</label>
-                                    <textarea name="excerpt" value={formData.excerpt} onChange={handleChange} required className="w-full bg-gray-50 border border-transparent p-3 text-[11px] font-medium outline-none focus:bg-white focus:border-brand-pink-lite transition-all h-16 resize-none" placeholder="Brief summary..."></textarea>
+                                    <textarea name="excerpt" value={formData.excerpt} onChange={handleChange} required className="w-full bg-gray-50 border border-transparent p-3 text-[11px] font-medium outline-none focus:bg-white focus:border-brand-pink-lite transition-all h-16 resize-none" placeholder="Brief summary..." />
                                 </div>
                                 <div className="md:col-span-2 space-y-1.5">
                                     <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Article Content</label>
-                                    <textarea name="content" value={formData.content} onChange={handleChange} required className="w-full bg-gray-50 border border-transparent p-3 text-[11px] font-medium outline-none focus:bg-white focus:border-brand-pink-lite transition-all h-32" placeholder="Write your brand story here..."></textarea>
+                                    <textarea name="content" value={formData.content} onChange={handleChange} required className="w-full bg-gray-50 border border-transparent p-3 text-[11px] font-medium outline-none focus:bg-white focus:border-brand-pink-lite transition-all h-32" placeholder="Write your brand story here..." />
                                 </div>
                             </div>
                             <div className="pt-4 flex justify-end gap-5">

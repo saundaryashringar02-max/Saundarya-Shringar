@@ -553,6 +553,7 @@ const ProductDetail = () => {
               <p className="text-xs text-gray-400 font-medium mb-6">Global Ratings & Testimony</p>
 
 
+
               {/* Write Review Trigger */}
               {canSubmitReview && (
                 <div className="bg-brand-pink/5 p-6 rounded-2xl border border-brand-pink/10">

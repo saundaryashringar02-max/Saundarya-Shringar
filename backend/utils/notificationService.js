@@ -23,7 +23,7 @@ exports.sendToUser = async (userId, payload) => {
         const user = await User.findById(userId).select('fcmTokenWeb fcmTokenApp');
         if (!user) return;
 
-        const tokens = [user.fcmTokenWeb, user.fcmTokenApp].filter(t => t && t !== '');
+        const tokens = [...new Set([user.fcmTokenWeb, user.fcmTokenApp])].filter(t => t && t !== '');
         if (tokens.length === 0) return;
 
         const message = {

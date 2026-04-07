@@ -32,7 +32,7 @@ const Checkout = () => {
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState('');
   const [errors, setErrors] = useState({});
-  
+
   // Pre-populate data from profile
   useEffect(() => {
     if (user && !isAuthLoading) {
@@ -40,7 +40,8 @@ const Checkout = () => {
         ...prev,
         name: prev.name || user.name || '',
         email: prev.email || user.email || '',
-        phone: prev.phone || user.phone || ''
+        phone: prev.phone || user.phone || '',
+        address: prev.address || user.address || ''
       }));
     }
   }, [user, isAuthLoading]);
@@ -64,7 +65,7 @@ const Checkout = () => {
           const coupon = res.data.data.coupon;
           setAppliedCoupon(coupon);
           // Calculate initial discount
-          const st = directProduct ? directProduct.price * (directProduct.quantity || 1) : cartTotal;
+          const st = directProduct ? (directProduct.originalPrice || directProduct.price) * (directProduct.quantity || 1) : cartTotal;
           if (coupon.discountType === 'percentage') {
             setDiscountAmount(Math.round(st * (coupon.discountValue / 100)));
           } else {
@@ -79,20 +80,20 @@ const Checkout = () => {
   }, [passedCouponCode, cartTotal, directProduct]);
 
   const displayItems = directProduct ? [directProduct] : cart;
-  
+
   // Dynamic Logistics Math
-  const subtotal = directProduct 
-    ? (directProduct.originalPrice || directProduct.price) * (directProduct.quantity || 1) 
+  const subtotal = directProduct
+    ? (directProduct.originalPrice || directProduct.price) * (directProduct.quantity || 1)
     : cartTotal;
 
   const currentTaxRate = settings?.taxRate || 18;
   const isFreeDelivery = subtotal >= (settings?.freeDeliveryThreshold || 1000);
-  const shipping = isFreeDelivery ? 0 : (settings?.deliveryCharge || 50);
+  const shippingValue = isFreeDelivery ? 0 : (settings?.deliveryCharge || 50);
 
   // Correct TAX INCLUSIVE calculation
   const taxAmount = Math.round(subtotal - (subtotal / (1 + (currentTaxRate / 100))));
 
-  const total = Math.max(0, subtotal - discountAmount + shipping);
+  const total = Math.max(0, subtotal - discountAmount + shippingValue);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -102,18 +103,18 @@ const Checkout = () => {
 
   const validateDetails = () => {
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = 'Name is required';
-    if (!formData.email.trim()) {
+    if (!formData.name?.trim()) newErrors.name = 'Name is required';
+    if (!formData.email?.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
       newErrors.email = 'Please enter a valid email address';
     }
-    if (!formData.phone.trim()) {
+    if (!formData.phone?.trim()) {
       newErrors.phone = 'Phone is required';
     } else if (!/^\d{10}$/.test(formData.phone.trim())) {
       newErrors.phone = 'Please enter a valid 10-digit number';
     }
-    if (!formData.address.trim()) newErrors.address = 'Address is required';
+    if (!formData.address?.trim()) newErrors.address = 'Address is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -138,8 +139,8 @@ const Checkout = () => {
         handler: async (response) => {
           // 2. Verify payment & save order
           try {
-            await verifyAndClearCart(response, { 
-              ...formData, 
+            await verifyAndClearCart(response, {
+              ...formData,
               items: displayItems.map(i => ({ product: i._id, quantity: i.quantity || 1, price: i.price, name: i.name })),
               totalAmount: total,
               couponCode: appliedCoupon?.code
@@ -154,7 +155,7 @@ const Checkout = () => {
         prefill: {
           name: formData.name,
           contact: formData.phone,
-          email: user?.email || ""
+          email: formData.email || user?.email || ""
         },
         theme: {
           color: "#5C2E3E"
@@ -181,7 +182,7 @@ const Checkout = () => {
       const res = await api.post('/coupons/validate', { code: couponCode.trim().toUpperCase() });
       const coupon = res.data.data.coupon;
       setAppliedCoupon(coupon);
-      
+
       let discount = 0;
       if (coupon.discountType === 'percentage') {
         discount = Math.round(subtotal * (coupon.discountValue / 100));
@@ -240,7 +241,7 @@ const Checkout = () => {
           <div className="w-8 h-0.5 bg-brand-gold mx-auto mb-4"></div>
 
           <p className="text-[9px] text-gray-400 uppercase tracking-[0.2em] font-bold mb-6 leading-relaxed">
-            Your sacred treasures are being gathered. Check your mail for details.
+            Your treasures are being gathered. Check your mail for details.
           </p>
 
           <div className="space-y-3">
@@ -254,8 +255,6 @@ const Checkout = () => {
               <p className="text-[10px] font-bold text-[#5C2E3E] truncate">{formData.name}</p>
               <p className="text-[8px] text-[#5C2E3E]/60 font-serif italic line-clamp-1">{formData.address}</p>
             </div>
-
-
 
             <Link to={`/track-order?id=${orderId}`} className="w-full inline-block px-8 py-3 bg-brand-gold text-white text-[9px] font-black uppercase tracking-[0.2em] shadow-lg hover:bg-[#5C2E3E] transition-all mb-2">
               Track Journey
@@ -273,7 +272,6 @@ const Checkout = () => {
   return (
     <div className="min-h-screen bg-[#FDFCFB] pb-24 lg:pt-8">
       <div className="container mx-auto px-4 md:px-8 max-w-6xl">
-
         {/* Back Button */}
         <div
           onClick={() => step > 1 ? setStep(step - 1) : null}
@@ -283,10 +281,8 @@ const Checkout = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-
           {/* Main Content */}
           <div className="lg:col-span-8 space-y-8">
-
             {/* Steps Indicator */}
             <div className="flex items-center justify-between max-w-md mx-auto mb-16 relative">
               <div className="absolute top-1/2 left-0 w-full h-[1px] bg-gray-100 -z-10" />
@@ -327,15 +323,15 @@ const Checkout = () => {
                             <p className="text-[9px] text-gray-400 font-serif italic mb-2">{item.subCategory}</p>
                             <div className="flex items-center gap-4">
                               <div className={`flex items-center gap-2.5 bg-gray-50 border border-gray-100 px-2 py-0.5 scale-90 -ml-2 ${directProduct ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                <button 
-                                  onClick={() => !directProduct && updateQuantity(item._id, -1)} 
+                                <button
+                                  onClick={() => !directProduct && updateQuantity(item._id, -1)}
                                   className={`text-gray-400 hover:text-brand-pink transition-colors ${directProduct ? 'pointer-events-none' : ''}`}
                                 >
                                   <FiMinus size={8} />
                                 </button>
                                 <span className="text-[10px] font-black text-[#5C2E3E] w-3 text-center">{item.quantity || 1}</span>
-                                <button 
-                                  onClick={() => !directProduct && updateQuantity(item._id, 1)} 
+                                <button
+                                  onClick={() => !directProduct && updateQuantity(item._id, 1)}
                                   className={`text-gray-400 hover:text-brand-pink transition-colors ${directProduct ? 'pointer-events-none' : ''}`}
                                 >
                                   <FiPlus size={8} />
@@ -349,7 +345,7 @@ const Checkout = () => {
                             </div>
                           </div>
                           <div className="text-right pr-2">
-                            <span className="text-[11px] font-black text-brand-gold">₹{item.price * item.quantity}</span>
+                            <span className="text-[11px] font-black text-brand-gold">₹{item.price * (item.quantity || 1)}</span>
                           </div>
                         </div>
                       ))
@@ -382,7 +378,7 @@ const Checkout = () => {
                       {errors.name && <p className="text-red-400 text-[8px] font-black uppercase tracking-widest ml-1">{errors.name}</p>}
                     </div>
                     <div className="space-y-3">
-                      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">Email Essence *</label>
+                      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">Email *</label>
                       <input
                         type="email"
                         name="email"
@@ -394,7 +390,7 @@ const Checkout = () => {
                       {errors.email && <p className="text-red-400 text-[8px] font-black uppercase tracking-widest ml-1">{errors.email}</p>}
                     </div>
                     <div className="space-y-3">
-                      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">Phone Essence *</label>
+                      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">Phone *</label>
                       <input
                         type="text"
                         name="phone"
@@ -406,7 +402,7 @@ const Checkout = () => {
                       {errors.phone && <p className="text-red-400 text-[8px] font-black uppercase tracking-widest ml-1">{errors.phone}</p>}
                     </div>
                     <div className="space-y-3 md:col-span-2">
-                      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">Permanent Abode (Address) *</label>
+                      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">Address *</label>
                       <textarea
                         name="address"
                         value={formData.address}
@@ -449,7 +445,6 @@ const Checkout = () => {
                             {method.desc}
                           </p>
                         </div>
-
                         {selectedPayment === method.id && (
                           <motion.div layoutId="activePay" className="absolute left-0 w-1 h-full bg-brand-gold" />
                         )}
@@ -469,12 +464,12 @@ const Checkout = () => {
 
                 <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#5C2E3E] pb-4 border-b border-gray-100">Order Summary</h3>
 
-                  <div className="space-y-4 py-2">
+                <div className="space-y-4 py-2">
                   <div className="flex justify-between items-center px-1">
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/40">Subtotal</span>
                     <span className="text-sm font-black text-[#5C2E3E]">₹{subtotal}</span>
                   </div>
-                  
+
                   {appliedCoupon && (
                     <div className="flex justify-between items-center px-1">
                       <div className="flex flex-col">
@@ -492,47 +487,46 @@ const Checkout = () => {
 
                   {!appliedCoupon && (
                     <div className="py-2">
-                       <div className="flex flex-col gap-2">
-                          <p className="text-[7px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1 ml-1">Ritual Key (Coupon)</p>
-                          <div className="flex gap-2">
-                            <input 
-                              type="text" 
-                              value={couponCode}
-                              onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                              placeholder="E.G. SAUNDARYA10"
-                              className="flex-1 bg-gray-50 border border-gray-100 px-3 py-2 text-[9px] font-bold outline-none focus:border-brand-pink/30 uppercase tracking-widest transition-all"
-                            />
-                            <button 
-                              onClick={handleApplyCoupon}
-                              disabled={couponLoading || !couponCode.trim()}
-                              className="bg-brand-dark text-white px-4 py-2 text-[8px] font-black uppercase tracking-widest hover:bg-black transition-all disabled:opacity-30"
-                            >
-                              {couponLoading ? '...' : 'APPLY'}
-                            </button>
-                          </div>
-                          {couponError && <p className="text-[7px] font-bold text-red-400 uppercase tracking-widest mt-1 ml-1">{couponError}</p>}
-                       </div>
+                      <div className="flex flex-col gap-2">
+                        <p className="text-[7px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1 ml-1">Ritual Key (Coupon)</p>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={couponCode}
+                            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                            placeholder="E.G. SAUNDARYA10"
+                            className="flex-1 bg-gray-50 border border-gray-100 px-3 py-2 text-[9px] font-bold outline-none focus:border-brand-pink/30 uppercase tracking-widest transition-all"
+                          />
+                          <button
+                            onClick={handleApplyCoupon}
+                            disabled={couponLoading || !couponCode.trim()}
+                            className="bg-brand-dark text-white px-4 py-2 text-[8px] font-black uppercase tracking-widest hover:bg-black transition-all disabled:opacity-30"
+                          >
+                            {couponLoading ? '...' : 'APPLY'}
+                          </button>
+                        </div>
+                        {couponError && <p className="text-[7px] font-bold text-red-400 uppercase tracking-widest mt-1 ml-1">{couponError}</p>}
+                      </div>
                     </div>
                   )}
 
                   <div className="flex justify-between items-center px-1">
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/40">Safe Passage</span>
-                    <span className="text-sm font-black text-brand-gold">{shipping === 0 ? 'FREE' : `₹${shipping}`}</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/40">Shipping</span>
+                    <span className="text-sm font-black text-brand-gold">{shippingValue === 0 ? 'FREE' : `₹${shippingValue}`}</span>
                   </div>
-                  
-                  {/* Business Insights (GST & Delivery) */}
+
                   <div className="bg-brand-pink/5 p-4 rounded-lg space-y-2 border border-brand-pink/10">
                     <div className="flex justify-between items-center text-[7px] font-black uppercase tracking-widest text-[#5C2E3E]/40 px-1">
-                       <span>Inclusive of GST ({currentTaxRate}%)</span>
-                       <span>₹{taxAmount}</span>
+                      <span>Inclusive of GST ({currentTaxRate}%)</span>
+                      <span>₹{taxAmount}</span>
                     </div>
                     <div className="flex items-center gap-3 pt-2 border-t border-brand-pink/5">
                       <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-brand-pink shadow-sm">
                         <FiTruck size={14} />
                       </div>
                       <div className="flex-1">
-                        <p className="text-[8px] font-black text-brand-dark uppercase tracking-widest leading-none mb-1">{settings?.shippingPartner || 'Partner Selection'}</p>
-                        <p className="text-[7px] font-bold text-brand-pink uppercase tracking-tighter">Est. {settings?.estDeliveryDays || 'Timeline pending'}</p>
+                        <p className="text-[8px] font-black text-brand-dark uppercase tracking-widest leading-none mb-1">{settings?.shippingPartner || 'Delivery Partner'}</p>
+                        <p className="text-[7px] font-bold text-brand-pink uppercase tracking-tighter">Est. {settings?.estDeliveryDays || '3-5 days'}</p>
                       </div>
                     </div>
                   </div>
@@ -558,13 +552,12 @@ const Checkout = () => {
                   </div>
                   <div className="flex items-center gap-1.5 opacity-30 grayscale hover:grayscale-0 transition-all">
                     <FiCheckCircle size={10} className="text-[#5C2E3E]" />
-                    <span className="text-[8px] font-black uppercase tracking-widest text-[#5C2E3E]">Pure</span>
+                    <span className="text-[8px] font-black uppercase tracking-widest text-[#5C2E3E]">Verified</span>
                   </div>
                 </div>
               </div>
             </div>
           )}
-
         </div>
       </div>
     </div>

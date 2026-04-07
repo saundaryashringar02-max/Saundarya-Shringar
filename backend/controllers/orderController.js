@@ -3,6 +3,7 @@ const Product = require('../models/Product');
 const Coupon = require('../models/Coupon');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
+const notificationService = require('../utils/notificationService');
 
 let razorpay;
 const getRazorpayInstance = () => {
@@ -41,7 +42,6 @@ exports.captureRazorpayOrder = async (req, res, next) => {
 // Customer: Verify Razorpay Payment & Save Order (Step 2)
 exports.verifyRazorpayPayment = async (req, res, next) => {
     try {
-        const instance = getRazorpayInstance();
         const {
             razorpay_order_id,
             razorpay_payment_id,
@@ -72,13 +72,31 @@ exports.verifyRazorpayPayment = async (req, res, next) => {
             couponApplied: orderDetails.couponCode || null
         });
 
+        // Decrement Stock
+        for (const item of orderDetails.items) {
+           if (item.product) {
+               await Product.findByIdAndUpdate(item.product, { $inc: { stock: -Math.abs(item.quantity || 1) } });
+           }
+        }
+
+        if (orderDetails.couponCode) {
+            await Coupon.findOneAndUpdate({ code: orderDetails.couponCode.toUpperCase() }, { $inc: { usedCount: 1 } });
+        }
+
+        // NOTIFICATION: Admin - New Prepaid Order
+        notificationService.sendToAdmin({
+            title: 'New Prepaid Order! 💰',
+            body: `${req.user.name} placed a new order for ₹${newOrder.totalAmount} (Razorpay).`,
+            data: { type: 'new_order', id: newOrder._id.toString() }
+        });
+
         res.status(201).json({ status: 'success', data: { order: newOrder } });
     } catch (err) {
         next(err);
     }
 };
 
-// Customer: Create Order (Legacy/Non-Razorpay flow or for reference)
+// Customer: Create Order (COD/Legacy flow)
 exports.createOrder = async (req, res, next) => {
     try {
         const { items, totalAmount, shippingAddress } = req.body;
@@ -94,36 +112,21 @@ exports.createOrder = async (req, res, next) => {
 
         // Decrement Stock & Increment Coupon
         for (const item of items) {
-            await Product.findByIdAndUpdate(item.product || item._id, { $inc: { stock: -Number(item.quantity) } });
+           if (item.product || item._id) {
+               await Product.findByIdAndUpdate(item.product || item._id, { $inc: { stock: -Math.abs(item.quantity || 1) } });
+           }
         }
 
         if (req.body.couponCode) {
             await Coupon.findOneAndUpdate({ code: req.body.couponCode.toUpperCase() }, { $inc: { usedCount: 1 } });
         }
 
-        // NOTIFICATION: Admin - New Order
-        const notificationService = require('../utils/notificationService');
+        // NOTIFICATION: Admin - New COD Order
         notificationService.sendToAdmin({
-            title: 'New Order Received! 🎉',
-            body: `Order #${newOrder.orderId} of ₹${newOrder.totalAmount} has been placed by ${req.user.name}.`,
+            title: 'New Order Received! 🛍️',
+            body: `${req.user.name} has placed a new COD order for ₹${newOrder.totalAmount}.`,
             data: { type: 'new_order', id: newOrder._id.toString() }
         });
-
-        // NOTIFICATION: User - Order Confirmed
-        notificationService.sendToUser(req.user._id, {
-            title: 'Order Confirmed! ✨',
-            body: `Your order #${newOrder.orderId} of ₹${newOrder.totalAmount} has been placed successfully. Thank you for choosing Saundarya Shringar!`,
-            data: { type: 'order_update', id: newOrder._id.toString() }
-        });
-
-        // DYNAMIC STOCK MANAGEMENT: Subtract on purchase
-        try {
-            for (const item of newOrder.items) {
-                if (item.product) {
-                    await Product.findByIdAndUpdate(item.product, { $inc: { stock: -Math.abs(item.quantity || 1) } });
-                }
-            }
-        } catch (err) { console.error("Stock update failed on purchase:", err); }
 
         res.status(201).json({ status: 'success', data: { order: newOrder } });
     } catch (err) {
@@ -186,36 +189,33 @@ exports.updateOrderStatus = async (req, res, next) => {
 
             order.status = status;
             order.statusHistory.push({ status, timestamp: new Date() });
+
+            // NOTIFICATION: User - Order Status Updated
+            notificationService.sendToUser(order.user, {
+                title: 'Order Status Update! ✨',
+                body: `Your order ${order.orderId} is now ${status}.`,
+                data: { type: 'order_status', id: order._id.toString() }
+            });
         }
 
-        if (trackingId) order.trackingId = trackingId;
-        if (paymentStatus) order.paymentStatus = paymentStatus;
+        if (trackingId !== undefined) order.trackingId = trackingId;
+        if (paymentStatus !== undefined) order.paymentStatus = paymentStatus;
 
         await order.save();
 
-        // NOTIFICATION: User - Order Status Update
-        if (status && status !== oldStatus) {
-            const notificationService = require('../utils/notificationService');
-            notificationService.sendToUser(order.user, {
-                title: 'Order Update! 🚚',
-                body: `Your order #${order.orderId} is now ${status}. Check tracking for more details.`,
-                data: { type: 'order_update', id: order._id.toString() }
-            });
-
-            // DYNAMIC RESTOCKING: Add back to stock if order is Cancelled
-            if (status === 'Cancelled' && oldStatus !== 'Cancelled') {
-                try {
-                    for (const item of order.items) {
-                        if (item.product) {
-                            await Product.findByIdAndUpdate(
-                                item.product,
-                                { $inc: { stock: Math.abs(item.quantity || 1) } }
-                            );
-                        }
+        // DYNAMIC RESTOCKING: Add back to stock if order is Cancelled
+        if (status === 'Cancelled' && oldStatus !== 'Cancelled') {
+            try {
+                for (const item of order.items) {
+                    if (item.product) {
+                        await Product.findByIdAndUpdate(
+                            item.product,
+                            { $inc: { stock: Math.abs(item.quantity || 1) } }
+                        );
                     }
-                } catch (stockErr) {
-                    console.error("Restocking failure on cancellation:", stockErr);
                 }
+            } catch (stockErr) {
+                console.error("Restocking failure on cancellation:", stockErr);
             }
         }
 
@@ -240,12 +240,11 @@ exports.requestReturn = async (req, res, next) => {
 
         if (!order) return res.status(404).json({ status: 'error', message: 'Eligible Delivered Order not found or Unauthorised.' });
 
-        // NOTIFICATION: Admin - New Return Request
-        const notificationService = require('../utils/notificationService');
+        // NOTIFICATION: Admin - New RMA Request
         notificationService.sendToAdmin({
-            title: `New ${returnAction} Request! 🔄`,
-            body: `${req.user.name} has requested a ${returnAction} for Order #${order.orderId}.`,
-            data: { type: 'return_request', id: order._id.toString() }
+            title: 'New Return Request! ⚠️',
+            body: `${req.user.name} requested a ${returnAction} for Order ${order.orderId}.`,
+            data: { type: 'rma_request', id: order._id.toString() }
         });
 
         res.status(200).json({ status: 'success', data: { order } });
@@ -259,12 +258,11 @@ exports.processReturnUpdate = async (req, res, next) => {
         const order = await Order.findByIdAndUpdate(req.params.id, { returnStatus }, { new: true, runValidators: true });
         if (!order) return res.status(404).json({ status: 'error', message: 'Order not found.' });
 
-        // NOTIFICATION: User - Return Status Update
-        const notificationService = require('../utils/notificationService');
+        // NOTIFICATION: User - Return Resolution
         notificationService.sendToUser(order.user, {
-            title: 'Return Request Update! ✅',
-            body: `Your return/replacement request for Order #${order.orderId} has been ${returnStatus}.`,
-            data: { type: 'return_update', id: order._id.toString() }
+            title: 'Return Status Update! ✨',
+            body: `Your return for order ${order.orderId} is now: ${returnStatus}.`,
+            data: { type: 'rma_status', id: order._id.toString() }
         });
 
         res.status(200).json({ status: 'success', data: { order } });

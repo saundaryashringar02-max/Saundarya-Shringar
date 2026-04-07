@@ -5,7 +5,7 @@ import { FiUser, FiPhone, FiMail, FiMapPin, FiShoppingBag, FiHeart, FiLogOut, Fi
 import api from '../../utils/api';
 
 const Profile = () => {
-  const { user, isAuthenticated, setIsAuthenticated, setUser, wishlistCount } = useShop();
+  const { user, isAuthenticated, logout, wishlistCount } = useShop();
   const navigate = useNavigate();
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isEditingAddress, setIsEditingAddress] = useState(false);
@@ -15,7 +15,7 @@ const Profile = () => {
     name: user?.name || '',
     email: user?.email || '',
     phone: user?.phone || '',
-    address: user?.address || '123, Rose Valley Apartments, Koramangala, Bangalore, Karnataka - 560034',
+    address: user?.address || '',
     bankDetails: {
       accountName: user?.bankDetails?.accountName || '',
       bankName: user?.bankDetails?.bankName || '',
@@ -51,8 +51,7 @@ const Profile = () => {
   if (!user) return null;
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
-    setUser(null);
+    logout();
     navigate('/');
   };
 
@@ -64,6 +63,7 @@ const Profile = () => {
         return;
       }
     }
+    
     try {
       const res = await api.patch('/users/update-me', editForm);
       setUser(res.data.data.user);
@@ -83,8 +83,7 @@ const Profile = () => {
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-          {/* Main User Card - More Compact */}
+          {/* Main User Card */}
           <div className="md:col-span-1 space-y-4">
             <div className="bg-white rounded-[1.5rem] p-6 text-center border border-gray-100 shadow-lg relative overflow-hidden group">
               <div className="absolute top-0 inset-x-0 h-24 bg-brand-pink/10 -z-10 group-hover:bg-brand-pink/20 transition-colors"></div>
@@ -189,7 +188,7 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Quick Stats & Details - More Compact */}
+          {/* Quick Stats & Details */}
           <div className="md:col-span-2 space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               <Link to="/orders" className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm flex items-center gap-4 hover:border-brand-pink/30 hover:shadow-lg transition-all cursor-pointer group">
@@ -221,20 +220,19 @@ const Profile = () => {
               </Link>
             </div>
 
+            {/* Address Section */}
             <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#5C2E3E] flex items-center gap-2">
                   <FiMapPin /> Saved Addresses
                 </h3>
                 {!isEditingAddress && (
-                  <div className="flex gap-4">
-                    <button
-                      onClick={() => setIsEditingAddress(true)}
-                      className="text-[9px] font-black uppercase tracking-widest text-[#5C2E3E] border-b border-[#5C2E3E] hover:text-brand-pink hover:border-brand-pink transition-colors"
-                    >
-                      Edit Address
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => setIsEditingAddress(true)}
+                    className="text-[9px] font-black uppercase tracking-widest text-[#5C2E3E] border-b border-[#5C2E3E] hover:text-brand-pink hover:border-brand-pink transition-colors"
+                  >
+                    Edit Address
+                  </button>
                 )}
               </div>
 
@@ -273,7 +271,7 @@ const Profile = () => {
                     </div>
                     <h4 className="font-bold text-[#5C2E3E] mb-1 text-sm">{user?.name}</h4>
                     <p className="text-xs text-gray-600 font-medium leading-relaxed max-w-[280px]">
-                      {editForm.address || 'No address saved.'}
+                      {user?.address || 'No address saved.'}
                     </p>
                     <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 border-t border-brand-pink/20 pt-2 w-max text-left mt-3 block w-full">+91 {user?.phone}</p>
                   </>
@@ -308,7 +306,7 @@ const Profile = () => {
                       value={editForm.bankDetails.accountName}
                       onChange={(e) => setEditForm({ ...editForm, bankDetails: { ...editForm.bankDetails, accountName: e.target.value } })}
                       className="w-full bg-gray-50/50 border border-gray-100 rounded-lg px-3 py-2 text-[11px] font-bold text-brand-dark outline-none focus:border-brand-pink/30"
-                      placeholder="Name per sacred records"
+                      placeholder="Name per records"
                     />
                   ) : (
                     <p className="text-[11px] font-black text-brand-dark">{user?.bankDetails?.accountName || '---'}</p>
@@ -336,7 +334,7 @@ const Profile = () => {
                       value={editForm.bankDetails.bankName}
                       onChange={(e) => setEditForm({ ...editForm, bankDetails: { ...editForm.bankDetails, bankName: e.target.value } })}
                       className="w-full bg-gray-50/50 border border-gray-100 rounded-lg px-3 py-2 text-[11px] font-bold text-brand-dark outline-none focus:border-brand-pink/30"
-                      placeholder="Bank Sanctuary Name"
+                      placeholder="Bank Name"
                     />
                   ) : (
                     <p className="text-[11px] font-black text-brand-dark">{user?.bankDetails?.bankName || '---'}</p>
