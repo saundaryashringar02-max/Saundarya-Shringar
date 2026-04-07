@@ -22,20 +22,29 @@ const app = express();
 
 // Middleware Stack
 app.use(helmet()); // Security headers
+// Dynamic CORS Configuration
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'https://saundaryashringar.com',
+    'https://www.saundaryashringar.com',
+    ...(process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',').map(o => o.trim()) : [])
+];
+
 app.use(cors({
     origin: (origin, callback) => {
-        const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173').split(',').map(o => o.trim());
-        // Allow requests with no origin (like mobile apps or curl)
+        // Allow requests with no origin (like mobile apps) or matching origins
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
-            callback(new Error('Cross-origin access blocked by professional security policy'));
+            console.warn(`CORS Blocked for: ${origin}`);
+            callback(new Error('Cross-origin access blocked by PROFESSIONAL security policy'));
         }
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
-})); // Refined cross-origin access with multi-origin support
+}));
 app.use(compression()); // Compress responses
 app.use(express.json({ limit: '50mb' })); // Body parser
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
