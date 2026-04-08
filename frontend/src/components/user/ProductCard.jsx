@@ -154,6 +154,9 @@ const ProductCard = ({ product }) => {
       </div>
 
       <div className="p-3 text-left flex flex-col flex-1 bg-transparent relative">
+        <span className="text-brand-pink font-black text-[7px] md:text-[8px] uppercase tracking-widest mb-1.5 block leading-none">
+          {product.brand || 'Saundarya'}
+        </span>
         <h3 className="font-sans font-bold text-[10px] md:text-[11px] text-gray-800 mb-1.5 line-clamp-2 leading-tight min-h-[2.4em]">
           {product.name}
         </h3>

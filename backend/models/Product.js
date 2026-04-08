@@ -7,6 +7,11 @@ const productSchema = new mongoose.Schema({
         trim: true,
         text: true // For full-text search
     },
+    brand: {
+        type: String,
+        trim: true,
+        index: true
+    },
     price: {
         type: Number,
         required: [true, 'Product must have a price'],
@@ -77,7 +82,7 @@ const productSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Create text index for optimized searching
-productSchema.index({ name: 'text', description: 'text', category: 'text' });
+productSchema.index({ name: 'text', brand: 'text', description: 'text', category: 'text' });
 
 const Product = mongoose.model('Product', productSchema);
 

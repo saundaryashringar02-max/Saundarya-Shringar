@@ -41,7 +41,8 @@ const AdminProducts = () => {
     about: [],
     skinType: 'All',
     skinConcern: 'All',
-    gallery: []
+    gallery: [],
+    brand: ''
   });
 
   const handleInputChange = (e) => {
@@ -137,7 +138,8 @@ const AdminProducts = () => {
       about: product.about || [],
       skinType: product.skinType || 'All',
       skinConcern: product.skinConcern || 'All',
-      gallery: product.gallery || []
+      gallery: product.gallery || [],
+      brand: product.brand || ''
     });
     setIsAdding(true);
   };
@@ -167,7 +169,7 @@ const AdminProducts = () => {
 
       setIsAdding(false);
       setEditingProduct(null);
-      setForm({ name: '', category: '', subCategory: '', price: '', stock: 100, image: '', description: '', badge: '', about: [], skinType: 'All', skinConcern: 'All', gallery: [] });
+      setForm({ name: '', brand: '', category: '', subCategory: '', price: '', stock: 100, image: '', description: '', badge: '', about: [], skinType: 'All', skinConcern: 'All', gallery: [] });
       fetchData();
     } catch (err) {
       alert('Error saving product: ' + (err.response?.data?.message || err.message));
@@ -206,7 +208,7 @@ const AdminProducts = () => {
               <button
                 onClick={() => {
                   setEditingProduct(null);
-                  setForm({ name: '', category: '', subCategory: '', price: '', stock: 100, image: '', description: '', badge: '', about: [], skinType: 'All', skinConcern: 'All', gallery: [] });
+                  setForm({ name: '', brand: '', category: '', subCategory: '', price: '', stock: 100, image: '', description: '', badge: '', about: [], skinType: 'All', skinConcern: 'All', gallery: [] });
                   setIsAdding(true);
                 }}
                 className="bg-brand-dark text-white px-6 py-2.5 rounded-lg text-xs font-bold flex items-center gap-2 shadow-lg shadow-black/10 hover:bg-black transition-all"
@@ -273,6 +275,7 @@ const AdminProducts = () => {
                   <thead>
                     <tr className="bg-gray-50/50 border-b border-gray-100">
                       <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">PRODUCT NAME</th>
+                      <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">BRAND</th>
                       <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">CATEGORY</th>
                       <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">PLACEMENT</th>
                       <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">PRICE</th>
@@ -293,6 +296,9 @@ const AdminProducts = () => {
                               <span className="text-[10px] text-brand-pink font-bold uppercase tracking-wider">ID: {p._id.slice(-6).toUpperCase()}</span>
                             </div>
                           </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-xs font-black text-gray-400 uppercase tracking-wider">{p.brand || 'Generic'}</span>
                         </td>
                         <td className="px-6 py-4">
                           <span className="text-xs font-bold text-gray-600">{p.category}</span>
@@ -393,46 +399,46 @@ const AdminProducts = () => {
 
                   {/* Multi-Angle Gallery */}
                   <div className="pt-3 border-t border-gray-50 mt-4">
-                     <h3 className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-3">Multi-Angle Perspective</h3>
-                     <div className="grid grid-cols-3 gap-2">
-                        {['FRONT', 'SIDE', 'BACK'].map((angle, idx) => (
-                           <div 
-                             key={angle}
-                             onClick={() => document.getElementById(`gallery-upload-${idx}`).click()}
-                             className="aspect-square bg-gray-50 border border-dashed border-gray-200 rounded-lg flex flex-col items-center justify-center relative cursor-pointer group overflow-hidden"
-                           >
-                              {form.gallery?.[idx] ? (
-                                 <img src={form.gallery[idx]} alt={angle} className="w-full h-full object-cover" />
-                              ) : (
-                                 <div className="flex flex-col items-center gap-1 text-gray-300 group-hover:text-brand-pink transition-colors">
-                                    <FiImage size={16} />
-                                    <span className="text-[7px] font-black">{angle}</span>
-                                 </div>
-                              )}
-                              <input 
-                                id={`gallery-upload-${idx}`} 
-                                type="file" 
-                                className="hidden" 
-                                accept="image/*" 
-                                onChange={async (e) => {
-                                   const file = e.target.files[0];
-                                   if (!file) return;
-                                   setIsUploading(true);
-                                   try {
-                                      const url = await uploadToCloudinary(file);
-                                      const newGallery = [...(form.gallery || [])];
-                                      newGallery[idx] = url;
-                                      setForm(prev => ({ ...prev, gallery: newGallery }));
-                                   } catch (err) {
-                                      alert(err.message);
-                                   } finally {
-                                      setIsUploading(false);
-                                   }
-                                }} 
-                              />
-                           </div>
-                        ))}
-                     </div>
+                    <h3 className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-3">Multi-Angle Perspective</h3>
+                    <div className="grid grid-cols-3 gap-2">
+                      {['FRONT', 'SIDE', 'BACK'].map((angle, idx) => (
+                        <div
+                          key={angle}
+                          onClick={() => document.getElementById(`gallery-upload-${idx}`).click()}
+                          className="aspect-square bg-gray-50 border border-dashed border-gray-200 rounded-lg flex flex-col items-center justify-center relative cursor-pointer group overflow-hidden"
+                        >
+                          {form.gallery?.[idx] ? (
+                            <img src={form.gallery[idx]} alt={angle} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="flex flex-col items-center gap-1 text-gray-300 group-hover:text-brand-pink transition-colors">
+                              <FiImage size={16} />
+                              <span className="text-[7px] font-black">{angle}</span>
+                            </div>
+                          )}
+                          <input
+                            id={`gallery-upload-${idx}`}
+                            type="file"
+                            className="hidden"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files[0];
+                              if (!file) return;
+                              setIsUploading(true);
+                              try {
+                                const url = await uploadToCloudinary(file);
+                                const newGallery = [...(form.gallery || [])];
+                                newGallery[idx] = url;
+                                setForm(prev => ({ ...prev, gallery: newGallery }));
+                              } catch (err) {
+                                alert(err.message);
+                              } finally {
+                                setIsUploading(false);
+                              }
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
@@ -499,6 +505,11 @@ const AdminProducts = () => {
                     </div>
 
                     <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-gray-500">Brand Name</label>
+                      <input type="text" name="brand" value={form.brand} onChange={handleInputChange} placeholder="e.g. Lakmé" className="w-full bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-[11px] font-bold outline-none focus:border-gray-300 transition-all shadow-inner" />
+                    </div>
+
+                    <div className="space-y-1">
                       <label className="text-[10px] font-bold text-gray-500">Description</label>
                       <textarea name="description" value={form.description} onChange={handleInputChange} placeholder="Tell us more about the product features..." className="w-full bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-[11px] font-medium outline-none h-24 focus:border-gray-300 transition-all resize-none shadow-inner"></textarea>
                     </div>
@@ -546,39 +557,39 @@ const AdminProducts = () => {
 
                 {/* Dermatological Mapping (Filters) */}
                 <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-5">
-                   {/* Skin Type */}
-                   <div className="space-y-3">
-                      <h3 className="text-[9px] font-bold text-gray-800 uppercase tracking-wider">Skin Type Mapping</h3>
-                      <div className="grid grid-cols-5 gap-2">
-                        {['Dry', 'Oily', 'Combo', 'Sensitive', 'All'].map(type => (
-                          <button
-                            key={type}
-                            type="button"
-                            onClick={() => setForm(prev => ({ ...prev, skinType: type === 'Combo' ? 'Combination' : type }))}
-                            className={`py-2 border rounded-lg transition-all text-[8px] font-black uppercase tracking-widest ${form.skinType === (type === 'Combo' ? 'Combination' : type) ? 'bg-brand-dark text-white border-brand-dark shadow-lg' : 'bg-gray-50 border-gray-100 text-gray-400 hover:border-gray-200'}`}
-                          >
-                            {type}
-                          </button>
-                        ))}
-                      </div>
-                   </div>
+                  {/* Skin Type */}
+                  <div className="space-y-3">
+                    <h3 className="text-[9px] font-bold text-gray-800 uppercase tracking-wider">Skin Type Mapping</h3>
+                    <div className="grid grid-cols-5 gap-2">
+                      {['Dry', 'Oily', 'Combo', 'Sensitive', 'All'].map(type => (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() => setForm(prev => ({ ...prev, skinType: type === 'Combo' ? 'Combination' : type }))}
+                          className={`py-2 border rounded-lg transition-all text-[8px] font-black uppercase tracking-widest ${form.skinType === (type === 'Combo' ? 'Combination' : type) ? 'bg-brand-dark text-white border-brand-dark shadow-lg' : 'bg-gray-50 border-gray-100 text-gray-400 hover:border-gray-200'}`}
+                        >
+                          {type}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-                   {/* Skin Concern */}
-                   <div className="space-y-3 pt-2 border-t border-gray-50">
-                      <h3 className="text-[9px] font-bold text-gray-800 uppercase tracking-wider">Targeted Concern</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {['Acne', 'Pigmentation', 'Anti-Aging', 'Glow', 'All'].map(concern => (
-                          <button
-                            key={concern}
-                            type="button"
-                            onClick={() => setForm(prev => ({ ...prev, skinConcern: concern }))}
-                            className={`py-2 px-4 border rounded-lg transition-all text-[9px] font-black uppercase tracking-widest ${form.skinConcern === concern ? 'bg-brand-pink text-white border-brand-pink shadow-lg' : 'bg-gray-50 border-gray-100 text-gray-400 hover:border-gray-200'}`}
-                          >
-                            {concern}
-                          </button>
-                        ))}
-                      </div>
-                   </div>
+                  {/* Skin Concern */}
+                  <div className="space-y-3 pt-2 border-t border-gray-50">
+                    <h3 className="text-[9px] font-bold text-gray-800 uppercase tracking-wider">Targeted Concern</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {['Acne', 'Pigmentation', 'Anti-Aging', 'Glow', 'All'].map(concern => (
+                        <button
+                          key={concern}
+                          type="button"
+                          onClick={() => setForm(prev => ({ ...prev, skinConcern: concern }))}
+                          className={`py-2 px-4 border rounded-lg transition-all text-[9px] font-black uppercase tracking-widest ${form.skinConcern === concern ? 'bg-brand-pink text-white border-brand-pink shadow-lg' : 'bg-gray-50 border-gray-100 text-gray-400 hover:border-gray-200'}`}
+                        >
+                          {concern}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

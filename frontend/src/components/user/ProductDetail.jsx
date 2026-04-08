@@ -331,9 +331,14 @@ const ProductDetail = () => {
           {/* Center: Info - Amazon Style */}
           <div className="lg:col-span-5 space-y-5">
             <div className="border-b border-gray-100 pb-3">
-              <span className="text-brand-gold font-bold uppercase tracking-widest text-[9px] md:text-[10px] items-center gap-2 mb-1 inline-flex">
-                <FiZap size={10} /> {product.label || 'Premium Selection'}
-              </span>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="bg-brand-pink/10 text-brand-pink text-[9px] font-black px-2 py-1 rounded uppercase tracking-widest border border-brand-pink/20">
+                  {product.brand || 'Saundarya'}
+                </span>
+                <span className="text-brand-gold font-bold uppercase tracking-widest text-[9px] md:text-[10px] items-center gap-2 inline-flex">
+                  <FiZap size={10} /> {product.label || 'Premium Selection'}
+                </span>
+              </div>
               <h1 className="text-2xl md:text-3xl font-serif font-black text-brand-dark mb-2 leading-tight tracking-tight uppercase">
                 {product.name}
               </h1>
@@ -396,8 +401,8 @@ const ProductDetail = () => {
                   <div
                     key={coupon._id}
                     className={`bg-white border rounded-xl p-4 flex flex-col justify-between relative overflow-hidden transition-all duration-300 ${appliedCoupon?.code === coupon.code
-                        ? 'border-brand-pink ring-2 ring-brand-pink/5 shadow-inner bg-brand-pink/[0.01]'
-                        : 'border-gray-100 hover:border-brand-pink/20 hover:shadow-lg hover:shadow-brand-pink/5'
+                      ? 'border-brand-pink ring-2 ring-brand-pink/5 shadow-inner bg-brand-pink/[0.01]'
+                      : 'border-gray-100 hover:border-brand-pink/20 hover:shadow-lg hover:shadow-brand-pink/5'
                       }`}
                   >
                     {/* Header: Code & Label */}
@@ -420,8 +425,8 @@ const ProductDetail = () => {
                           }
                         }}
                         className={`text-[8px] font-black uppercase tracking-widest transition-all ${appliedCoupon?.code === coupon.code
-                            ? 'text-green-500'
-                            : 'text-brand-pink hover:bg-brand-pink hover:text-white border border-transparent hover:border-brand-pink px-2 py-1 rounded-md'
+                          ? 'text-green-500'
+                          : 'text-brand-pink hover:bg-brand-pink hover:text-white border border-transparent hover:border-brand-pink px-2 py-1 rounded-md'
                           }`}
                       >
                         {appliedCoupon?.code === coupon.code ? 'APPLIED' : 'APPLY'}
