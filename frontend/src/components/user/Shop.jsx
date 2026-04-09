@@ -16,6 +16,7 @@ const Shop = () => {
   const [activeCategory, setActiveCategory] = useState(urlCategory);
   const [activeSubCategory, setActiveSubCategory] = useState(null);
   const [sortBy, setSortBy] = useState(urlSort);
+  const [visibleCount, setVisibleCount] = useState(15);
 
   // Fallback subcategories if not provided by backend (can be enhanced)
   const subCategoriesMap = {
@@ -285,7 +286,7 @@ const Shop = () => {
 
       {/* PRODUCT GRID */}
       <main className="container mx-auto px-4 md:px-8 py-8">
-        <div className="mb-8">
+        <div className="mb-8 flex justify-between items-center">
           <p className="text-[9px] text-gray-400 font-bold tracking-widest uppercase flex items-center gap-2">
             Discovering <span className="text-brand-pink">{filteredProducts.length}</span> curated treasures
             <span className="h-[1px] w-12 bg-gray-100"></span>
@@ -294,13 +295,31 @@ const Shop = () => {
 
         <motion.div layout className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 bg-transparent border-none">
           <AnimatePresence mode="popLayout">
-            {filteredProducts.map((product) => (
+            {filteredProducts.slice(0, visibleCount).map((product) => (
               <motion.div key={product._id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 <ProductCard product={product} />
               </motion.div>
             ))}
           </AnimatePresence>
         </motion.div>
+
+        {/* Improved Load More / Pagination */}
+        {filteredProducts.length > visibleCount && (
+          <div className="mt-16 flex justify-center">
+            <button
+              onClick={() => setVisibleCount(prev => prev + 20)}
+              className="group relative px-10 py-4 bg-[#5C2E3E] text-white overflow-hidden transition-all hover:pr-14"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] relative z-10">See All Discovery</span>
+                <div className="w-1 h-1 bg-brand-gold rounded-full group-hover:w-4 transition-all duration-300"></div>
+              </div>
+              <div className="absolute right-0 top-0 h-full w-0 bg-brand-pink group-hover:w-12 transition-all duration-300 flex items-center justify-center">
+                <FiChevronDown className="text-white" />
+              </div>
+            </button>
+          </div>
+        )}
 
         {filteredProducts.length === 0 && (
           <div className="py-20 text-center">
