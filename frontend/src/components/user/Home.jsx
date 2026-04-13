@@ -11,6 +11,8 @@ import Testimonials from './Testimonials';
 import InstagramGallery from './InstagramGallery';
 import Newsletter from './Newsletter';
 
+import AppPromotionBanner from './AppPromotionBanner';
+
 const Home = () => {
   return (
     <>

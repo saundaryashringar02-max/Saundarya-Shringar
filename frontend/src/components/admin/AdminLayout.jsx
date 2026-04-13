@@ -128,7 +128,7 @@ const AdminLayout = () => {
       >
         <div className={`p-3 pt-6 mb-2 flex items-center gap-3 ${!isSidebarOpen ? 'justify-center' : 'pl-4'} transition-all`}>
           <div className="w-11 h-11 rounded-xl bg-white/5 flex items-center justify-center shrink-0 border border-white/10 shadow-xl overflow-hidden group">
-            <img src="/admin_logo.png" alt="S" className="w-full h-full object-cover" />
+            <img src="/logo_uploaded.jpg" alt="Saundarya Shringar Logo" className="w-full h-full object-cover" />
           </div>
           {isSidebarOpen && (
             <div className="flex flex-col leading-none">

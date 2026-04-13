@@ -24,7 +24,12 @@ const Checkout = () => {
     name: '',
     email: '',
     phone: '',
-    address: ''
+    address: '',
+    landmark: '',
+    pincode: '',
+    city: '',
+    district: '',
+    state: ''
   });
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
@@ -32,6 +37,8 @@ const Checkout = () => {
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState('');
   const [errors, setErrors] = useState({});
+  const [isPincodeLoading, setIsPincodeLoading] = useState(false);
+  const [pincodeStatus, setPincodeStatus] = useState('');
 
   // Pre-populate data from profile
   useEffect(() => {
@@ -41,10 +48,61 @@ const Checkout = () => {
         name: prev.name || user.name || '',
         email: prev.email || user.email || '',
         phone: prev.phone || user.phone || '',
-        address: prev.address || user.address || ''
+        address: prev.address || user.address || '',
+        landmark: prev.landmark || user.landmark || '',
+        pincode: prev.pincode || user.pincode || '',
+        city: prev.city || user.city || '',
+        district: prev.district || user.district || '',
+        state: prev.state || user.state || ''
       }));
     }
   }, [user, isAuthLoading]);
+
+  // Auto detect city/district/state from Indian pincode
+  useEffect(() => {
+    const pin = (formData.pincode || '').trim();
+    if (!/^\d{6}$/.test(pin)) {
+      setPincodeStatus('');
+      return;
+    }
+
+    let isActive = true;
+    const detectFromPincode = async () => {
+      setIsPincodeLoading(true);
+      setPincodeStatus('Detecting location...');
+      try {
+        const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
+        const data = await res.json();
+        const record = data?.[0];
+        const office = record?.PostOffice?.[0];
+
+        if (!isActive) return;
+
+        if (record?.Status === 'Success' && office) {
+          setFormData(prev => ({
+            ...prev,
+            city: office?.Block || office?.Name || '',
+            district: office?.District || '',
+            state: office?.State || ''
+          }));
+          setErrors(prev => ({ ...prev, pincode: '', city: '', district: '', state: '' }));
+          setPincodeStatus(`Detected: ${office?.District || ''}, ${office?.State || ''}`.trim());
+        } else {
+          setPincodeStatus('Invalid pincode. Please check and try again.');
+        }
+      } catch (e) {
+        if (!isActive) return;
+        setPincodeStatus('Unable to detect location right now. Please enter manually.');
+      } finally {
+        if (isActive) setIsPincodeLoading(false);
+      }
+    };
+
+    detectFromPincode();
+    return () => {
+      isActive = false;
+    };
+  }, [formData.pincode]);
 
   // Scroll to top on step change or load
   useEffect(() => {
@@ -97,7 +155,8 @@ const Checkout = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const sanitizedValue = name === 'pincode' ? value.replace(/\D/g, '').slice(0, 6) : value;
+    setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
@@ -115,6 +174,14 @@ const Checkout = () => {
       newErrors.phone = 'Please enter a valid 10-digit number';
     }
     if (!formData.address?.trim()) newErrors.address = 'Address is required';
+    if (!formData.pincode?.trim()) {
+      newErrors.pincode = 'Pincode is required';
+    } else if (!/^\d{6}$/.test(formData.pincode.trim())) {
+      newErrors.pincode = 'Please enter a valid 6-digit pincode';
+    }
+    if (!formData.city?.trim()) newErrors.city = 'City is required';
+    if (!formData.district?.trim()) newErrors.district = 'District is required';
+    if (!formData.state?.trim()) newErrors.state = 'State is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -401,6 +468,60 @@ const Checkout = () => {
                       />
                       {errors.phone && <p className="text-red-400 text-[8px] font-black uppercase tracking-widest ml-1">{errors.phone}</p>}
                     </div>
+                    <div className="space-y-3">
+                      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">Pincode *</label>
+                      <input
+                        type="text"
+                        name="pincode"
+                        value={formData.pincode}
+                        onChange={handleInputChange}
+                        className={`w-full bg-white border ${errors.pincode ? 'border-red-400' : 'border-[#5C2E3E]/10'} px-6 py-4 text-[11px] font-bold outline-none focus:border-brand-pink/30 transition-all shadow-sm`}
+                        placeholder="Enter 6-digit pincode"
+                        inputMode="numeric"
+                      />
+                      {errors.pincode && <p className="text-red-400 text-[8px] font-black uppercase tracking-widest ml-1">{errors.pincode}</p>}
+                      {!errors.pincode && pincodeStatus && (
+                        <p className={`text-[8px] font-black uppercase tracking-widest ml-1 ${pincodeStatus.startsWith('Detected') ? 'text-green-500' : 'text-amber-500'}`}>
+                          {isPincodeLoading ? 'Detecting location...' : pincodeStatus}
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">City *</label>
+                      <input
+                        type="text"
+                        name="city"
+                        value={formData.city}
+                        onChange={handleInputChange}
+                        className={`w-full bg-white border ${errors.city ? 'border-red-400' : 'border-[#5C2E3E]/10'} px-6 py-4 text-[11px] font-bold outline-none focus:border-brand-pink/30 transition-all shadow-sm`}
+                        placeholder="Auto-filled from pincode"
+                      />
+                      {errors.city && <p className="text-red-400 text-[8px] font-black uppercase tracking-widest ml-1">{errors.city}</p>}
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">District *</label>
+                      <input
+                        type="text"
+                        name="district"
+                        value={formData.district}
+                        onChange={handleInputChange}
+                        className={`w-full bg-white border ${errors.district ? 'border-red-400' : 'border-[#5C2E3E]/10'} px-6 py-4 text-[11px] font-bold outline-none focus:border-brand-pink/30 transition-all shadow-sm`}
+                        placeholder="Auto-filled from pincode"
+                      />
+                      {errors.district && <p className="text-red-400 text-[8px] font-black uppercase tracking-widest ml-1">{errors.district}</p>}
+                    </div>
+                    <div className="space-y-3 md:col-span-2">
+                      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">State *</label>
+                      <input
+                        type="text"
+                        name="state"
+                        value={formData.state}
+                        onChange={handleInputChange}
+                        className={`w-full bg-white border ${errors.state ? 'border-red-400' : 'border-[#5C2E3E]/10'} px-6 py-4 text-[11px] font-bold outline-none focus:border-brand-pink/30 transition-all shadow-sm`}
+                        placeholder="Auto-filled from pincode"
+                      />
+                      {errors.state && <p className="text-red-400 text-[8px] font-black uppercase tracking-widest ml-1">{errors.state}</p>}
+                    </div>
                     <div className="space-y-3 md:col-span-2">
                       <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">Address *</label>
                       <textarea
@@ -411,6 +532,17 @@ const Checkout = () => {
                         placeholder=""
                       />
                       {errors.address && <p className="text-red-400 text-[8px] font-black uppercase tracking-widest ml-1">{errors.address}</p>}
+                    </div>
+                    <div className="space-y-3 md:col-span-2">
+                      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">Landmark (Optional)</label>
+                      <input
+                        type="text"
+                        name="landmark"
+                        value={formData.landmark}
+                        onChange={handleInputChange}
+                        className="w-full bg-white border border-[#5C2E3E]/10 px-6 py-4 text-[11px] font-bold outline-none focus:border-brand-pink/30 transition-all shadow-sm"
+                        placeholder="Nearby landmark for easier delivery"
+                      />
                     </div>
                   </div>
                 </motion.div>

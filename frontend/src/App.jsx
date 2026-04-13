@@ -30,6 +30,7 @@ import PrivacyPolicy from './components/user/policies/PrivacyPolicy';
 import ReturnPolicy from './components/user/policies/ReturnPolicy';
 import TermsAndConditions from './components/user/policies/TermsAndConditions';
 import CancelPolicy from './components/user/policies/CancelPolicy';
+import ShippingPolicy from './components/user/policies/ShippingPolicy';
 
 // Admin Module Imports
 import AdminDashboard from './components/admin/AdminDashboard';
@@ -79,6 +80,7 @@ const UserRoutes = () => (
           <Route path="/return-policy" element={<ReturnPolicy />} />
           <Route path="/terms-conditions" element={<TermsAndConditions />} />
           <Route path="/cancellation-policy" element={<CancelPolicy />} />
+          <Route path="/shipping-policy" element={<ShippingPolicy />} />
           <Route path="/support" element={<RaiseTicket />} />
         </Routes>
       </main>
