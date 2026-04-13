@@ -12,7 +12,7 @@ api.interceptors.request.use((config) => {
     // Fetch the correct token layer
     const token = isAdminScope
         ? localStorage.getItem('admin_token')
-        : localStorage.getItem('customer_token');
+        : (localStorage.getItem('customer_token') || localStorage.getItem('admin_token'));
 
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;

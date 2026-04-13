@@ -4,7 +4,7 @@ const orderController = require('../controllers/orderController');
 const { protect, restrictTo } = require('../middleware/authMiddleware');
 
 // Customer Routes
-router.post('/razorpay/create', protect, orderController.captureRazorpayOrder);
+router.post('/razorpay/create', orderController.captureRazorpayOrder);
 router.post('/razorpay/verify', protect, orderController.verifyRazorpayPayment);
 router.post('/', protect, orderController.createOrder);
 router.get('/my-orders', protect, orderController.getMyOrders);

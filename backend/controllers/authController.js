@@ -27,7 +27,7 @@ exports.sendOtp = async (req, res, next) => {
         if (!phone) return res.status(400).json({ status: 'error', message: 'Phone number required.' });
 
         // Boolean condition for REAL OTP vs DEFAULT
-        const USE_SMSHUB = process.env.USE_REAL_OTP === 'true';
+        const USE_SMSHUB = String(process.env.USE_REAL_OTP).toLowerCase() === 'true';
 
         // Generate 6-digit OTP (Hardcoded for Master Testing Account)
         let otpCode;
@@ -57,15 +57,25 @@ exports.sendOtp = async (req, res, next) => {
             const senderId = process.env.SMSINDIAHUB_SENDER_ID;
             const message = `Welcome to the saundarya shringar powered by SMSINDIAHUB. Your OTP for registration is ${otpCode}`;
 
+            if (!apiKey || !senderId) {
+                return res.status(500).json({
+                    status: 'error',
+                    message: 'OTP service not configured. Please contact support.'
+                });
+            }
+
             // Standard SMSIndiaHub Push API
             const url = `http://cloud.smsindiahub.in/vendorsms/pushsms.aspx?APIKey=${apiKey}&msisdn=${phone}&sid=${senderId}&msg=${encodeURIComponent(message)}&fl=0&gwid=2`;
 
             try {
-                await axios.get(url);
+                await axios.get(url, { timeout: 10000 });
                 console.log(`★ Real OTP Sent to ${phone}`);
             } catch (smsErr) {
                 console.error('SMS Send Error:', smsErr.message);
-                // Fallback or handle error
+                return res.status(502).json({
+                    status: 'error',
+                    message: 'OTP send failed. Please try again in a few moments.'
+                });
             }
         } else {
             console.log(`\x1b[33m%s\x1b[0m`, `★ OTP Sent to ${phone}: ${otpCode} (MOCK)`);

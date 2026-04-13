@@ -18,13 +18,10 @@ const TermsAndConditions = () => {
       <div className="space-y-6 bg-white/50 backdrop-blur-sm p-6 md:p-8 rounded-2xl border border-brand-pink/10 shadow-xl shadow-brand-pink/[0.02]">
         <section className={sectionStyle}>
           <p className={paragraphStyle}>
-            Welcome to Saundarya Shringar Private Limited, where elegance meets authenticity. These Terms and Conditions outline
-            the rules and regulations governing your access to and use of our website: www.saundaryashringar.com.
+            Welcome to Saundarya Shringar Private Limited, where elegance meets authenticity. These Terms & Conditions outline the rules and regulations governing your access to and use of our website: www.saundaryashringar.com.
           </p>
           <p className={paragraphStyle}>
-            By accessing, browsing, or purchasing from our website, you acknowledge that you have read, understood, and agreed
-            to be bound by these Terms, along with our Privacy Policy. If you do not agree, we respectfully request that you
-            discontinue use of the platform.
+            By accessing, browsing, or purchasing from our website, you acknowledge that you have read, understood, and agreed to be bound by these Terms, along with our Privacy Policy. If you do not agree, we respectfully request that you discontinue use of the platform.
           </p>
         </section>
 
@@ -37,7 +34,7 @@ const TermsAndConditions = () => {
             Saundarya Shringar Private Limited is dedicated to delivering quality and trust through a seamless digital experience.
           </p>
           <p className={paragraphStyle}>
-            Registered Office: Lajpat Nagar, Near Radha Swamibhawan, Fatehabad - 125050, Haryana, India.
+            Registered Office: Lajpat Nagar, Near Radha Swamibhawan Fatehabad - 125050, Haryana, India
           </p>
         </section>
 
@@ -48,21 +45,17 @@ const TermsAndConditions = () => {
           </div>
           <p className={paragraphStyle}>Your use of our website represents a legally binding agreement. By continuing to engage with our platform, you:</p>
           <ul className={bulletListStyle}>
-            <li>Accept all present and future Terms and Conditions</li>
+            <li>Accept all present and future Terms & Conditions</li>
             <li>Agree to comply with applicable laws and regulations</li>
             <li>Consent to updates made to these Terms from time to time</li>
           </ul>
           <p className={paragraphStyle}>
-            We reserve the right to revise these Terms at our sole discretion. Continued usage signifies your acceptance of any
-            modifications.
+            We reserve the right to revise these Terms at our sole discretion. Continued usage signifies your acceptance of any modifications.
           </p>
         </section>
 
         <section className={sectionStyle}>
-          <div className="flex items-center gap-3 text-brand-dark">
-            <FiTarget className="text-brand-pink" size={18} />
-            <h2 className={headingStyle}>3. Eligibility and Access</h2>
-          </div>
+          <h2 className={headingStyle}>3. Eligibility & Access</h2>
           <p className={paragraphStyle}>To ensure a safe and responsible environment:</p>
           <ul className={bulletListStyle}>
             <li>Users must be at least 18 years of age</li>
@@ -72,8 +65,11 @@ const TermsAndConditions = () => {
         </section>
 
         <section className={sectionStyle}>
-          <h2 className={headingStyle}>4. User Conduct and Responsibilities</h2>
-          <p className={paragraphStyle}>By using our website, you agree to:</p>
+          <div className="flex items-center gap-3 text-brand-dark">
+            <FiTarget className="text-brand-pink" size={18} />
+            <h2 className={headingStyle}>4. User Conduct & Responsibilities</h2>
+          </div>
+          <p className={paragraphStyle}>You agree to:</p>
           <ul className={bulletListStyle}>
             <li>Provide accurate, authentic, and current information</li>
             <li>Use the website strictly for personal and lawful purposes</li>
@@ -91,7 +87,7 @@ const TermsAndConditions = () => {
         </section>
 
         <section className={sectionStyle}>
-          <h2 className={headingStyle}>5. Account and Security</h2>
+          <h2 className={headingStyle}>5. Account & Security</h2>
           <ul className={bulletListStyle}>
             <li>You must ensure your details are accurate and up to date</li>
             <li>You are solely responsible for maintaining the confidentiality of your login credentials</li>
@@ -101,7 +97,7 @@ const TermsAndConditions = () => {
         </section>
 
         <section className={sectionStyle}>
-          <h2 className={headingStyle}>6. Orders, Pricing and Transactions</h2>
+          <h2 className={headingStyle}>6. Orders, Pricing & Transactions</h2>
           <p className={paragraphStyle}>Pricing transparency:</p>
           <ul className={bulletListStyle}>
             <li>All prices are displayed on the website</li>
@@ -130,7 +126,7 @@ const TermsAndConditions = () => {
         </section>
 
         <section className={sectionStyle}>
-          <h2 className={headingStyle}>8. Refund and Resolution Policy</h2>
+          <h2 className={headingStyle}>8. Refund & Resolution Policy</h2>
           <p className={paragraphStyle}>Refunds may be initiated only under the following circumstances:</p>
           <ul className={bulletListStyle}>
             <li>Products received are damaged or defective</li>
@@ -141,7 +137,7 @@ const TermsAndConditions = () => {
         </section>
 
         <section className={sectionStyle}>
-          <h2 className={headingStyle}>9. Website Performance and Availability</h2>
+          <h2 className={headingStyle}>9. Website Performance & Availability</h2>
           <ul className={bulletListStyle}>
             <li>The website may occasionally undergo maintenance or upgrades</li>
             <li>We do not guarantee uninterrupted, error-free, or virus-free access</li>
@@ -152,7 +148,8 @@ const TermsAndConditions = () => {
 
         <section className={sectionStyle}>
           <h2 className={headingStyle}>10. Disclaimer of Warranties</h2>
-          <p className={paragraphStyle}>All content and services are provided on an as-is and as-available basis. We do not warrant:</p>
+          <p className={paragraphStyle}>All content and services are provided on an as-is and as-available basis.</p>
+          <p className={paragraphStyle}>We do not warrant:</p>
           <ul className={bulletListStyle}>
             <li>Absolute accuracy or completeness of information</li>
             <li>Continuous availability of services</li>
@@ -173,8 +170,7 @@ const TermsAndConditions = () => {
             <h2 className={headingStyle}>11. Intellectual Property Rights</h2>
           </div>
           <p className={paragraphStyle}>
-            All content on this website including text, visuals, logos, and design is the intellectual property of
-            Saundarya Shringar Private Limited or its licensors.
+            All content on this website including text, visuals, logos, and design is the intellectual property of Saundarya Shringar Private Limited or its licensors.
           </p>
           <p className={paragraphStyle}>You may:</p>
           <ul className={bulletListStyle}>
@@ -189,7 +185,7 @@ const TermsAndConditions = () => {
         <section className={sectionStyle}>
           <h2 className={headingStyle}>12. Third-Party Integrations</h2>
           <ul className={bulletListStyle}>
-            <li>Third-party links or integrations are provided for convenience only</li>
+            <li>These are provided for convenience only</li>
             <li>We do not control or endorse third-party content</li>
             <li>Use of such services is entirely at your own risk</li>
           </ul>
@@ -197,26 +193,17 @@ const TermsAndConditions = () => {
 
         <section className={sectionStyle}>
           <h2 className={headingStyle}>13. Legal Jurisdiction</h2>
-          <p className={paragraphStyle}>
-            These Terms are governed by the laws of India. All disputes shall fall under the exclusive jurisdiction of the
-            courts in Fatehabad, Haryana.
-          </p>
+          <p className={paragraphStyle}>These Terms are governed by the laws of India.</p>
+          <p className={paragraphStyle}>All disputes shall fall under the exclusive jurisdiction of the courts in Fatehabad, Haryana.</p>
         </section>
 
         <section className={sectionStyle}>
           <h2 className={headingStyle}>14. Severability</h2>
-          <p className={paragraphStyle}>
-            If any provision of these Terms is deemed invalid or unenforceable, the remaining provisions shall continue in
-            full force and effect.
-          </p>
+          <p className={paragraphStyle}>If any provision of these Terms is deemed invalid or unenforceable, the remaining provisions shall continue in full force and effect.</p>
         </section>
 
         <section className={sectionStyle}>
-          <div className="flex items-center gap-3 text-brand-dark">
-            <FiInfo className="text-brand-pink" size={18} />
-            <h2 className={headingStyle}>15. Get in Touch</h2>
-          </div>
-          <p className={paragraphStyle}>For any queries or concerns:</p>
+          <h2 className={headingStyle}>15. Get in Touch</h2>
           <ul className={bulletListStyle}>
             <li>Email: care@saundaryashringar.com</li>
             <li>Phone/WhatsApp: +91-9896472169</li>

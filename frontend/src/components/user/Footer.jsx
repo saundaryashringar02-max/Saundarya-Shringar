@@ -57,7 +57,7 @@ const Footer = () => {
             <ul className="space-y-1.5 text-[9px] font-bold uppercase tracking-widest text-[#2D1810]/80">
               <li><Link to="/profile" className="hover:text-brand-pink transition-colors">Your Account</Link></li>
               <li><Link to="/return-policy" className="hover:text-brand-pink transition-colors">Returns Centre</Link></li>
-              <li><Link to="/terms-conditions" className="hover:text-brand-pink transition-colors">Purchase Protection</Link></li>
+              <li><Link to="/terms-conditions" className="hover:text-brand-pink transition-colors">Terms & Conditions</Link></li>
               <li><a href="https://wa.me/919896472169" target="_blank" rel="noreferrer" className="hover:text-brand-pink transition-colors">Help Support</a></li>
             </ul>
           </div>

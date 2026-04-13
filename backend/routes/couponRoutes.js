@@ -4,6 +4,7 @@ const couponController = require('../controllers/couponController');
 const { protect, restrictTo } = require('../middleware/authMiddleware');
 
 router.post('/validate', couponController.validateCoupon); // Public check
+router.get('/public', couponController.getPublicCoupons); // Public list for storefront
 
 router.use(protect, restrictTo('admin', 'super-admin'));
 router.route('/')

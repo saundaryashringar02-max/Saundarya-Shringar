@@ -7,6 +7,19 @@ exports.getAllCoupons = async (req, res, next) => {
     } catch (err) { next(err); }
 };
 
+exports.getPublicCoupons = async (req, res, next) => {
+    try {
+        const coupons = await Coupon.find({
+            isActive: true,
+            expiryDate: { $gte: new Date() }
+        })
+            .select('code discountType discountValue expiryDate')
+            .sort('expiryDate');
+
+        res.status(200).json({ status: 'success', data: { coupons } });
+    } catch (err) { next(err); }
+};
+
 exports.createCoupon = async (req, res, next) => {
     try {
         const newCoupon = await Coupon.create(req.body);

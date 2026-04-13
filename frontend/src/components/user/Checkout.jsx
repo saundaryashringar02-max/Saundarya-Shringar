@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiChevronLeft, FiShoppingBag, FiCreditCard, FiTruck, FiCheckCircle, FiShield, FiMinus, FiPlus, FiTrash2, FiCheck } from 'react-icons/fi';
+import { FiChevronLeft, FiShoppingBag, FiCreditCard, FiTruck, FiCheckCircle, FiShield, FiMinus, FiPlus, FiTrash2, FiCheck, FiAlertTriangle } from 'react-icons/fi';
 import { useShop } from '../../context/ShopContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
@@ -36,6 +36,8 @@ const Checkout = () => {
   const [discountAmount, setDiscountAmount] = useState(0);
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState('');
+  const [isDisclaimerAccepted, setIsDisclaimerAccepted] = useState(false);
+  const [disclaimerError, setDisclaimerError] = useState('');
   const [errors, setErrors] = useState({});
   const [isPincodeLoading, setIsPincodeLoading] = useState(false);
   const [pincodeStatus, setPincodeStatus] = useState('');
@@ -272,6 +274,11 @@ const Checkout = () => {
     } else if (step === 2) {
       if (validateDetails()) setStep(3);
     } else if (step === 3) {
+      if (!isDisclaimerAccepted) {
+        setDisclaimerError('Please accept the disclaimer to continue.');
+        return;
+      }
+
       if (selectedPayment === 'paynow') {
         await handleRazorpay();
       } else {
@@ -341,8 +348,8 @@ const Checkout = () => {
       <div className="container mx-auto px-4 md:px-8 max-w-6xl">
         {/* Back Button */}
         <div
-          onClick={() => step > 1 ? setStep(step - 1) : null}
-          className={`inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-colors mb-8 cursor-pointer ${step > 1 ? 'text-[#5C2E3E] hover:text-brand-pink' : 'text-gray-200 pointer-events-none'}`}
+          onClick={() => step > 1 ? setStep(step - 1) : navigate(-1)}
+          className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-colors mb-8 cursor-pointer text-black hover:text-[#5C2E3E]"
         >
           <FiChevronLeft /> Previous Step
         </div>
@@ -553,6 +560,73 @@ const Checkout = () => {
                   <h1 className="text-3xl md:text-4xl font-serif font-black text-[#5C2E3E] uppercase tracking-tighter">
                     Payment <span className="text-brand-pink italic">Selection</span>
                   </h1>
+
+                  <div className="bg-[#5C2E3E] text-white border border-[#5C2E3E]/70 p-5 md:p-6 rounded-sm shadow-lg space-y-4">
+                    <div className="flex items-center gap-2 text-brand-gold">
+                      <FiAlertTriangle size={16} />
+                      <h3 className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em]">Scam Alert / धोखाधड़ी से सावधान</h3>
+                    </div>
+
+                    <div className="space-y-2 text-[11px] md:text-sm leading-relaxed text-white/95">
+                      <p className="font-semibold">विभिन्न माध्यमों पर बढ़ती धोखाधड़ी से सावधान</p>
+                      <ul className="list-disc pl-5 space-y-2">
+                        <li>
+                          धोखेबाज लॉजिस्टिक्स या डिलीवरी एजेंट बनकर पैसे मांग सकते हैं।
+                          <span className="font-black"> भुगतान न करें। </span>
+                          Saundarya Shringar कभी भी अपने आधिकारिक प्लेटफॉर्म के बाहर किसी भी कॉन्टेस्ट, डील या प्रमोशन के लिए भुगतान/फाइनेंशियल डिटेल नहीं मांगता।
+                        </li>
+                        <li>
+                          अगर ऐसा कोई मैसेज/कॉल मिले, जानकारी शेयर न करें। हमसे संपर्क करें:
+                          <span className="font-black"> +91 9896472169 </span>
+                          या
+                          <span className="font-black"> care@saundaryashringar.com</span>
+                          ।
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="h-px bg-white/20" />
+
+                    <div className="space-y-2 text-[11px] md:text-sm leading-relaxed text-white/95">
+                      <p className="font-semibold">Rise in Fraudulent Activities Across Channels</p>
+                      <ul className="list-disc pl-5 space-y-2">
+                        <li>
+                          Fraudsters may impersonate logistics/delivery partners and ask for payment to complete delivery.
+                          <span className="font-black"> Do not pay. </span>
+                          Saundarya Shringar never asks for payments or financial details for contests, deals, or promotions outside our official platform.
+                        </li>
+                        <li>
+                          If you receive such communication, do not share details. Contact us at
+                          <span className="font-black"> +91 9896472169 </span>
+                          or
+                          <span className="font-black"> care@saundaryashringar.com</span>
+                          . You may also report scams to DoT.
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="h-px bg-white/20" />
+
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isDisclaimerAccepted}
+                        onChange={(e) => {
+                          setIsDisclaimerAccepted(e.target.checked);
+                          if (e.target.checked) setDisclaimerError('');
+                        }}
+                        className="mt-0.5 w-4 h-4 accent-brand-gold"
+                      />
+                      <span className="text-[10px] md:text-xs font-bold uppercase tracking-wide text-white/95 leading-relaxed">
+                        I have read and understood this fraud disclaimer / मैंने यह धोखाधड़ी चेतावनी पढ़ ली है।
+                      </span>
+                    </label>
+
+                    {disclaimerError && (
+                      <p className="text-[10px] font-bold text-red-300 uppercase tracking-wide">{disclaimerError}</p>
+                    )}
+                  </div>
+
                   <div className="space-y-3">
                     {[
                       { id: 'paynow', label: 'PAY NOW', desc: 'Secure Online Transaction (UPI, Cards, NetBanking)' }
@@ -602,6 +676,29 @@ const Checkout = () => {
                     <span className="text-sm font-black text-[#5C2E3E]">₹{subtotal}</span>
                   </div>
 
+                  <div className="py-2">
+                    <div className="flex flex-col gap-2">
+                      <p className="text-[7px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1 ml-1">Ritual Key (Coupon)</p>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={couponCode}
+                          onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                          placeholder="E.G. SAUNDARYA10"
+                          className="flex-1 bg-gray-50 border border-gray-100 px-3 py-2 text-[9px] font-bold outline-none focus:border-brand-pink/30 uppercase tracking-widest transition-all"
+                        />
+                        <button
+                          onClick={handleApplyCoupon}
+                          disabled={couponLoading || !couponCode.trim()}
+                          className="bg-brand-dark text-white px-4 py-2 text-[8px] font-black uppercase tracking-widest hover:bg-black transition-all disabled:opacity-30"
+                        >
+                          {couponLoading ? '...' : 'APPLY'}
+                        </button>
+                      </div>
+                      {couponError && <p className="text-[7px] font-bold text-red-400 uppercase tracking-widest mt-1 ml-1">{couponError}</p>}
+                    </div>
+                  </div>
+
                   {appliedCoupon && (
                     <div className="flex justify-between items-center px-1">
                       <div className="flex flex-col">
@@ -613,31 +710,6 @@ const Checkout = () => {
                         <button onClick={() => { setAppliedCoupon(null); setDiscountAmount(0); }} className="text-red-300 hover:text-red-500 transition-colors">
                           <FiTrash2 size={10} />
                         </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {!appliedCoupon && (
-                    <div className="py-2">
-                      <div className="flex flex-col gap-2">
-                        <p className="text-[7px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1 ml-1">Ritual Key (Coupon)</p>
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            value={couponCode}
-                            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                            placeholder="E.G. SAUNDARYA10"
-                            className="flex-1 bg-gray-50 border border-gray-100 px-3 py-2 text-[9px] font-bold outline-none focus:border-brand-pink/30 uppercase tracking-widest transition-all"
-                          />
-                          <button
-                            onClick={handleApplyCoupon}
-                            disabled={couponLoading || !couponCode.trim()}
-                            className="bg-brand-dark text-white px-4 py-2 text-[8px] font-black uppercase tracking-widest hover:bg-black transition-all disabled:opacity-30"
-                          >
-                            {couponLoading ? '...' : 'APPLY'}
-                          </button>
-                        </div>
-                        {couponError && <p className="text-[7px] font-bold text-red-400 uppercase tracking-widest mt-1 ml-1">{couponError}</p>}
                       </div>
                     </div>
                   )}
@@ -671,7 +743,7 @@ const Checkout = () => {
 
                 <button
                   onClick={handleProceed}
-                  disabled={displayItems.length === 0 || isPaymentLoading}
+                  disabled={displayItems.length === 0 || isPaymentLoading || (step === 3 && !isDisclaimerAccepted)}
                   className="w-full bg-[#5C2E3E] text-white py-5 font-bold uppercase tracking-[0.4em] text-[10px] shadow-2xl hover:bg-brand-pink transition-all active:scale-95 disabled:bg-gray-100 disabled:text-gray-400 disabled:shadow-none"
                 >
                   {isPaymentLoading ? 'Processing...' : (step === 3 ? 'Pay Now' : 'Continue Journey')}
