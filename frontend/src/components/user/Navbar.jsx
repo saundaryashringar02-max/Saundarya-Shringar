@@ -15,7 +15,7 @@ const Navbar = () => {
     { name: 'Skincare', link: '/shop?category=Skincare' },
     { name: 'Makeup', link: '/shop?category=Makeup' },
     { name: 'Soaps', link: '/shop?category=Soaps' },
-    { name: 'Offers', link: '/shop?offers=true' },
+    { name: 'Offers', link: '/offers' },
     { name: 'Blog', link: '/blog' },
     { name: 'About', link: '/about' },
     { name: 'Contact', link: '/contact' },
