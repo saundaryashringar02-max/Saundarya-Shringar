@@ -5,7 +5,7 @@ import footerBg from '../../assets/images/footer_bg.jpg';
 
 const Footer = () => {
   return (
-    <footer className="relative bg-[#FBD5DA] text-[#2D1810] pt-8 pb-4 border-t border-brand-pink/10 overflow-hidden">
+    <footer className="relative bg-[#FBD5DA] text-[#2D1810] pt-8 pb-20 md:pb-10 border-t border-brand-pink/10 overflow-hidden">
       {/* Sketched Cosmetic Background */}
       <div
         className="absolute inset-0 z-0 opacity-10 pointer-events-none"
@@ -93,19 +93,23 @@ const Footer = () => {
             <span className="text-[7px] md:text-[8px] tracking-[0.5em] text-[#5C2E3E]/60 uppercase mt-1 font-bold" style={{ fontFamily: "'Cinzel', serif" }}>Shringar</span>
           </div>
 
-          <div className="flex flex-col items-center gap-2">
-            <div className="flex gap-4 text-[8px] font-black uppercase tracking-widest text-[#2D1810]/40">
-              <Link to="/privacy-policy" className="hover:text-brand-pink transition-colors">Privacy</Link>
-              <Link to="/terms-conditions" className="hover:text-brand-pink transition-colors">Terms</Link>
-              <Link to="/return-policy" className="hover:text-brand-pink transition-colors">Returns</Link>
-              <Link to="/shipping-policy" className="hover:text-brand-pink transition-colors">Shipping</Link>
-            </div>
-            <img src="/payment_methods.jpg" alt="We Accept" className="h-10 md:h-12 object-contain opacity-80 mix-blend-multiply transition-opacity hover:opacity-100" />
+          <div className="flex gap-4 text-[8px] font-black uppercase tracking-widest text-[#2D1810]/40">
+            <Link to="/privacy-policy" className="hover:text-brand-pink transition-colors">Privacy</Link>
+            <Link to="/terms-conditions" className="hover:text-brand-pink transition-colors">Terms</Link>
+            <Link to="/return-policy" className="hover:text-brand-pink transition-colors">Returns</Link>
+            <Link to="/shipping-policy" className="hover:text-brand-pink transition-colors">Shipping</Link>
           </div>
 
-          <p className="text-[8px] font-bold text-[#2D1810]/50 uppercase tracking-wider">
-            © 2026 Saundarya Shringar.
-          </p>
+          <div className="flex flex-col items-center md:items-end gap-2">
+            <img
+              src="/payment_methods.jpg"
+              alt="We Accept"
+              className="h-8 md:h-10 object-contain mix-blend-multiply opacity-95 transition-all hover:opacity-100 brightness-[1.1] contrast-[1.1]"
+            />
+            <p className="text-[8px] font-bold text-[#2D1810]/50 uppercase tracking-wider leading-none">
+              © 2026 Saundarya Shringar.
+            </p>
+          </div>
         </div>
       </div>
     </footer>

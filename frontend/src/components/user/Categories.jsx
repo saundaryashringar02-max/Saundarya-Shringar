@@ -75,7 +75,7 @@ const Categories = () => {
 
         <div
           ref={scrollRef}
-          className="flex overflow-x-auto pb-2 gap-4 scrollbar-hide no-scrollbar snap-x snap-mandatory justify-center"
+          className="flex overflow-x-auto overflow-y-hidden pb-4 pt-2 gap-8 px-12 scrollbar-hide no-scrollbar snap-x snap-mandatory md:justify-center justify-start items-center"
         >
           {categories.map((cat, index) => (
             <div
