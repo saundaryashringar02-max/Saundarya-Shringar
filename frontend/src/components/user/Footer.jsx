@@ -104,7 +104,7 @@ const Footer = () => {
             <img
               src="/payment_methods_v2.png"
               alt="We Accept"
-              className="h-10 md:h-14 object-contain mix-blend-multiply opacity-95 transition-all hover:opacity-100 brightness-[1.1] contrast-[1.1]"
+              className="h-14 md:h-20 object-contain mix-blend-multiply opacity-95 transition-all hover:opacity-100 brightness-[1.1] contrast-[1.1]"
             />
             <p className="text-[8px] font-bold text-[#2D1810]/50 uppercase tracking-wider leading-none">
               © 2026 Saundarya Shringar.
