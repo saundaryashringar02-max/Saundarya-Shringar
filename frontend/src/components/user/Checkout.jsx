@@ -153,7 +153,8 @@ const Checkout = () => {
   // Correct TAX INCLUSIVE calculation
   const taxAmount = Math.round(subtotal - (subtotal / (1 + (currentTaxRate / 100))));
 
-  const total = Math.max(0, subtotal - discountAmount + shippingValue);
+  const codFee = (selectedPayment === 'cod' && settings?.isCodEnabled) ? (settings?.codCharge || 0) : 0;
+  const total = Math.max(0, subtotal - discountAmount + shippingValue + codFee);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -213,7 +214,7 @@ const Checkout = () => {
               items: displayItems.map(i => ({ product: i._id, quantity: i.quantity || 1, price: i.price, name: i.name })),
               totalAmount: total,
               couponCode: appliedCoupon?.code
-            }, total);
+            }, total, { subtotal, taxAmount, shippingValue });
             setIsSuccess(true);
           } catch (err) {
             console.error("Verification error", err);
@@ -283,7 +284,10 @@ const Checkout = () => {
         await handleRazorpay();
       } else {
         try {
-          await clearCart(formData, total);
+          await clearCart({
+            ...formData,
+            couponCode: appliedCoupon?.code
+          }, total, { subtotal, taxAmount, shippingValue });
           setIsSuccess(true);
         } catch (err) {
           console.error("Checkout failed", err);
@@ -333,6 +337,22 @@ const Checkout = () => {
             <Link to={`/track-order?id=${orderId}`} className="w-full inline-block px-8 py-3 bg-brand-gold text-white text-[9px] font-black uppercase tracking-[0.2em] shadow-lg hover:bg-[#5C2E3E] transition-all mb-2">
               Track Journey
             </Link>
+
+            <button
+              onClick={async () => {
+                try {
+                  const res = await api.get(`/orders/track/${orderId}`);
+                  const order = res.data.data.order;
+                  const m = await import('../../utils/invoiceHelper');
+                  m.generateInvoice(order);
+                } catch (err) {
+                  alert("Failed to retrieve invoice details.");
+                }
+              }}
+              className="w-full inline-block px-8 py-3 border border-brand-pink text-brand-pink text-[9px] font-black uppercase tracking-[0.2em] hover:bg-brand-pink hover:text-white transition-all mb-2"
+            >
+              Download Invoice
+            </button>
 
             <Link to="/" className="w-full inline-block px-8 py-3 border border-gray-100 text-[#5C2E3E] text-[9px] font-bold uppercase tracking-[0.2em] hover:bg-gray-50 transition-all active:scale-95">
               Back to Sanctuary
@@ -629,8 +649,16 @@ const Checkout = () => {
 
                   <div className="space-y-3">
                     {[
-                      { id: 'paynow', label: 'PAY NOW', desc: 'Secure Online Transaction (UPI, Cards, NetBanking)' }
-                    ].map(method => (
+                      { id: 'paynow', label: 'PAY NOW', desc: 'Secure Online Transaction (UPI, Cards, NetBanking)', show: true },
+                      {
+                        id: 'cod',
+                        label: 'CASH ON DELIVERY',
+                        desc: settings?.codCharge > 0
+                          ? `Pay when your sacred package arrives (+₹${settings.codCharge} Convenience)`
+                          : 'Pay when your sacred package arrives',
+                        show: settings?.isCodEnabled !== false
+                      }
+                    ].filter(m => m.show).map(method => (
                       <div
                         key={method.id}
                         onClick={() => setSelectedPayment(method.id)}
@@ -719,6 +747,13 @@ const Checkout = () => {
                     <span className="text-sm font-black text-brand-gold">{shippingValue === 0 ? 'FREE' : `₹${shippingValue}`}</span>
                   </div>
 
+                  {codFee > 0 && (
+                    <div className="flex justify-between items-center px-1">
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/40">COD Convenience</span>
+                      <span className="text-sm font-black text-[#5C2E3E]">₹${codFee}</span>
+                    </div>
+                  )}
+
                   <div className="bg-brand-pink/5 p-4 rounded-lg space-y-2 border border-brand-pink/10">
                     <div className="flex justify-between items-center text-[7px] font-black uppercase tracking-widest text-[#5C2E3E]/40 px-1">
                       <span>Inclusive of GST ({currentTaxRate}%)</span>
@@ -746,7 +781,12 @@ const Checkout = () => {
                   disabled={displayItems.length === 0 || isPaymentLoading || (step === 3 && !isDisclaimerAccepted)}
                   className="w-full bg-[#5C2E3E] text-white py-5 font-bold uppercase tracking-[0.4em] text-[10px] shadow-2xl hover:bg-brand-pink transition-all active:scale-95 disabled:bg-gray-100 disabled:text-gray-400 disabled:shadow-none"
                 >
-                  {isPaymentLoading ? 'Processing...' : (step === 3 ? 'Pay Now' : 'Continue Journey')}
+                  {isPaymentLoading ? 'Processing...' :
+                    (step === 3
+                      ? (selectedPayment === 'cod' ? 'Place Order (COD)' : 'Pay Now')
+                      : 'Continue Journey'
+                    )
+                  }
                 </button>
 
                 <div className="flex flex-wrap items-center justify-center gap-4 mt-2">

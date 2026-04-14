@@ -125,7 +125,7 @@ const PolicySanctuaryModal = ({ onClose, initialTab = 'Genuine' }) => {
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { products, addToCart, toggleWishlist, isInWishlist, loading, isAuthenticated, user, setIsCartDrawerOpen } = useShop();
+  const { products, addToCart, toggleWishlist, isInWishlist, loading, isAuthenticated, user, setIsCartDrawerOpen, triggerFlyToCart } = useShop();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isAdded, setIsAdded] = useState(false);
   const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
@@ -145,8 +145,8 @@ const ProductDetail = () => {
 
   const fetchAvailableCoupons = async () => {
     try {
-      const res = await api.get('/coupons/public');
-      setAvailableCoupons(res.data.data.coupons || []);
+      const res = await api.get('/coupons');
+      setAvailableCoupons(res.data.data.coupons.filter(c => c.isActive));
     } catch (err) {
       console.error("Failed to fetch divine offers:", err);
     }
@@ -250,11 +250,15 @@ const ProductDetail = () => {
 
   const finalPrice = calculateDiscountedPrice();
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e) => {
+    if (triggerFlyToCart) {
+      triggerFlyToCart(e, (product.gallery && product.gallery[selectedImageIndex]) || product.image);
+    }
     addToCart({ ...product, price: finalPrice, couponApplied: appliedCoupon?.code });
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
   };
+
 
   const handleBuyNow = () => {
     const directProductData = {
@@ -286,7 +290,7 @@ const ProductDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12">
 
           {/* Left: Image Gallery - New Vertical Stack */}
-          <div className="lg:col-span-5 flex flex-col gap-6">
+          <div className="lg:col-span-6 flex flex-col gap-6">
             {/* Main Large Image - Tighter Boundary */}
             <div className="relative aspect-square overflow-hidden bg-white shadow-2xl rounded-2xl group border border-gray-100/50 max-w-[500px] mx-auto">
               <motion.img
@@ -329,16 +333,11 @@ const ProductDetail = () => {
           </div>
 
           {/* Center: Info - Amazon Style */}
-          <div className="lg:col-span-5 space-y-5">
+          <div className="lg:col-span-6 space-y-5">
             <div className="border-b border-gray-100 pb-3">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="bg-brand-pink/10 text-brand-pink text-[9px] font-black px-2 py-1 rounded uppercase tracking-widest border border-brand-pink/20">
-                  {product.brand || 'Saundarya'}
-                </span>
-                <span className="text-brand-gold font-bold uppercase tracking-widest text-[9px] md:text-[10px] items-center gap-2 inline-flex">
-                  <FiZap size={10} /> {product.label || 'Premium Selection'}
-                </span>
-              </div>
+              <span className="text-brand-gold font-bold uppercase tracking-widest text-[9px] md:text-[10px] items-center gap-2 mb-1 inline-flex">
+                <FiZap size={10} /> {product.label || 'Premium Selection'}
+              </span>
               <h1 className="text-2xl md:text-3xl font-serif font-black text-brand-dark mb-2 leading-tight tracking-tight uppercase">
                 {product.name}
               </h1>
@@ -362,29 +361,57 @@ const ProductDetail = () => {
               </div>
             </div>
 
-            <div className="py-2">
-              <div className="flex items-center gap-3 mb-1">
-                <span className="text-brand-pink text-3xl font-medium">-{product.discount || '29%'}</span>
-                <div className="flex flex-col">
-                  {appliedCoupon && (
-                    <span className="text-gray-400 line-through text-xs font-bold font-sans">₹{product.price}</span>
-                  )}
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-sm font-bold align-top mt-1">₹</span>
-                    <span className="text-4xl font-black tracking-tighter text-brand-dark leading-none">{finalPrice}</span>
+            <div className="py-2 flex flex-col xl:flex-row xl:items-center justify-start gap-10 xl:gap-24 border-b border-gray-100 pb-5">
+              <div>
+                <div className="flex items-center gap-3 mb-1">
+                  <span className="text-brand-pink text-3xl font-medium">-{product.discount || '29%'}</span>
+                  <div className="flex flex-col">
+                    {appliedCoupon && (
+                      <span className="text-gray-400 line-through text-xs font-bold font-sans">₹{product.price}</span>
+                    )}
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-sm font-bold align-top mt-1">₹</span>
+                      <span className="text-4xl font-black tracking-tighter text-brand-dark leading-none">{finalPrice}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <p className="text-gray-500 text-xs font-medium">
-                M.R.P.: <span className="line-through">₹{product.oldPrice || product.price + 225}</span>
-              </p>
-              {appliedCoupon && (
-                <div className="mt-2 flex items-center gap-2 bg-green-50 text-green-600 px-3 py-1.5 rounded-lg border border-green-100 w-fit">
-                  <FiTag size={12} />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Applied: {appliedCoupon.code}</span>
-                  <button onClick={() => setAppliedCoupon(null)} className="ml-1 hover:bg-green-100 p-0.5 rounded-full transition-colors"><FiX size={12} /></button>
+                <div className="flex flex-col gap-1">
+                  <p className="text-gray-500 text-xs font-medium">
+                    M.R.P.: <span className="line-through">₹{product.oldPrice || product.price + 225}</span>
+                  </p>
+                  <p className="text-[11px] text-gray-500 leading-tight">
+                    FREE delivery <span className="text-brand-dark font-bold">Sunday, 22 March</span> on your first order.
+                  </p>
                 </div>
-              )}
+
+                {appliedCoupon && (
+                  <div className="mt-2 flex items-center gap-2 bg-green-50 text-green-600 px-3 py-1.5 rounded-lg border border-green-100 w-fit">
+                    <FiTag size={12} />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Applied: {appliedCoupon.code}</span>
+                    <button onClick={() => setAppliedCoupon(null)} className="ml-1 hover:bg-green-100 p-0.5 rounded-full transition-colors"><FiX size={12} /></button>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-row xl:flex-col gap-3 min-w-[240px]">
+                <button
+                  onClick={handleAddToCart}
+                  className={`flex-1 py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-md border-b-2 ${isAdded
+                    ? 'bg-green-600 border-green-800 text-white'
+                    : 'bg-brand-dark hover:bg-black text-white border-gray-900'
+                    }`}
+                >
+                  {isAdded ? <FiCheckCircle /> : <FiShoppingCart />}
+                  {isAdded ? 'Added to Bag' : 'Add to Bag'}
+                </button>
+
+                <button
+                  onClick={handleBuyNow}
+                  className="flex-1 py-3.5 px-6 rounded-xl bg-brand-pink hover:bg-[#A35266] text-white flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-md border-b-2 border-brand-dark/20"
+                >
+                  <FiZap /> Buy Now
+                </button>
+              </div>
             </div>
 
             {/* Available Offers Grid - Replacing Manual Input */}
@@ -396,7 +423,7 @@ const ProductDetail = () => {
               <div className="grid grid-cols-2 gap-3">
                 {(availableCoupons.length > 0 ? availableCoupons.slice(0, 2) : [
                   { code: 'SAUNDARYA10', discountValue: 10, discountType: 'percentage', _id: 'def1' },
-                  { code: 'WELCOME20', discountValue: 200, discountType: 'fixed', _id: 'def2' }
+                  { code: 'WELCOME20', discountValue: 50, discountType: 'fixed', _id: 'def2' }
                 ]).map((coupon) => (
                   <div
                     key={coupon._id}
@@ -482,61 +509,7 @@ const ProductDetail = () => {
             )}
           </div>
 
-          {/* Right: Buy Section - Amazon Buy Box */}
-          <div className="lg:col-span-3">
-            <div className="sticky top-28 space-y-4">
-              <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300">
-                <div className="space-y-2 mb-6">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-sm font-bold mt-1">₹</span>
-                    <span className="text-3xl font-black text-brand-dark tracking-tight">{finalPrice}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                    <p className="text-green-600 font-black text-sm">In Stock</p>
-                  </div>
-                  <p className="text-[11px] text-gray-500 leading-tight">
-                    FREE delivery <span className="text-brand-dark font-bold">Sunday, 22 March</span> on your first order. <span onClick={() => { setSelectedPolicyTab('Fast Delivery'); setIsPolicyModalOpen(true); }} className="text-blue-600 font-bold cursor-pointer hover:underline">Details</span>
-                  </p>
-                  <p className="text-[11px] text-gray-700 font-medium">
-                    Or fastest delivery <span className="font-bold underline">Today 6 pm - 10 pm</span>. Order within <span className="text-red-600 font-bold">2 hrs 56 mins</span>.
-                  </p>
-                </div>
 
-                <div className="space-y-3">
-                  <button
-                    onClick={handleAddToCart}
-                    className={`w-full py-3 rounded-full flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg border-b-2 border-brand-dark/20 ${isAdded ? 'bg-green-600 text-white' : 'bg-[#FFD814] hover:bg-[#F7CA00] text-gray-900 border-[#F0C14B]'
-                      }`}
-                  >
-                    {isAdded ? <FiCheckCircle /> : <FiShoppingCart />}
-                    {isAdded ? 'Added to Bag' : 'Add to Bag'}
-                  </button>
-
-                  <button
-                    onClick={handleBuyNow}
-                    className="w-full py-3 rounded-full bg-[#FFA41C] hover:bg-[#FA8900] text-gray-900 flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg border-b-2 border-[#A88734] border-brand-dark/20"
-                  >
-                    <FiZap /> Buy Now
-                  </button>
-                </div>
-
-                <div className="mt-8 pt-4 border-t border-gray-100 space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded bg-gray-100 flex items-center justify-center text-gray-400">
-                      <FiShield size={14} />
-                    </div>
-                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-tight">Secure transaction</p>
-                  </div>
-                  <div className="pl-9 space-y-1">
-                    <p className="text-[10px] text-gray-400">Ships from <span className="text-gray-900 font-bold ml-2">Saundarya</span></p>
-                    <p className="text-[10px] text-gray-400">Sold by <span className="text-gray-900 font-bold ml-2">Saundarya Official</span></p>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
 
         </div>
 

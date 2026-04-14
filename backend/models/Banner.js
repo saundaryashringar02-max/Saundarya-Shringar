@@ -8,7 +8,7 @@ const bannerSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['Main Slider', 'Mid-Section', 'Category Banner', 'Trending', 'Offers'],
+        enum: ['Main Slider', 'Mid-Section', 'Category Banner', 'Trending', 'Offers', 'AppPromo'],
         default: 'Main Slider'
     },
     image: {

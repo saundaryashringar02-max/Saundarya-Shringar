@@ -24,7 +24,7 @@ export const initialProducts = [
     subCategory: 'Serum',
     description: 'Blemish control with organic essence.'
   },
-  
+
   // --- SOAPS ---
   {
     id: 501,
@@ -32,7 +32,7 @@ export const initialProducts = [
     price: 350,
     rating: 5,
     reviews: 450,
-    image: '/cat_skincare.png', 
+    image: '/cat_skincare.png',
     category: 'Soaps',
     subCategory: 'Natural',
     description: 'Traditional handcrafted luxury soap.'
@@ -85,7 +85,7 @@ export const initialProducts = [
     subCategory: 'Mascara'
   },
 
-  // --- JEWELLERY ---
+  // --- ARTIFICIAL JEWELLERY ---
   {
     id: 601,
     name: 'Royal Heritage Jhumkas',
@@ -93,7 +93,7 @@ export const initialProducts = [
     rating: 5,
     reviews: 120,
     image: '/hero3.png',
-    category: 'Jewellery',
+    category: 'Artificial Jewellery',
     subCategory: 'Traditional',
     description: 'Exquisite gold-plated traditional jhumkas.',
     cashback: true,

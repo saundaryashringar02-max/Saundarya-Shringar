@@ -63,9 +63,13 @@ exports.verifyRazorpayPayment = async (req, res, next) => {
         const newOrder = await Order.create({
             user: req.user._id,
             items: orderDetails.items,
+            subTotal: orderDetails.subTotal,
+            taxAmount: orderDetails.taxAmount,
+            shippingAmount: orderDetails.shippingAmount,
             totalAmount: orderDetails.totalAmount,
             shippingAddress: orderDetails.shippingAddress,
             paymentStatus: 'Completed',
+            paymentMethod: 'PayNow',
             razorpayOrderId: razorpay_order_id,
             razorpayPaymentId: razorpay_payment_id,
             razorpaySignature: razorpay_signature,
@@ -74,9 +78,9 @@ exports.verifyRazorpayPayment = async (req, res, next) => {
 
         // Decrement Stock
         for (const item of orderDetails.items) {
-           if (item.product) {
-               await Product.findByIdAndUpdate(item.product, { $inc: { stock: -Math.abs(item.quantity || 1) } });
-           }
+            if (item.product) {
+                await Product.findByIdAndUpdate(item.product, { $inc: { stock: -Math.abs(item.quantity || 1) } });
+            }
         }
 
         if (orderDetails.couponCode) {
@@ -105,16 +109,20 @@ exports.createOrder = async (req, res, next) => {
         const newOrder = await Order.create({
             user: req.user._id,
             items,
+            subTotal: req.body.subTotal,
+            taxAmount: req.body.taxAmount,
+            shippingAmount: req.body.shippingAmount,
             totalAmount,
             shippingAddress,
+            paymentMethod: 'COD',
             couponApplied: req.body.couponCode || null
         });
 
         // Decrement Stock & Increment Coupon
         for (const item of items) {
-           if (item.product || item._id) {
-               await Product.findByIdAndUpdate(item.product || item._id, { $inc: { stock: -Math.abs(item.quantity || 1) } });
-           }
+            if (item.product || item._id) {
+                await Product.findByIdAndUpdate(item.product || item._id, { $inc: { stock: -Math.abs(item.quantity || 1) } });
+            }
         }
 
         if (req.body.couponCode) {

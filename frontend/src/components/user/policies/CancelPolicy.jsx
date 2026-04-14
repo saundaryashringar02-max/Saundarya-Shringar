@@ -7,7 +7,7 @@ const CancelPolicy = () => {
         <h1 className="text-2xl md:text-3xl font-serif font-black text-brand-dark mb-6 tracking-widest text-center border-b pb-4 border-brand-pink/10 uppercase" style={{ fontFamily: "'Cinzel', serif" }}>
           Cancellation Policy
         </h1>
-        
+
         <div className="space-y-6 text-brand-dark/70 font-sans leading-relaxed text-[13px] md:text-sm">
           <section>
             <h2 className="text-xs md:text-sm font-black text-brand-dark uppercase tracking-widest mb-2 flex items-center gap-2">
@@ -32,7 +32,7 @@ const CancelPolicy = () => {
               <span className="w-4 h-[2px] bg-brand-gold"></span> 3. Refunds
             </h2>
             <p className="pl-6">
-              For prepaid orders, the refund will be initiated within 2-3 business days after the cancellation request is successfully processed. The amount will be credited back to the original payment method used during the transaction.
+              For prepaid orders, the refund will be initiated within 7 Working days after the cancellation request is successfully processed. The amount will be credited back to the original payment method used during the transaction.
             </p>
           </section>
 

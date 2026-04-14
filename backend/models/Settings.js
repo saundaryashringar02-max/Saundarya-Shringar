@@ -22,6 +22,14 @@ const settingsSchema = new mongoose.Schema({
         type: String,
         default: '3-5 Business Days'
     },
+    isCodEnabled: {
+        type: Boolean,
+        default: true
+    },
+    codCharge: {
+        type: Number,
+        default: 0
+    },
     shippingPartner: {
         type: String,
         default: 'Standard Courier'

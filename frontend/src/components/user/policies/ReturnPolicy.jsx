@@ -45,7 +45,7 @@ const ReturnPolicy = () => {
           <h2 className={headingStyle}>2. Return Eligibility</h2>
           <p className={paragraphStyle}>Return requests are accepted under the following conditions:</p>
           <ul className={bulletListStyle}>
-            <li>Request must be initiated within 30 days from delivery</li>
+            <li>Request must be initiated within 7 Working days from delivery</li>
             <li>Product must be unused, undamaged, and in original packaging</li>
             <li>Original invoice must be provided</li>
           </ul>
@@ -88,7 +88,7 @@ const ReturnPolicy = () => {
           <p className={paragraphStyle}>Before dispatch:</p>
           <ul className={bulletListStyle}>
             <li>Orders can be canceled fully or partially before dispatch</li>
-            <li>Refunds are initiated within 2 business days after cancellation approval</li>
+            <li>Refunds are initiated within 7 Working days after cancellation approval</li>
           </ul>
           <p className={paragraphStyle}>After dispatch:</p>
           <ul className={bulletListStyle}>
