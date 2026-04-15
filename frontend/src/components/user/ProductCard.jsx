@@ -35,10 +35,13 @@ const MiniTimer = () => {
 };
 
 const ProductCard = ({ product }) => {
-  const { addToCart, toggleWishlist, isInWishlist, isAuthenticated } = useShop();
+  const { addToCart, toggleWishlist, isInWishlist, isAuthenticated, triggerFlyToCart } = useShop();
   const [isAdded, setIsAdded] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const liked = isInWishlist(product._id);
   const navigate = useNavigate();
+
+  if (imageError || !product.image) return null;
 
   const handleAdd = (e) => {
     if (e) {
@@ -50,6 +53,10 @@ const ProductCard = ({ product }) => {
     if (!isAuthenticated) {
       navigate('/login');
       return;
+    }
+
+    if (triggerFlyToCart) {
+      triggerFlyToCart(e, product.image);
     }
 
     addToCart(product);
@@ -94,7 +101,7 @@ const ProductCard = ({ product }) => {
                 </div>
                 {product.discount && (
                   <span className="bg-brand-pink text-white text-[6px] font-black px-1.5 py-0.5 rounded-sm shadow-md flex items-center gap-1">
-                    {product.discount} OFF
+                    {product.discount}
                   </span>
                 )}
                 {product.hasTimer && <MiniTimer />}
@@ -119,6 +126,7 @@ const ProductCard = ({ product }) => {
             src={product.image}
             alt={product.name}
             loading="lazy"
+            onError={() => setImageError(true)}
             className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110"
           />
           {product.discount && (
@@ -154,9 +162,6 @@ const ProductCard = ({ product }) => {
       </div>
 
       <div className="p-3 text-left flex flex-col flex-1 bg-transparent relative">
-        <span className="text-brand-pink font-black text-[7px] md:text-[8px] uppercase tracking-widest mb-1.5 block leading-none">
-          {product.brand || 'Saundarya'}
-        </span>
         <h3 className="font-sans font-bold text-[10px] md:text-[11px] text-gray-800 mb-1.5 line-clamp-2 leading-tight min-h-[2.4em]">
           {product.name}
         </h3>

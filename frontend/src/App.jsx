@@ -53,6 +53,7 @@ import AdminReplacements from './components/admin/AdminReplacements';
 import AdminReviews from './components/admin/AdminReviews';
 import AdminSupport from './components/admin/AdminSupport';
 import AdminLogistics from './components/admin/AdminLogistics';
+import AdminLocations from './components/admin/AdminLocations';
 import { FiBox, FiRotateCcw, FiRefreshCw, FiTag, FiShoppingBag, FiUsers } from 'react-icons/fi';
 
 const UserRoutes = () => (
@@ -114,6 +115,7 @@ const AdminRoutes = () => (
       <Route path="/reviews" element={<AdminReviews />} />
       <Route path="/support" element={<AdminSupport />} />
       <Route path="/logistics" element={<AdminLogistics />} />
+      <Route path="/locations" element={<AdminLocations />} />
     </Route>
   </Routes>
 );
@@ -141,7 +143,7 @@ const NotificationListener = () => {
     // 2. Listen for Foreground Messages (Fire Native Browser Notification only)
     const unsubscribe = onMessageListener((payload) => {
       console.log('Received foreground message:', payload);
-      
+
       const displayData = payload.notification || {
         title: payload.data?.title || "Saundarya Shringar",
         body: payload.data?.body || "New update received."
@@ -149,14 +151,14 @@ const NotificationListener = () => {
 
       // Trigger Native System Notification like Chrome card
       if (Notification.permission === 'granted') {
-          navigator.serviceWorker.ready.then(registration => {
-              registration.showNotification(displayData.title, {
-                  body: displayData.body,
-                  icon: '/favicon.ico',
-                  badge: '/favicon.ico',
-                  data: payload.data
-              });
+        navigator.serviceWorker.ready.then(registration => {
+          registration.showNotification(displayData.title, {
+            body: displayData.body,
+            icon: '/favicon.ico',
+            badge: '/favicon.ico',
+            data: payload.data
           });
+        });
       }
     });
 

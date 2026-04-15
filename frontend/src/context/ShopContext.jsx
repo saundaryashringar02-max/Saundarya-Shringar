@@ -105,9 +105,11 @@ export const ShopProvider = ({ children }) => {
     localStorage.setItem('saundarya_wishlist', JSON.stringify(wishlist));
   }, [wishlist]);
 
-  const verifyAndClearCart = async (razorpayResponse, details, customTotal) => {
+  const verifyAndClearCart = async (razorpayResponse, details, customTotal, breakdown) => {
     try {
       if (!isAuthenticated) throw new Error("User unauthorized.");
+
+      const { items: _, totalAmount: __, couponCode: ___, ...shippingAddress } = details;
 
       const payload = {
         razorpay_order_id: razorpayResponse.razorpay_order_id,
@@ -121,8 +123,12 @@ export const ShopProvider = ({ children }) => {
             quantity: item.quantity,
             image: item.image
           })),
+          subTotal: breakdown?.subtotal,
+          taxAmount: breakdown?.taxAmount,
+          shippingAmount: breakdown?.shippingValue,
           totalAmount: customTotal,
-          shippingAddress: details
+          shippingAddress,
+          couponCode: details.couponCode
         }
       };
 
@@ -141,7 +147,7 @@ export const ShopProvider = ({ children }) => {
     }
   };
 
-  const clearCart = async (details, customTotal) => {
+  const clearCart = async (details, customTotal, breakdown) => {
     try {
       if (!isAuthenticated) {
         alert("Please login or create an account to process your divine purchase.");
@@ -151,6 +157,8 @@ export const ShopProvider = ({ children }) => {
       const defaultTotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
       const totalAmount = customTotal !== undefined ? customTotal : defaultTotal;
 
+      const { couponCode, ...shippingAddress } = details;
+
       const payload = {
         items: cart.map(item => ({
           product: item._id,
@@ -159,8 +167,12 @@ export const ShopProvider = ({ children }) => {
           quantity: item.quantity,
           image: item.image
         })),
+        subTotal: breakdown?.subtotal,
+        taxAmount: breakdown?.taxAmount,
+        shippingAmount: breakdown?.shippingValue,
         totalAmount: totalAmount,
-        shippingAddress: details
+        shippingAddress,
+        couponCode: details.couponCode || null
       };
 
       const res = await api.post('/orders', payload);

@@ -7,9 +7,17 @@ const OffersBanner = () => {
   const { banners } = useShop();
   const offer = banners.find(b => b.type === 'Offer' || b.type === 'Offers') || banners.find(b => b.type === 'Main Slider') || banners[0];
 
-  if (!offer) return null;
+  // We always want to show the video if it exists locally, regardless of backend banners
+  if (!offer && !offersVideo) return null;
 
-  const isVideo = offer.image?.match(/\.(mp4|webm|ogg)$/i) || offer.video || offer.isVideo;
+  const displayOffer = offer || {
+    title: "Exclusive Divine Offers",
+    subtitle: "Limited Time Access",
+    link: "/shop",
+    btnText: "Explore Collection"
+  };
+
+  const isVideo = offer ? (offer.image?.match(/\.(mp4|webm|ogg)$/i) || offer.video || offer.isVideo) : false;
 
   return (
     <section className="py-12 md:py-20 bg-brand-pink/10">
@@ -50,7 +58,7 @@ const OffersBanner = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-black/10 to-transparent md:bg-gradient-to-r md:from-black/20 md:to-transparent flex items-center">
             <div className="p-8 md:p-20 text-white max-w-xl text-center md:text-left mx-auto md:mx-0">
               <span className="bg-brand-gold text-white px-5 py-1.5 rounded-none text-[10px] sm:text-xs font-bold mb-4 sm:mb-6 inline-block tracking-[0.2em] uppercase shadow-lg shadow-brand-gold/20">
-                {offer.subtitle || 'Exclusive Offer'}
+                {displayOffer.subtitle}
               </span>
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
@@ -59,11 +67,11 @@ const OffersBanner = () => {
                 transition={{ duration: 0.8, ease: "easeOut" }}
               >
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold mb-4 sm:mb-6 italic leading-tight drop-shadow-md">
-                  {offer.title}
+                  {displayOffer.title}
                 </h2>
               </motion.div>
-              <Link to={offer.link || "/shop"} className="bg-white text-brand-dark hover:bg-brand-gold hover:text-white px-5 py-2 sm:px-6 sm:py-2.5 rounded-none text-xs sm:text-sm font-bold transition-all transform hover:-translate-y-1 active:translate-y-0 duration-300 shadow-xl inline-flex items-center justify-center gap-2 group/btn">
-                <span>{offer.btnText || 'Explore Collection'}</span>
+              <Link to={displayOffer.link} className="bg-white text-brand-dark hover:bg-brand-gold hover:text-white px-5 py-2 sm:px-6 sm:py-2.5 rounded-none text-xs sm:text-sm font-bold transition-all transform hover:-translate-y-1 active:translate-y-0 duration-300 shadow-xl inline-flex items-center justify-center gap-2 group/btn">
+                <span>{displayOffer.btnText}</span>
                 <svg className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>

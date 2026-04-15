@@ -15,7 +15,7 @@ const Navbar = () => {
     { name: 'Skincare', link: '/shop?category=Skincare' },
     { name: 'Makeup', link: '/shop?category=Makeup' },
     { name: 'Soaps', link: '/shop?category=Soaps' },
-    { name: 'Offers', link: '/shop?offers=true' },
+    { name: 'Offers', link: '/offers' },
     { name: 'Blog', link: '/blog' },
     { name: 'About', link: '/about' },
     { name: 'Contact', link: '/contact' },
@@ -79,8 +79,8 @@ const Navbar = () => {
 
             {/* Icons */}
             <div className="flex items-center gap-4 md:gap-5 text-black shrink-0 ml-auto lg:ml-0">
-              <Link 
-                to="/wishlist" 
+              <Link
+                to="/wishlist"
                 className={`relative cursor-pointer hover:scale-110 transition-transform ${isActive('/wishlist') ? 'text-brand-dark' : ''}`}
               >
                 <FiHeart className={`text-lg ${isActive('/wishlist') ? 'fill-current' : ''}`} />
@@ -90,7 +90,8 @@ const Navbar = () => {
                   </span>
                 )}
               </Link>
-              <div 
+              <div
+                id="global-cart-icon"
                 onClick={() => setIsCartDrawerOpen(true)}
                 className="relative cursor-pointer hover:scale-110 transition-transform"
               >
@@ -101,7 +102,7 @@ const Navbar = () => {
                   </span>
                 )}
               </div>
-              
+
               <Link to={isAuthenticated ? "/profile" : "/login"}>
                 <div className="relative group flex items-center justify-center">
                   {isAuthenticated ? (

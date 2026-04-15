@@ -29,6 +29,9 @@ const orderSchema = new mongoose.Schema({
             image: String
         }
     ],
+    subTotal: Number,
+    taxAmount: Number,
+    shippingAmount: Number,
     totalAmount: {
         type: Number,
         required: true
@@ -42,12 +45,21 @@ const orderSchema = new mongoose.Schema({
         name: String,
         email: String,
         phone: String,
-        address: String
+        address: String,
+        city: String,
+        district: String,
+        state: String,
+        pincode: String
     },
     paymentStatus: {
         type: String,
         enum: ['Pending', 'Completed', 'Failed'],
         default: 'Pending'
+    },
+    paymentMethod: {
+        type: String,
+        enum: ['PayNow', 'COD'],
+        default: 'PayNow'
     },
     trackingId: String,
     returnStatus: {

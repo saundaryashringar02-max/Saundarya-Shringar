@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiPackage, FiTruck, FiCheckCircle, FiClock, FiBox, FiX, FiUploadCloud, FiImage, FiPlusCircle, FiCreditCard } from 'react-icons/fi';
+import { FiPackage, FiTruck, FiCheckCircle, FiClock, FiBox, FiX, FiUploadCloud, FiImage, FiPlusCircle, FiCreditCard, FiDownload } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { useShop } from '../../context/ShopContext';
 import api from '../../utils/api';
@@ -313,12 +313,24 @@ const UserOrders = () => {
                                         <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Total Value</p>
                                         <p className="text-[13px] font-black text-brand-gold">₹{order.totalAmount}</p>
                                     </div>
-                                    <Link
-                                        to={`/track-order?id=${order.orderId}`}
-                                        className="bg-[#5C2E3E] text-white px-5 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-brand-pink transition-colors shadow-md shadow-brand-pink/20"
-                                    >
-                                        Track
-                                    </Link>
+                                    <div className="flex flex-wrap items-center gap-3">
+                                        <button
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                import('../../utils/invoiceHelper').then(m => m.generateInvoice(order));
+                                            }}
+                                            className="bg-white border-2 border-[#5C2E3E]/10 text-[#5C2E3E] px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-[#5C2E3E] hover:text-white transition-all flex items-center gap-2 shadow-sm"
+                                        >
+                                            <FiDownload className={order.status === 'Delivered' ? 'text-brand-pink' : ''} />
+                                            Download Invoice
+                                        </button>
+                                        <Link
+                                            to={`/track-order?id=${order.orderId}`}
+                                            className="bg-[#5C2E3E] text-white px-5 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-brand-pink transition-colors shadow-md shadow-brand-pink/10"
+                                        >
+                                            Track Order
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
 
@@ -326,8 +338,8 @@ const UserOrders = () => {
                             <div className="p-6">
                                 <div className="space-y-4">
                                     {order.items.map((item, index) => (
-                                        <Link 
-                                            key={index} 
+                                        <Link
+                                            key={index}
                                             to={`/track-order?id=${order.orderId}`}
                                             className="flex gap-4 items-center p-3 hover:bg-gray-50 transition-colors rounded-xl group/item border border-transparent hover:border-brand-pink/10"
                                         >

@@ -23,7 +23,8 @@ import {
   FiUser,
   FiMessageSquare,
   FiHelpCircle,
-  FiTruck
+  FiTruck,
+  FiMapPin
 } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { onMessageListener } from '../../utils/firebase-config';
@@ -88,6 +89,7 @@ const AdminLayout = () => {
     { title: 'Inventory', path: '/admin/inventory', icon: <FiBox /> },
     { title: 'Orders', path: '/admin/orders', icon: <FiShoppingBag /> },
     { title: 'Logistics & Taxes', path: '/admin/logistics', icon: <FiTruck /> },
+    { title: 'Service Locations', path: '/admin/locations', icon: <FiMapPin /> },
     { title: 'Finance', path: '/admin/finance', icon: <FiDollarSign /> },
     { title: 'Customers', path: '/admin/customers', icon: <FiUsers /> },
     { title: 'Returns & Replace', path: '/admin/returns', icon: <FiRotateCcw /> },
@@ -119,7 +121,7 @@ const AdminLayout = () => {
       {/* Sidebar - Persistent Mini Mode or Full Mode */}
       <motion.aside
         initial={false}
-        animate={{ 
+        animate={{
           width: isSidebarOpen ? (window.innerWidth < 1024 ? 280 : 256) : (window.innerWidth < 1024 ? 0 : 64),
           x: window.innerWidth < 1024 && !isSidebarOpen ? -280 : 0
         }}
@@ -142,8 +144,8 @@ const AdminLayout = () => {
           )}
         </div>
 
-        <nav 
-          className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto custom-sidebar-scrollbar" 
+        <nav
+          className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto custom-sidebar-scrollbar"
           data-lenis-prevent
         >
           {menuItems.map((item) => (
@@ -159,10 +161,10 @@ const AdminLayout = () => {
               <div className={`shrink-0 transition-all duration-300 ${location.pathname === item.path ? 'scale-110 text-white' : 'group-hover:scale-110'}`}>
                 {React.cloneElement(item.icon, { size: 20 })}
               </div>
-              
+
               <AnimatePresence>
                 {isSidebarOpen && (
-                  <motion.span 
+                  <motion.span
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
@@ -174,9 +176,9 @@ const AdminLayout = () => {
               </AnimatePresence>
 
               {location.pathname === item.path && (
-                <motion.div 
+                <motion.div
                   layoutId="active-pill"
-                  className="absolute left-0 w-1 bg-brand-gold h-4 top-1/2 -translate-y-1/2 rounded-r-full" 
+                  className="absolute left-0 w-1 bg-brand-gold h-4 top-1/2 -translate-y-1/2 rounded-r-full"
                 />
               )}
             </Link>

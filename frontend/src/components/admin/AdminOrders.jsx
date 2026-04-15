@@ -120,10 +120,16 @@ const AdminOrders = () => {
                     ))}
                     <div className="flex justify-between py-1.5 text-[10px] font-bold text-gray-700 border-t border-gray-100 mt-2 pt-2">
                       <span className="text-gray-400 font-medium italic">Shipping Charge</span>
-                      <span className="text-green-600 font-black">FREE</span>
+                      <span className="text-green-600 font-black">{selectedOrder.shippingAmount > 0 ? `₹${selectedOrder.shippingAmount}` : 'FREE'}</span>
                     </div>
+                    {selectedOrder.paymentMethod === 'COD' && selectedOrder.totalAmount > (selectedOrder.subTotal + (selectedOrder.shippingAmount || 0)) && (
+                      <div className="flex justify-between py-1.5 text-[10px] font-bold text-gray-700">
+                        <span className="text-gray-400 font-medium italic">COD Convenience Fee</span>
+                        <span className="text-brand-gold">₹${settings?.codCharge || 0}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between pt-2.5 text-xs font-black text-brand-dark">
-                      <span>TOTAL COLLECTED</span>
+                      <span>TOTAL COLLECTED ({selectedOrder.paymentMethod || 'PayNow'})</span>
                       <span className="text-brand-pink">₹{selectedOrder.totalAmount}</span>
                     </div>
                   </div>
@@ -167,7 +173,10 @@ const AdminOrders = () => {
                   <FiTruck size={12} className="text-brand-pink" /> Shipping To
                 </h3>
                 <p className="text-[9px] font-bold text-gray-400 uppercase leading-relaxed tracking-widest">
-                  {selectedOrder.shippingAddress?.address || 'No Address Provided'}
+                  {selectedOrder.shippingAddress?.address || 'No Address Provided'}<br />
+                  {selectedOrder.shippingAddress?.city ? selectedOrder.shippingAddress.city + (selectedOrder.shippingAddress.district ? ', ' + selectedOrder.shippingAddress.district : '') : ''}
+                  {selectedOrder.shippingAddress?.state ? (selectedOrder.shippingAddress.city || selectedOrder.shippingAddress.district ? ', ' : '') + selectedOrder.shippingAddress.state : ''}
+                  {selectedOrder.shippingAddress?.pincode ? ' - ' + selectedOrder.shippingAddress.pincode : ''}
                 </p>
               </div>
 
@@ -277,13 +286,16 @@ const AdminOrders = () => {
                     </td>
                     <td className="px-6 py-4 text-[11px] font-black text-brand-dark text-left">₹{order.totalAmount}</td>
                     <td className="px-6 py-4 text-left">
-                      <span className={`px-2.5 py-1 rounded-lg text-[6px] font-black uppercase tracking-widest border shadow-sm ${order.status === 'Delivered' ? 'bg-green-50 text-green-600 border-green-100' :
-                        order.status === 'Shipped' ? 'bg-blue-50 text-blue-600 border-blue-100' :
-                          order.status === 'Pending' ? 'bg-orange-50 text-orange-600 border-orange-100' :
-                            'bg-red-50 text-red-600 border-red-100'
-                        }`}>
-                        {order.status}
-                      </span>
+                      <div className="flex flex-col gap-1">
+                        <span className={`px-2.5 py-1 rounded-lg text-[6px] font-black uppercase tracking-widest border shadow-sm ${order.status === 'Delivered' ? 'bg-green-50 text-green-600 border-green-100' :
+                          order.status === 'Shipped' ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                            order.status === 'Pending' ? 'bg-orange-50 text-orange-600 border-orange-100' :
+                              'bg-red-50 text-red-600 border-red-100'
+                          }`}>
+                          {order.status}
+                        </span>
+                        <span className="text-[7px] font-black text-brand-gold uppercase tracking-tighter opacity-80">{order.paymentMethod || 'ONLINE'}</span>
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-left">
                       <button

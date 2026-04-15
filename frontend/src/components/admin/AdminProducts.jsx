@@ -537,7 +537,7 @@ const AdminProducts = () => {
                     <span className="text-gray-400 font-normal normal-case">Optional</span>
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {['SKINCARE', 'MAKEUP', 'SOAPS', 'WELLNESS', 'JEWELLERY', 'INNERWEAR', 'HAIRCARE', 'COMBOS', 'NEW LAUNCH'].map(tag => (
+                    {['SKINCARE', 'MAKEUP', 'SOAPS', 'WELLNESS', 'ARTIFICIAL JEWELLERY', 'INNERWEAR', 'HAIRCARE', 'COMBOS', 'NEW LAUNCH'].map(tag => (
                       <button
                         key={tag}
                         type="button"

@@ -17,6 +17,7 @@ const Shop = () => {
   const [activeSubCategory, setActiveSubCategory] = useState(null);
   const [sortBy, setSortBy] = useState(urlSort);
   const [visibleCount, setVisibleCount] = useState(15);
+  const [priceSegment, setPriceSegment] = useState('All');
 
   // Fallback subcategories if not provided by backend (can be enhanced)
   const subCategoriesMap = {
@@ -24,7 +25,7 @@ const Shop = () => {
     'Soaps': ['Natural', 'Herbal', 'Handmade'],
     'Haircare': ['Hair Oil', 'Shampoo', 'Conditioner'],
     'Makeup': ['Foundation', 'Compact', 'Lipstick', 'Lip Balm', 'Eyes', 'Kajal'],
-    'Jewellery': ['Traditional', 'Modern', 'Antique'],
+    'Artificial Jewellery': ['Traditional', 'Modern', 'Antique'],
     'Innerwear': ['Daily', 'Premium', 'Lace'],
     'Wellness': ['Supplements', 'Detox'],
     'Combos': ['Gifts', 'Festive'],
@@ -82,7 +83,13 @@ const Shop = () => {
     const matchesConcern = concernFilter === 'All' || p.skinConcern === concernFilter || p.skinConcern === 'All';
     const matchesPrice = p.price <= priceRange;
 
-    return matchesCategory && matchesSubCategory && matchesSearch && matchesSkin && matchesConcern && matchesPrice;
+    // Exact segments from user request
+    const matchesPriceSegment = priceSegment === 'All' ||
+      (priceSegment === 'Budget' && p.price < 500) || // Simplified to match broad ranges
+      (priceSegment === 'Daily' && p.price >= 500 && p.price <= 1000) ||
+      (priceSegment === 'Luxury' && p.price > 1000);
+
+    return matchesCategory && matchesSubCategory && matchesSearch && matchesSkin && matchesConcern && matchesPrice && matchesPriceSegment;
   }).sort((a, b) => {
     if (sortBy === 'Price: Low to High') return a.price - b.price;
     if (sortBy === 'Price: High to Low') return b.price - a.price;
@@ -262,6 +269,27 @@ const Shop = () => {
                         }`}
                     >
                       {c}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-3 w-full">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]">Price Segment</h4>
+                <div className="flex gap-2 overflow-x-auto flex-nowrap no-scrollbar pb-1">
+                  {[
+                    { id: 'All', label: 'All Range' },
+                    { id: 'Budget', label: 'Budget (₹100-₹300)' },
+                    { id: 'Daily', label: 'Daily (₹500-₹1000)' },
+                    { id: 'Luxury', label: 'Luxury (₹1500+)' }
+                  ].map(s => (
+                    <button
+                      key={s.id}
+                      onClick={() => setPriceSegment(s.id)}
+                      className={`whitespace-nowrap px-4 py-1.5 rounded-lg text-[9px] font-bold uppercase transition-all ${priceSegment === s.id ? 'bg-brand-pink text-white border-brand-pink' : 'bg-white border text-gray-400'
+                        }`}
+                    >
+                      {s.label}
                     </button>
                   ))}
                 </div>

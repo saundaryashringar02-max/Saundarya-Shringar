@@ -24,7 +24,7 @@ const categories = [
     { name: 'Soaps', image: getUrl('cat_soaps.png'), count: 8 },
     { name: 'Haircare', image: getUrl('cat_haircare_new.png'), count: 6 },
     { name: 'Makeup', image: getUrl('cat_makeup_new.png'), count: 15 },
-    { name: 'Jewellery', image: getUrl('cat_jewellery.png'), count: 5 },
+    { name: 'Artificial Jewellery', image: getUrl('cat_jewellery.png'), count: 5 },
     { name: 'Innerwear', image: getUrl('cat_innerwear.png'), count: 10 },
     { name: 'Wellness', image: getUrl('cat_wellness_new.png'), count: 4 },
     { name: 'Combos', image: getUrl('cat_beautykits_new.png'), count: 2 },
@@ -110,7 +110,7 @@ const products = [
         rating: 5,
         reviews: 120,
         image: getUrl('hero3.png'),
-        category: 'Jewellery',
+        category: 'Artificial Jewellery',
         subCategory: 'Traditional',
         description: 'Exquisite gold-plated traditional jhumkas.',
         cashback: true,
@@ -257,15 +257,12 @@ const storefrontBanners = [
         status: 'Live'
     },
     {
-        title: 'Timeless Elegance',
-        type: 'Offers',
-        subtitle: 'Exclusive Offer',
-        description: 'Indulge in Timeless Elegance with our heritage collection.',
-        btnText: 'Explore Collection',
-        link: '/shop',
-        image: getUrl('offers_video.mp4'),
-        isVideo: true,
-        status: 'Live'
+        title: 'Timeless Heritage\nArtificial Jewellery',
+        type: 'Main Slider',
+        subtitle: 'ARTIFICIAL JEWELLERY',
+        image: 'https://res.cloudinary.com/du5ukj0zu/image/upload/v1776150342/saundarya_banners/hero_new_3.jpg',
+        link: '/shop?category=Artificial Jewellery',
+        btnText: 'SHOP ARTIFICIAL JEWELLERY'
     },
 ];
 
@@ -289,6 +286,36 @@ const blogs = [
         date: 'MAR 10',
         readTime: '4M',
         author: 'Saundarya Team'
+    },
+    {
+        title: 'Ancient Herb Magic',
+        category: 'WELLNESS',
+        excerpt: 'Discover the power of traditional wellness.',
+        content: "Ancient secrets for modern beauty. We explore how traditional herbs can transform your daily wellness routine.",
+        image: getUrl('blog_item_3.png'),
+        date: 'APR 02',
+        readTime: '6M',
+        author: 'Saundarya Team'
+    },
+    {
+        title: 'Glass Skin Secret',
+        category: 'SKINCARE',
+        excerpt: 'The ultimate guide to radiant, clear skin.',
+        content: "Achieving the coveted glass skin look isn't just about products; it's about the right ritual and persistence.",
+        image: getUrl('blog_skincare.png'),
+        date: 'APR 05',
+        readTime: '7M',
+        author: 'Saundarya Team'
+    },
+    {
+        title: 'Lustrous Hair Guide',
+        category: 'HAIRCARE',
+        excerpt: 'Transform your tresses with heritage oils.',
+        content: "Deep conditioning and ancient oiling techniques to give your hair the shine and strength it deserves.",
+        image: getUrl('blog_haircare.png'),
+        date: 'APR 10',
+        readTime: '5M',
+        author: 'Saundarya Team'
     }
 ];
 
@@ -302,8 +329,29 @@ const testimonials = [
     },
     {
         name: 'Diksha Singh',
-        text: "I was worried about finding good quality fine jewellery pieces online, but Saundarya's customer service gave me full assurance.",
+        text: "I was worried about finding good quality artificial jewellery pieces online, but Saundarya's customer service gave me full assurance.",
         image: getUrl('testi_2.png'),
+        rating: 5,
+        status: 'Approved'
+    },
+    {
+        name: 'Priya Sharma',
+        text: "The artificial jewellery collection is just stunning. I bought a set for my sister's wedding and everyone loved it!",
+        image: getUrl('testi_3.png'),
+        rating: 5,
+        status: 'Approved'
+    },
+    {
+        name: 'Anjali Verma',
+        text: "I've been using their skincare products for a month now and my skin feels so much more radiant and healthy.",
+        image: getUrl('testi_4.png'),
+        rating: 5,
+        status: 'Approved'
+    },
+    {
+        name: 'Meera Kapoor',
+        text: "Beautiful designs and great quality. The customer support is very helpful and responsive. Highly recommended!",
+        image: getUrl('testi_5.png'),
         rating: 5,
         status: 'Approved'
     }
@@ -315,6 +363,13 @@ const instaPosts = [
     { caption: 'Heritage in every hue.', image: getUrl('insta_3.png'), link: 'https://instagram.com' },
     { caption: 'Your daily beauty ritual.', image: getUrl('insta_4.png'), link: 'https://instagram.com' },
     { caption: 'Elegance personified.', image: getUrl('insta_5.png'), link: 'https://instagram.com' },
+    { caption: 'Premium Skincare Curations.', image: getUrl('banner_new_1.png'), link: 'https://instagram.com' },
+    { caption: 'Artisan Soaps Collection.', image: getUrl('banner_new_2.png'), link: 'https://instagram.com' },
+    { caption: 'Heritage Jewellery Designs.', image: getUrl('banner_new_3.png'), link: 'https://instagram.com' },
+    { caption: 'Summer Beauty Essentials.', image: getUrl('banner_new_4.png'), link: 'https://instagram.com' },
+    { caption: 'Bridal Glow Secrets.', image: getUrl('blog_item_1.png'), link: 'https://instagram.com' },
+    { caption: 'The Perfect Red Lip.', image: getUrl('blog_item_2.png'), link: 'https://instagram.com' },
+    { caption: 'Night Routine Magic.', image: getUrl('blog_item_3.png'), link: 'https://instagram.com' },
 ];
 
 const seedDB = async () => {

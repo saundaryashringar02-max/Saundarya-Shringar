@@ -33,7 +33,9 @@ const AdminLogistics = () => {
           estDeliveryDays: res.data.data.settings.estDeliveryDays || '3-5 Business Days',
           shippingPartner: res.data.data.settings.shippingPartner || 'Standard Courier',
           trackingUrl: res.data.data.settings.trackingUrl || 'https://shiprocket.co/tracking/',
-          supportContact: res.data.data.settings.supportContact || '+91 74071 75567'
+          supportContact: res.data.data.settings.supportContact || '+91 74071 75567',
+          isCodEnabled: res.data.data.settings.isCodEnabled ?? true,
+          codCharge: res.data.data.settings.codCharge || 0
         });
       }
     } catch (err) {
@@ -172,6 +174,51 @@ const AdminLogistics = () => {
                     required
                   />
                 </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* COD Strategy */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-6"
+        >
+          <div className="flex items-center gap-4 border-b border-gray-50 pb-4 text-brand-gold">
+            <div className="w-10 h-10 bg-brand-gold/10 rounded-2xl flex items-center justify-center">
+              <FiShield size={20} />
+            </div>
+            <div>
+              <h3 className="text-xs font-black text-brand-dark uppercase tracking-widest leading-none">Payment Strategy</h3>
+              <p className="text-[8px] text-gray-400 font-bold mt-1 uppercase">COD Management</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between bg-gray-50 p-4 rounded-xl">
+              <span className="text-[10px] font-black text-brand-dark uppercase tracking-widest">Enable COD</span>
+              <button
+                type="button"
+                onClick={() => setSettings({ ...settings, isCodEnabled: !settings.isCodEnabled })}
+                className={`w-12 h-6 rounded-full transition-all relative ${settings.isCodEnabled ? 'bg-green-500' : 'bg-gray-200'}`}
+              >
+                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${settings.isCodEnabled ? 'left-7' : 'left-1'}`} />
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">COD Fee (Convenience)</label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 font-black text-xs">₹</span>
+                <input
+                  type="number"
+                  value={settings.codCharge}
+                  onChange={(e) => setSettings({ ...settings, codCharge: parseFloat(e.target.value) || 0 })}
+                  className="w-full bg-gray-50 border border-transparent p-4 pl-7 rounded-xl text-xs font-bold outline-none focus:bg-white focus:border-brand-pink/30 transition-all shadow-inner"
+                  required
+                />
               </div>
             </div>
           </div>

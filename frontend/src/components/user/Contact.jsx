@@ -23,7 +23,7 @@ const Contact = () => {
               >
                 Inquire With Us
               </motion.span>
-              
+
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -55,12 +55,12 @@ const Contact = () => {
             {/* Right Column: Main Image */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ 
-                opacity: 1, 
+              animate={{
+                opacity: 1,
                 scale: 1,
-                y: [0, -8, 0] 
+                y: [0, -8, 0]
               }}
-              transition={{ 
+              transition={{
                 opacity: { duration: 1 },
                 scale: { duration: 1 },
                 y: { duration: 4, repeat: Infinity, ease: "easeInOut" }
@@ -68,13 +68,13 @@ const Contact = () => {
               className="flex-1 relative w-full max-w-[260px] md:max-w-xs mx-auto lg:mx-0"
             >
               <div className="relative rounded-[1.5rem] md:rounded-[3rem] overflow-hidden aspect-[4/5] shadow-xl border-[6px] border-white/50">
-                <img 
-                  src={contactHero} 
-                  alt="Beauty and Nature" 
+                <img
+                  src={contactHero}
+                  alt="Beauty and Nature"
                   className="w-full h-full object-cover"
                 />
               </div>
-              
+
               {/* Decorative elements */}
               <div className="absolute -top-4 -right-4 w-16 h-16 bg-brand-pink/20 rounded-full blur-xl"></div>
               <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-brand-gold/10 rounded-full blur-xl"></div>
@@ -89,29 +89,35 @@ const Contact = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 items-center">
             {/* Contact Details Grid */}
             <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-4 md:gap-x-12">
-              <ContactInfo 
-                icon={<FiMail size={16} />} 
-                label="Email us at" 
-                value="care@saundaryashringar.com" 
+              <ContactInfo
+                icon={<FiMail size={16} />}
+                label="Email us at"
+                value="care@saundaryashringar.com"
                 href="mailto:care@saundaryashringar.com"
               />
-              <ContactInfo 
-                icon={<FiPhone size={16} />} 
-                label="Talk to us" 
-                value="+91 9896472169" 
+              <ContactInfo
+                icon={<FiPhone size={16} />}
+                label="Talk to us"
+                value="+91 9896472169"
                 href="tel:+919896472169"
               />
-              <ContactInfo 
-                icon={<FiInstagram size={16} />} 
-                label="Follow our journey" 
-                value="@saundarya_shringar" 
+              <ContactInfo
+                icon={<FiPhone size={16} />}
+                label="Land Line"
+                value="01667 454631"
+                href="tel:01667454631"
+              />
+              <ContactInfo
+                icon={<FiInstagram size={16} />}
+                label="Follow our journey"
+                value="@saundarya_shringar"
                 href="https://www.instagram.com/saundaryashringarpvtltd/"
               />
-              <ContactInfo 
-                icon={<FiMapPin size={16} />} 
-                label="Visit our boutique" 
-                value="Lajpat Nagar Near Radha Swami Bhawan Fatehabad-125050 Haryana" 
-                href="https://www.google.com/maps/search/?api=1&query=Lajpat+Nagar+Near+Radha+Swami+Bhawan+Fatehabad-125050+Haryana"
+              <ContactInfo
+                icon={<FiMapPin size={16} />}
+                label="Visit our boutique"
+                value={<>Lajpat Nagar Near Radha Swami Bhawan<br />Fatehabad-125050 Haryana</>}
+                href="https://www.google.com/maps/place/Saundarya+Shringar+Pvt+Ltd/@29.513181,75.450953,17z/data=!3m1!4b1!4m6!3m5!1s0x391165f71de40eb9:0x4cb85d5df39475ff!8m2!3d29.513181!4d75.450953!16s%2Fg%2F11z3vht47m?entry=ttu"
               />
             </div>
 
@@ -121,20 +127,20 @@ const Contact = () => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 animate={{ y: [0, 8, 0] }}
-                transition={{ 
+                transition={{
                   y: { duration: 3, repeat: Infinity, ease: "easeInOut" }
                 }}
                 viewport={{ once: true }}
                 className="relative"
               >
                 <div className="w-40 md:w-52 h-52 md:h-64 rounded-[1.5rem] overflow-hidden shadow-lg border-4 md:border-6 border-white group">
-                  <img 
-                    src={contactThumb} 
-                    alt="Product Detail" 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                  <img
+                    src={contactThumb}
+                    alt="Product Detail"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
                 </div>
-                
+
                 {/* Float CTA */}
                 <motion.a
                   href="https://wa.me/919896472169"
@@ -167,10 +173,10 @@ const Contact = () => {
               <p className="text-[10px] md:text-xs text-gray-500 font-serif max-w-sm leading-relaxed">
                 Step into our boutique to experience the textures, scents, and essence of organic beauty in person.
               </p>
-              
+
               <div className="pt-2">
-                <a 
-                  href="https://www.google.com/maps/search/?api=1&query=Lajpat+Nagar+Near+Radha+Swami+Bhawan+Fatehabad-125050+Haryana"
+                <a
+                  href="https://www.google.com/maps/place/Saundarya+Shringar+Pvt+Ltd/@29.513181,75.450953,17z/data=!3m1!4b1!4m6!3m5!1s0x391165f71de40eb9:0x4cb85d5df39475ff!8m2!3d29.513181!4d75.450953!16s%2Fg%2F11z3vht47m?entry=ttu"
                   target="_blank"
                   rel="noreferrer"
                   className="bg-brand-dark text-white px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-brand-pink transition-all w-fit shadow-lg"
@@ -183,7 +189,7 @@ const Contact = () => {
             <div className="flex-1 w-full h-[250px] md:h-[320px] rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-xl border-4 border-white group relative">
               <iframe
                 title="Store Location"
-                src="https://maps.google.com/maps?q=Lajpat%20Nagar%20Near%20Radha%20Swami%20Bhawan%20Fatehabad%20Haryana&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                src="https://maps.google.com/maps?q=29.513181,75.450953&t=&z=16&ie=UTF8&iwloc=&output=embed"
                 className="w-full h-full grayscale group-hover:grayscale-0 transition-all duration-1000"
                 style={{ border: 0 }}
                 allowFullScreen=""
@@ -213,7 +219,7 @@ const Contact = () => {
 };
 
 const ContactInfo = ({ icon, label, value, href }) => (
-  <motion.a 
+  <motion.a
     href={href}
     target={href?.startsWith('http') ? '_blank' : undefined}
     rel={href?.startsWith('http') ? 'noreferrer' : undefined}
@@ -231,8 +237,8 @@ const ContactInfo = ({ icon, label, value, href }) => (
 );
 
 const SocialIcon = ({ icon, href }) => (
-  <a 
-    href={href} 
+  <a
+    href={href}
     target="_blank"
     rel="noreferrer"
     className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center text-gray-400 hover:bg-brand-pink/10 hover:text-brand-dark hover:border-brand-pink transition-all"

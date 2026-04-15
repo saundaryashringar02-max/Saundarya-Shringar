@@ -111,6 +111,7 @@ const AdminBanners = () => {
                   <option>Category Banner</option>
                   <option>Trending</option>
                   <option>Offers</option>
+                  <option>AppPromo</option>
                 </select>
               </div>
               <div className="space-y-1">

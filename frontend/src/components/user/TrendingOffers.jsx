@@ -44,10 +44,10 @@ const offers = [
   },
   {
     id: 2,
-    title: 'Jewellery Sale',
+    title: 'Artificial Jewellery Sale',
     subtitle: 'Starting @ ₹199 only',
     image: offerJewellery,
-    link: '/shop?category=Jewellery',
+    link: '/shop?category=Artificial Jewellery',
     tag: 'Limited Stock'
   },
   {
@@ -78,7 +78,7 @@ const TrendingOffers = () => {
 
       <div className="container mx-auto px-4 md:px-8 relative z-10">
         <div className="flex flex-col items-center justify-center mb-8">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -97,8 +97,8 @@ const TrendingOffers = () => {
               className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 group border border-gray-100"
             >
               <Link to={offer.link} className="block relative aspect-[5/6] overflow-hidden">
-                <img 
-                  src={offer.image} 
+                <img
+                  src={offer.image}
                   alt={offer.title}
                   loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
@@ -110,20 +110,20 @@ const TrendingOffers = () => {
                     <RunningSaleTimer />
                   </div>
                 )}
-                
+
                 {/* Minimalist Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-6 md:p-8">
-                   <span className="bg-[#FFD814] text-brand-dark text-[8px] font-black px-3 py-1 rounded-sm w-fit mb-3 uppercase tracking-widest shadow-lg">
-                      {offer.tag}
-                   </span>
-                   <h3 className="text-white font-serif font-black text-xl md:text-2xl mb-1 leading-tight group-hover:text-[#FFD814] transition-colors">
-                      {offer.title}
-                   </h3>
-                   <p className="text-white/80 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] leading-none">
-                      {offer.subtitle}
-                   </p>
-                   
-                   <div className="w-0 group-hover:w-full h-[2px] bg-[#FFD814] transition-all duration-500 mt-4" />
+                  <span className="bg-[#FFD814] text-brand-dark text-[8px] font-black px-3 py-1 rounded-sm w-fit mb-3 uppercase tracking-widest shadow-lg">
+                    {offer.tag}
+                  </span>
+                  <h3 className="text-white font-serif font-black text-xl md:text-2xl mb-1 leading-tight group-hover:text-[#FFD814] transition-colors">
+                    {offer.title}
+                  </h3>
+                  <p className="text-white/80 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] leading-none">
+                    {offer.subtitle}
+                  </p>
+
+                  <div className="w-0 group-hover:w-full h-[2px] bg-[#FFD814] transition-all duration-500 mt-4" />
                 </div>
               </Link>
             </motion.div>
@@ -132,7 +132,7 @@ const TrendingOffers = () => {
 
         <div className="mt-12 text-center">
           <Link to="/shop" className="group inline-flex items-center gap-3 text-brand-pink font-black uppercase tracking-widest text-[10px] md:text-xs border-b-2 border-brand-pink/20 hover:border-brand-pink transition-all pb-1 mx-auto">
-             Discover All Deals <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
+            Discover All Deals <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
       </div>
