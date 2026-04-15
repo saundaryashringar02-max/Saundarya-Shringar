@@ -89,7 +89,8 @@ const productSchema = new mongoose.Schema({
         type: String,
         enum: ['Acne', 'Pigmentation', 'Anti-Aging', 'Glow', 'All'],
         default: 'All'
-    }
+    },
+    sizes: [String]
 }, { timestamps: true });
 
 // Create text index for optimized searching

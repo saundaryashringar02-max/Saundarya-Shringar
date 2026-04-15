@@ -114,7 +114,10 @@ const AdminOrders = () => {
                   <div className="divide-y divide-gray-50 border border-gray-50 p-2.5 bg-gray-50/30">
                     {selectedOrder.items?.map((item, i) => (
                       <div key={i} className="flex justify-between py-3 text-[10px] font-bold text-gray-700 leading-normal">
-                        <span className="max-w-[250px]">{item.name || 'Unknown Product'} x{item.quantity}</span>
+                        <div className="flex flex-col">
+                          <span className="max-w-[250px]">{item.name || 'Unknown Product'} x{item.quantity}</span>
+                          {item.size && <span className="text-[7px] text-brand-pink font-black uppercase tracking-widest mt-0.5">Size: {item.size}</span>}
+                        </div>
                         <span>₹{item.price * item.quantity}</span>
                       </div>
                     ))}

@@ -142,6 +142,7 @@ const ProductDetail = () => {
   const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false);
   const [selectedPolicyTab, setSelectedPolicyTab] = useState('Genuine');
   const [availableCoupons, setAvailableCoupons] = useState([]);
+  const [selectedSize, setSelectedSize] = useState('');
 
   const fetchAvailableCoupons = async () => {
     try {
@@ -254,18 +255,29 @@ const ProductDetail = () => {
     if (triggerFlyToCart) {
       triggerFlyToCart(e, (product.gallery && product.gallery[selectedImageIndex]) || product.image);
     }
-    addToCart({ ...product, price: finalPrice, couponApplied: appliedCoupon?.code });
+    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+      alert("Please select a sacred size before adding to bag.");
+      return;
+    }
+
+    addToCart({ ...product, price: finalPrice, couponApplied: appliedCoupon?.code, selectedSize });
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
   };
 
 
   const handleBuyNow = () => {
+    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+      alert("Please select a size before proceeding.");
+      return;
+    }
+
     const directProductData = {
       ...product,
       price: finalPrice,
       quantity: 1,
-      couponApplied: appliedCoupon?.code
+      couponApplied: appliedCoupon?.code,
+      selectedSize
     };
     setIsCartDrawerOpen(false);
     navigate('/checkout', { state: { directProduct: directProductData } });
@@ -383,6 +395,32 @@ const ProductDetail = () => {
                     FREE delivery <span className="text-brand-dark font-bold">Sunday, 22 March</span> on your first order.
                   </p>
                 </div>
+
+                {/* Size Selection Section */}
+                {product.sizes && product.sizes.length > 0 && (
+                  <div className="space-y-4 pt-2 border-t border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-[10px] font-black text-[#5C2E3E]/60 uppercase tracking-widest flex items-center gap-2">
+                        Available Sizes
+                      </h3>
+                      <span className="text-[8px] font-black text-brand-pink underline uppercase tracking-tighter cursor-pointer">Size Guide</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2.5">
+                      {product.sizes.map((size) => (
+                        <button
+                          key={size}
+                          onClick={() => setSelectedSize(size)}
+                          className={`min-w-[45px] h-[45px] rounded-xl border-2 flex items-center justify-center text-xs font-black transition-all ${selectedSize === size
+                            ? 'border-brand-dark bg-brand-dark text-white shadow-lg'
+                            : 'border-gray-100 text-gray-400 hover:border-brand-pink/30 hover:text-brand-pink'
+                            }`}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {appliedCoupon && (
                   <div className="mt-2 flex items-center gap-2 bg-green-50 text-green-600 px-3 py-1.5 rounded-lg border border-green-100 w-fit">

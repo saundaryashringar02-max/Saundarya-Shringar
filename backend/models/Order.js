@@ -26,7 +26,8 @@ const orderSchema = new mongoose.Schema({
                 required: true,
                 min: 1
             },
-            image: String
+            image: String,
+            size: String
         }
     ],
     subTotal: Number,

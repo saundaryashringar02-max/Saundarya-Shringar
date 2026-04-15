@@ -116,12 +116,13 @@ export const ShopProvider = ({ children }) => {
         razorpay_payment_id: razorpayResponse.razorpay_payment_id,
         razorpay_signature: razorpayResponse.razorpay_signature,
         orderDetails: {
-          items: cart.map(item => ({
-            product: item._id,
+          items: (details.items || cart).map(item => ({
+            product: item.product || item._id,
             name: item.name,
             price: item.price,
             quantity: item.quantity,
-            image: item.image
+            image: item.image,
+            size: item.size || item.selectedSize
           })),
           subTotal: breakdown?.subtotal,
           taxAmount: breakdown?.taxAmount,
@@ -162,12 +163,13 @@ export const ShopProvider = ({ children }) => {
       const { couponCode, ...shippingAddress } = details;
 
       const payload = {
-        items: cart.map(item => ({
-          product: item._id,
+        items: (details.items || cart).map(item => ({
+          product: item.product || item._id,
           name: item.name,
           price: item.price,
           quantity: item.quantity,
-          image: item.image
+          image: item.image,
+          size: item.size || item.selectedSize
         })),
         subTotal: breakdown?.subtotal,
         taxAmount: breakdown?.taxAmount,
@@ -196,10 +198,10 @@ export const ShopProvider = ({ children }) => {
 
   const addToCart = (product) => {
     setCart(prev => {
-      const existing = prev.find(item => item._id === product._id);
+      const existing = prev.find(item => item._id === product._id && item.selectedSize === product.selectedSize);
       if (existing) {
         return prev.map(item =>
-          item._id === product._id ? { ...item, quantity: item.quantity + 1 } : item
+          (item._id === product._id && item.selectedSize === product.selectedSize) ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
       return [...prev, { ...product, quantity: 1 }];
@@ -207,13 +209,13 @@ export const ShopProvider = ({ children }) => {
     setIsCartDrawerOpen(true);
   };
 
-  const removeFromCart = (productId) => {
-    setCart(prev => prev.filter(item => item._id !== productId));
+  const removeFromCart = (productId, size) => {
+    setCart(prev => prev.filter(item => !(item._id === productId && item.selectedSize === size)));
   };
 
-  const updateQuantity = (productId, delta) => {
+  const updateQuantity = (productId, size, delta) => {
     setCart(prev => prev.map(item => {
-      if (item._id === productId) {
+      if (item._id === productId && item.selectedSize === size) {
         const newQty = Math.max(1, item.quantity + delta);
         return { ...item, quantity: newQty };
       }

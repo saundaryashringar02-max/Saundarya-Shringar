@@ -56,7 +56,7 @@ const CartDrawer = () => {
                 cart.map((item) => (
                   <motion.div
                     layout
-                    key={item._id}
+                    key={`${item._id}-${item.selectedSize || 'nosize'}`}
                     className="flex gap-4 items-center bg-white p-3 rounded-2xl border border-gray-50 shadow-sm"
                   >
                     <div className="w-20 h-24 rounded-xl overflow-hidden bg-[#F9F6F4] shrink-0">
@@ -66,15 +66,22 @@ const CartDrawer = () => {
                       <h3 className="text-[10px] md:text-xs font-black text-[#5C2E3E] uppercase truncate tracking-tight mb-1">
                         {item.name}
                       </h3>
-                      <p className="text-[9px] text-gray-400 font-serif italic mb-3">{item.subCategory}</p>
+                      <div className="flex items-center gap-2 mb-3">
+                        <p className="text-[9px] text-gray-400 font-serif italic">{item.subCategory}</p>
+                        {item.selectedSize && (
+                          <span className="text-[8px] font-black text-brand-pink border border-brand-pink/20 px-1.5 py-0.5 rounded uppercase tracking-tighter bg-brand-pink/5">
+                            Size: {item.selectedSize}
+                          </span>
+                        )}
+                      </div>
 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3 bg-gray-50 rounded-full px-3 py-1">
-                          <button onClick={() => updateQuantity(item._id, -1)} className="text-gray-400 hover:text-brand-pink">
+                          <button onClick={() => updateQuantity(item._id, item.selectedSize, -1)} className="text-gray-400 hover:text-brand-pink">
                             <FiMinus size={10} />
                           </button>
                           <span className="text-[10px] font-bold text-[#5C2E3E] w-4 text-center">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item._id, 1)} className="text-gray-400 hover:text-brand-pink">
+                          <button onClick={() => updateQuantity(item._id, item.selectedSize, 1)} className="text-gray-400 hover:text-brand-pink">
                             <FiPlus size={10} />
                           </button>
                         </div>
@@ -82,7 +89,7 @@ const CartDrawer = () => {
                       </div>
                     </div>
                     <button
-                      onClick={() => removeFromCart(item._id)}
+                      onClick={() => removeFromCart(item._id, item.selectedSize)}
                       className="p-2 text-gray-300 hover:text-red-400 transition-colors"
                     >
                       <FiTrash2 size={14} />

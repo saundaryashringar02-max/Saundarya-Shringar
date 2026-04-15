@@ -62,6 +62,7 @@ export const generateInvoice = async (order) => {
           <tr style="border-bottom: 1px solid #f0f0f0; font-size: 10px;">
             <td style="padding: 12px;">
               <p style="margin: 0; font-weight: bold; color: #333;">${item.name}</p>
+              ${item.size ? `<p style="margin: 2px 0 0; font-size: 8px; color: #A35266; font-weight: bold; text-transform: uppercase;">Size: ${item.size}</p>` : ''}
             </td>
             <td style="padding: 12px; text-align: center;">₹${item.price}</td>
             <td style="padding: 12px; text-align: center;">${item.quantity}</td>

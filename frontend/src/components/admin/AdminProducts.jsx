@@ -42,7 +42,8 @@ const AdminProducts = () => {
     skinType: 'All',
     skinConcern: 'All',
     gallery: [],
-    brand: ''
+    brand: '',
+    sizes: []
   });
 
   const handleInputChange = (e) => {
@@ -88,6 +89,21 @@ const AdminProducts = () => {
   const removeAboutPoint = (index) => {
     const newAbout = form.about.filter((_, i) => i !== index);
     setForm(prev => ({ ...prev, about: newAbout }));
+  };
+
+  const handleSizeChange = (index, value) => {
+    const newSizes = [...form.sizes];
+    newSizes[index] = value;
+    setForm(prev => ({ ...prev, sizes: newSizes }));
+  };
+
+  const addSize = () => {
+    setForm(prev => ({ ...prev, sizes: [...(prev.sizes || []), ''] }));
+  };
+
+  const removeSize = (index) => {
+    const newSizes = form.sizes.filter((_, i) => i !== index);
+    setForm(prev => ({ ...prev, sizes: newSizes }));
   };
 
   // Handle Filtering and Searching
@@ -139,7 +155,8 @@ const AdminProducts = () => {
       skinType: product.skinType || 'All',
       skinConcern: product.skinConcern || 'All',
       gallery: product.gallery || [],
-      brand: product.brand || ''
+      brand: product.brand || '',
+      sizes: product.sizes || []
     });
     setIsAdding(true);
   };
@@ -158,7 +175,8 @@ const AdminProducts = () => {
         price: Number(form.price),
         stock: Number(form.stock),
         status: 'active',
-        about: form.about.filter(point => point.trim() !== '') // Clean empty points
+        about: form.about.filter(point => point.trim() !== ''), // Clean empty points
+        sizes: form.sizes.filter(size => size.trim() !== '') // Clean empty sizes
       };
 
       if (editingProduct) {
@@ -169,7 +187,7 @@ const AdminProducts = () => {
 
       setIsAdding(false);
       setEditingProduct(null);
-      setForm({ name: '', brand: '', category: '', subCategory: '', price: '', stock: 100, image: '', description: '', badge: '', about: [], skinType: 'All', skinConcern: 'All', gallery: [] });
+      setForm({ name: '', brand: '', category: '', subCategory: '', price: '', stock: 100, image: '', description: '', badge: '', about: [], skinType: 'All', skinConcern: 'All', gallery: [], sizes: [] });
       fetchData();
     } catch (err) {
       alert('Error saving product: ' + (err.response?.data?.message || err.message));
@@ -208,7 +226,7 @@ const AdminProducts = () => {
               <button
                 onClick={() => {
                   setEditingProduct(null);
-                  setForm({ name: '', brand: '', category: '', subCategory: '', price: '', stock: 100, image: '', description: '', badge: '', about: [], skinType: 'All', skinConcern: 'All', gallery: [] });
+                  setForm({ name: '', brand: '', category: '', subCategory: '', price: '', stock: 100, image: '', description: '', badge: '', about: [], skinType: 'All', skinConcern: 'All', gallery: [], sizes: [] });
                   setIsAdding(true);
                 }}
                 className="bg-brand-dark text-white px-6 py-2.5 rounded-lg text-xs font-bold flex items-center gap-2 shadow-lg shadow-black/10 hover:bg-black transition-all"
@@ -588,6 +606,34 @@ const AdminProducts = () => {
                           {concern}
                         </button>
                       ))}
+                    </div>
+                  </div>
+                  {/* Sizes Management - Dynamic & Optional */}
+                  <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mt-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-[9px] font-bold text-gray-800 uppercase tracking-wider">Product Size Variations</h3>
+                      <button type="button" onClick={addSize} className="text-[9px] font-black text-brand-pink uppercase hover:underline flex items-center gap-1">
+                        <FiPlus size={10} /> Add Size
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {form.sizes?.map((size, idx) => (
+                        <div key={idx} className="flex items-center bg-gray-50 border border-gray-100 rounded-lg px-2 py-1 gap-2 shadow-inner">
+                          <input
+                            type="text"
+                            value={size}
+                            onChange={(e) => handleSizeChange(idx, e.target.value)}
+                            placeholder="e.g. M, 50ml"
+                            className="bg-transparent border-none outline-none text-[10px] font-black uppercase w-16"
+                          />
+                          <button type="button" onClick={() => removeSize(idx)} className="text-red-300 hover:text-red-500 transition-colors">
+                            <FiX size={12} />
+                          </button>
+                        </div>
+                      ))}
+                      {(!form.sizes || form.sizes.length === 0) && (
+                        <p className="w-full text-center py-4 bg-gray-50/50 rounded-xl border border-dashed border-gray-200 text-[8px] font-bold text-gray-300 uppercase tracking-widest">No sizes defined (one-size only)</p>
+                      )}
                     </div>
                   </div>
                 </div>

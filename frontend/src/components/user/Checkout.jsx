@@ -210,7 +210,7 @@ const Checkout = () => {
           try {
             await verifyAndClearCart(response, {
               ...formData,
-              items: displayItems.map(i => ({ product: i._id, quantity: i.quantity || 1, price: i.price, name: i.name })),
+              items: displayItems.map(i => ({ product: i._id, quantity: i.quantity || 1, price: i.price, name: i.name, image: i.image, size: i.selectedSize })),
               totalAmount: total,
               couponCode: appliedCoupon?.code
             }, total, { subtotal, taxAmount, taxRate: currentTaxRate, shippingValue, actualShipping });
@@ -285,6 +285,7 @@ const Checkout = () => {
         try {
           await clearCart({
             ...formData,
+            items: displayItems.map(i => ({ product: i._id, quantity: i.quantity || 1, price: i.price, name: i.name, image: i.image, size: i.selectedSize })),
             couponCode: appliedCoupon?.code
           }, total, { subtotal, taxAmount, taxRate: currentTaxRate, shippingValue, actualShipping });
           setIsSuccess(true);
@@ -407,31 +408,38 @@ const Checkout = () => {
                   <div className="space-y-3">
                     {displayItems.length > 0 ? (
                       displayItems.map((item) => (
-                        <div key={item._id} className={`bg-white p-3 border border-gray-100 shadow-sm flex items-center gap-4 group transition-all ${directProduct ? 'border-brand-pink/10' : 'hover:border-brand-pink/20'}`}>
+                        <div key={`${item._id}-${item.selectedSize || 'nosize'}`} className={`bg-white p-3 border border-gray-100 shadow-sm flex items-center gap-4 group transition-all ${directProduct ? 'border-brand-pink/10' : 'hover:border-brand-pink/20'}`}>
                           <div className="w-16 h-20 bg-[#F9F6F4] shrink-0">
                             <img src={item.image} alt={item.name} className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-[10px] font-black text-[#5C2E3E] uppercase tracking-widest truncate">{item.name}</h3>
+                            <div className="flex justify-between items-start">
+                              <h3 className="text-[10px] font-black text-[#5C2E3E] uppercase tracking-widest truncate">{item.name}</h3>
+                              {item.selectedSize && (
+                                <span className="text-[8px] font-black text-brand-pink border border-brand-pink/20 px-1.5 rounded bg-brand-pink/5">
+                                  {item.selectedSize}
+                                </span>
+                              )}
+                            </div>
                             <p className="text-[9px] text-gray-400 font-serif italic mb-2">{item.subCategory}</p>
                             <div className="flex items-center gap-4">
                               <div className={`flex items-center gap-2.5 bg-gray-50 border border-gray-100 px-2 py-0.5 scale-90 -ml-2 ${directProduct ? 'opacity-50 cursor-not-allowed' : ''}`}>
                                 <button
-                                  onClick={() => !directProduct && updateQuantity(item._id, -1)}
+                                  onClick={() => !directProduct && updateQuantity(item._id, item.selectedSize, -1)}
                                   className={`text-gray-400 hover:text-brand-pink transition-colors ${directProduct ? 'pointer-events-none' : ''}`}
                                 >
                                   <FiMinus size={8} />
                                 </button>
                                 <span className="text-[10px] font-black text-[#5C2E3E] w-3 text-center">{item.quantity || 1}</span>
                                 <button
-                                  onClick={() => !directProduct && updateQuantity(item._id, 1)}
+                                  onClick={() => !directProduct && updateQuantity(item._id, item.selectedSize, 1)}
                                   className={`text-gray-400 hover:text-brand-pink transition-colors ${directProduct ? 'pointer-events-none' : ''}`}
                                 >
                                   <FiPlus size={8} />
                                 </button>
                               </div>
                               {!directProduct && (
-                                <button onClick={() => removeFromCart(item._id)} className="text-[#5C2E3E]/30 hover:text-red-500 transition-colors uppercase text-[7px] font-black tracking-[0.2em]">
+                                <button onClick={() => removeFromCart(item._id, item.selectedSize)} className="text-[#5C2E3E]/30 hover:text-red-500 transition-colors uppercase text-[7px] font-black tracking-[0.2em]">
                                   Remove
                                 </button>
                               )}
