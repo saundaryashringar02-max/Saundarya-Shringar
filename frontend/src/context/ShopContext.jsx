@@ -125,7 +125,9 @@ export const ShopProvider = ({ children }) => {
           })),
           subTotal: breakdown?.subtotal,
           taxAmount: breakdown?.taxAmount,
+          taxRate: breakdown?.taxRate,
           shippingAmount: breakdown?.shippingValue,
+          actualShippingAmount: breakdown?.actualShipping,
           totalAmount: customTotal,
           shippingAddress,
           couponCode: details.couponCode
@@ -169,7 +171,9 @@ export const ShopProvider = ({ children }) => {
         })),
         subTotal: breakdown?.subtotal,
         taxAmount: breakdown?.taxAmount,
+        taxRate: breakdown?.taxRate,
         shippingAmount: breakdown?.shippingValue,
+        actualShippingAmount: breakdown?.actualShipping,
         totalAmount: totalAmount,
         shippingAddress,
         couponCode: details.couponCode || null

@@ -69,7 +69,7 @@ const TrendingBanner = () => {
                             <div className="h-[1px] w-12 bg-white/30" />
                           </div>
                           <h4 className="text-white text-3xl md:text-5xl lg:text-7xl font-sans font-black tracking-tighter leading-tight drop-shadow-2xl">
-                            Starting <span className="text-brand-gold underline decoration-white/20 underline-offset-8 decoration-4">{item.price || "₹199"}</span>
+                            Starting <span className="text-brand-gold underline decoration-white/20 underline-offset-8 decoration-4">{item.price || "₹200"}</span>
                           </h4>
                         </div>
 

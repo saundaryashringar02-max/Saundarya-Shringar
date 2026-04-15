@@ -145,8 +145,8 @@ const ProductDetail = () => {
 
   const fetchAvailableCoupons = async () => {
     try {
-      const res = await api.get('/coupons');
-      setAvailableCoupons(res.data.data.coupons.filter(c => c.isActive));
+      const res = await api.get('/coupons/public');
+      setAvailableCoupons(res.data.data.coupons);
     } catch (err) {
       console.error("Failed to fetch divine offers:", err);
     }

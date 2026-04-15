@@ -92,7 +92,7 @@ const productSchema = new mongoose.Schema({
 productSchema.index({ name: 'text', brand: 'text', description: 'text', category: 'text' });
 
 // MIDDLEWARE: Logic to normalize pricing and add shipping charge
-productSchema.pre('save', async function (next) {
+productSchema.pre('save', async function () {
     if (this.isModified('price') || this.isModified('basePrice') || this.isNew) {
         const Settings = mongoose.model('Settings');
         let settings = await Settings.findOne({ type: 'global' });
@@ -101,15 +101,15 @@ productSchema.pre('save', async function (next) {
         // 1. Determine base price (if user updated 'price', consider it the new base)
         const base = this.isModified('price') && !this.isModified('basePrice') ? this.price : (this.basePrice || this.price);
 
-        // 2. Normalize logic
-        let normalized = Math.floor((base + 50) / 100) * 100;
+        // 2. Normalize logic (All-Inclusive price: Round to nearest 100)
+        let normalized = Math.floor(base / 100) * 100;
         normalized = Math.min(2000, Math.max(100, normalized));
 
-        // 3. Set derived fields
+        // 3. Set derived fields (Inclusive of GST & Shipping)
         this.basePrice = base;
         this.normalizedPrice = normalized;
-        this.shippingCharge = deliveryCharge;
-        this.finalPrice = normalized + deliveryCharge;
+        this.shippingCharge = 0; // Explicitly 0 because it's included in the price
+        this.finalPrice = normalized;
 
         // 4. Update the main 'price' field to match finalPrice for frontend compatibility
         this.price = this.finalPrice;
@@ -124,7 +124,6 @@ productSchema.pre('save', async function (next) {
             this.oldPrice = undefined;
         }
     }
-    next();
 });
 
 const Product = mongoose.model('Product', productSchema);

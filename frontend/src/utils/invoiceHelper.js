@@ -74,16 +74,16 @@ export const generateInvoice = async (order) => {
     <div style="display: flex; justify-content: flex-end;">
       <div style="width: 250px;">
         <div style="display: flex; justify-content: space-between; padding: 5px 0; font-size: 11px;">
-          <span style="color: #666;">Subtotal:</span>
+          <span style="color: #666;">Subtotal (Incl. GST & Shipping):</span>
           <span style="font-weight: bold;">₹${order.subTotal || (order.totalAmount - (order.shippingAmount || 0))}</span>
         </div>
         <div style="display: flex; justify-content: space-between; padding: 5px 0; font-size: 11px;">
-          <span style="color: #666;">Tax (GST Included):</span>
-          <span style="font-weight: bold;">₹${order.taxAmount || Math.round(order.totalAmount * 0.1525)}</span>
+          <span style="color: #666;">Tax (GST ${order.taxRate || 18}% Included):</span>
+          <span style="font-weight: bold;">₹${order.taxAmount || Math.round((order.subTotal || order.totalAmount) * ((order.taxRate || 18) / 100))}</span>
         </div>
         <div style="display: flex; justify-content: space-between; padding: 5px 0; font-size: 11px;">
-          <span style="color: #666;">Sacred Shipping:</span>
-          <span style="font-weight: bold;">${order.shippingAmount === 0 ? 'FREE' : '₹' + (order.shippingAmount || 50)}</span>
+          <span style="color: #666;">Sacred Shipping (Included):</span>
+          <span style="font-weight: bold;">₹${order.actualShippingAmount !== undefined ? order.actualShippingAmount : (order.shippingAmount || 0)}</span>
         </div>
         ${order.couponApplied ? `
           <div style="display: flex; justify-content: space-between; padding: 5px 0; font-size: 11px; color: #A35266;">

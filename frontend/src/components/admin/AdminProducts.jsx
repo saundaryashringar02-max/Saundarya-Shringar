@@ -500,7 +500,7 @@ const AdminProducts = () => {
                       </div>
                       <div className="space-y-1">
                         <label className="text-[10px] font-bold text-gray-500">Price (₹) <span className="text-red-500">*</span></label>
-                        <input type="number" name="price" min="0" value={form.price} onChange={handleInputChange} placeholder="999" className="w-full bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-[13px] font-bold outline-none focus:border-gray-300 transition-all shadow-inner" required />
+                        <input type="number" name="price" min="0" value={form.price} onChange={handleInputChange} placeholder="1000" className="w-full bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-[13px] font-bold outline-none focus:border-gray-300 transition-all shadow-inner" required />
                       </div>
                     </div>
 

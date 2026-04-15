@@ -147,12 +147,11 @@ const Checkout = () => {
     : cartTotal;
 
   const currentTaxRate = settings?.taxRate || 18;
-  const isFreeDelivery = subtotal >= (settings?.freeDeliveryThreshold || 1000);
-  const shippingValue = isFreeDelivery ? 0 : (settings?.deliveryCharge || 50);
+  const shippingValue = 0; // Forced to zero as per user requirement to show internal price in invoice but not charge here.
+  const actualShipping = (settings?.deliveryCharge || 50);
 
-  // Correct TAX INCLUSIVE calculation
-  const taxAmount = Math.round(subtotal - (subtotal / (1 + (currentTaxRate / 100))));
-
+  // Display Tax calculated as percentage of subtotal, but it is INCLUSIVE (already in main price)
+  const taxAmount = Math.round(subtotal * (currentTaxRate / 100));
   const codFee = (selectedPayment === 'cod' && settings?.isCodEnabled) ? (settings?.codCharge || 0) : 0;
   const total = Math.max(0, subtotal - discountAmount + shippingValue + codFee);
 
@@ -214,7 +213,7 @@ const Checkout = () => {
               items: displayItems.map(i => ({ product: i._id, quantity: i.quantity || 1, price: i.price, name: i.name })),
               totalAmount: total,
               couponCode: appliedCoupon?.code
-            }, total, { subtotal, taxAmount, shippingValue });
+            }, total, { subtotal, taxAmount, taxRate: currentTaxRate, shippingValue, actualShipping });
             setIsSuccess(true);
           } catch (err) {
             console.error("Verification error", err);
@@ -287,7 +286,7 @@ const Checkout = () => {
           await clearCart({
             ...formData,
             couponCode: appliedCoupon?.code
-          }, total, { subtotal, taxAmount, shippingValue });
+          }, total, { subtotal, taxAmount, taxRate: currentTaxRate, shippingValue, actualShipping });
           setIsSuccess(true);
         } catch (err) {
           console.error("Checkout failed", err);
@@ -700,7 +699,7 @@ const Checkout = () => {
 
                 <div className="space-y-4 py-2">
                   <div className="flex justify-between items-center px-1">
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/40">Subtotal</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/40">Subtotal (Incl. GST & Shipping)</span>
                     <span className="text-sm font-black text-[#5C2E3E]">₹{subtotal}</span>
                   </div>
 
@@ -743,20 +742,20 @@ const Checkout = () => {
                   )}
 
                   <div className="flex justify-between items-center px-1">
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/40">Shipping</span>
-                    <span className="text-sm font-black text-brand-gold">{shippingValue === 0 ? 'FREE' : `₹${shippingValue}`}</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/40">Shipping (Included)</span>
+                    <span className="text-sm font-black text-brand-gold">{shippingValue === 0 ? 'INCLUDED' : `₹${shippingValue}`}</span>
                   </div>
 
                   {codFee > 0 && (
                     <div className="flex justify-between items-center px-1">
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/40">COD Convenience</span>
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/40">COD Convenience (Included)</span>
                       <span className="text-sm font-black text-[#5C2E3E]">₹${codFee}</span>
                     </div>
                   )}
 
                   <div className="bg-brand-pink/5 p-4 rounded-lg space-y-2 border border-brand-pink/10">
                     <div className="flex justify-between items-center text-[7px] font-black uppercase tracking-widest text-[#5C2E3E]/40 px-1">
-                      <span>Inclusive of GST ({currentTaxRate}%)</span>
+                      <span>GST ({currentTaxRate}% Included)</span>
                       <span>₹{taxAmount}</span>
                     </div>
                     <div className="flex items-center gap-3 pt-2 border-t border-brand-pink/5">

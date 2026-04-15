@@ -13,20 +13,20 @@ const PriceSegments = () => {
     const segments = [
         {
             title: "Affordable & Budget",
-            subtitle: "Everyday essentials (₹100 – ₹300+)",
-            filter: (p) => p.price < 500,
+            subtitle: "Everyday essentials (₹100 – ₹500)",
+            filter: (p) => p.price <= 500,
             bgColor: "bg-brand-pink/5"
         },
         {
             title: "Mid-Range & Daily",
-            subtitle: "Quality trusted brands (₹500 – ₹1000)",
-            filter: (p) => p.price >= 500 && p.price < 1500,
+            subtitle: "Quality trusted brands (₹501 – ₹1000)",
+            filter: (p) => p.price >= 501 && p.price < 1500,
             bgColor: "bg-white"
         },
         {
             title: "Premium & Luxury",
-            subtitle: "Professional & High-end curation (₹1500+)",
-            filter: (p) => p.price >= 1500,
+            subtitle: "Professional & High-end curation (₹1001+)",
+            filter: (p) => p.price >= 1001,
             bgColor: "bg-[#5C2E3E]/5"
         }
     ];

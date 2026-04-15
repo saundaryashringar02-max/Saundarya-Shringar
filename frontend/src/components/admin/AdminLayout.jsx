@@ -24,7 +24,8 @@ import {
   FiMessageSquare,
   FiHelpCircle,
   FiTruck,
-  FiMapPin
+  FiMapPin,
+  FiZap
 } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { onMessageListener } from '../../utils/firebase-config';
@@ -94,6 +95,7 @@ const AdminLayout = () => {
     { title: 'Customers', path: '/admin/customers', icon: <FiUsers /> },
     { title: 'Returns & Replace', path: '/admin/returns', icon: <FiRotateCcw /> },
     { title: 'Coupons', path: '/admin/coupons', icon: <FiTag /> },
+    { title: 'Divine Offers', path: '/admin/offers', icon: <FiZap /> },
     { title: 'Banners', path: '/admin/banners', icon: <FiImage /> },
     { title: 'Blogs', path: '/admin/blogs', icon: <FiLayers /> },
     { title: 'Testimonials', path: '/admin/testimonials', icon: <FiUsers /> },

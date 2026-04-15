@@ -14,106 +14,11 @@ import imgLakmePowder from '../../assets/products/lakme_face_powder.png';
 import imgLipGloss from '../../assets/products/plumping_lip_gloss.png';
 import imgMascara from '../../assets/products/volumizing_mascara.png';
 
-const offerProducts = [
-  {
-    _id: 1,
-    name: 'TIRTIR Mask Fit Red Cushion',
-    price: 899,
-    oldPrice: 1650,
-    rating: 5,
-    reviews: 1245,
-    discount: '45%',
-    image: imgTirtirRed,
-    category: 'makeup',
-    label: 'Big Drop'
-  },
-  {
-    _id: 103,
-    name: 'Glow Vit-C Serum',
-    price: 549,
-    oldPrice: 1250,
-    rating: 5,
-    reviews: 450,
-    discount: '56%',
-    image: imgTirtirRed,
-    category: 'skincare',
-    label: 'Pocket Deal'
-  },
-  {
-    _id: 201,
-    name: 'Oriental Silk Foundation',
-    price: 799,
-    oldPrice: 1899,
-    rating: 5,
-    reviews: 890,
-    discount: '58%',
-    image: imgLakmePowder,
-    category: 'makeup',
-    label: 'Mega Sale'
-  },
-  {
-    _id: 5,
-    name: 'Verymiss Kiss Proof Trio',
-    price: 399,
-    oldPrice: 999,
-    rating: 4,
-    reviews: 856,
-    discount: '60%',
-    image: imgVerymiss,
-    category: 'makeup',
-    label: 'Super Budget'
-  },
-  {
-    _id: 6,
-    name: 'Rose Gold Eyeshadow Palette',
-    price: 649,
-    oldPrice: 1550,
-    rating: 5,
-    reviews: 840,
-    discount: '58%',
-    image: imgRoseGold,
-    category: 'makeup',
-    label: 'Lowest Ever'
-  },
-  {
-    _id: 351,
-    name: 'Bridal Radiance Kit',
-    price: 999,
-    oldPrice: 2800,
-    rating: 5,
-    reviews: 45,
-    discount: '64%',
-    image: imgRoseGold,
-    category: 'beauty kits',
-    label: 'Steal Price'
-  },
-  {
-    _id: 3,
-    name: 'Dual Concealer Stick',
-    price: 349,
-    oldPrice: 899,
-    rating: 5,
-    reviews: 560,
-    discount: '61%',
-    image: imgTirtirConcealer,
-    category: 'makeup',
-    label: 'Budget Find'
-  },
-  {
-    _id: 401,
-    name: 'Oud Majesty Perfume',
-    price: 199,
-    oldPrice: 450,
-    rating: 5,
-    reviews: 120,
-    discount: '55%',
-    image: imgLipGloss,
-    category: 'fragrances',
-    label: 'Daily Steal'
-  }
-];
+// offerProducts mock data removed. Now fully dynamic.
 
 const Offers = () => {
+  const { products, loading } = useShop();
+  const offerProducts = products.filter(p => p.flashSale);
   const [coupons, setCoupons] = useState([]);
   const [loadingCoupons, setLoadingCoupons] = useState(true);
   const [timeLeft, setTimeLeft] = useState({
@@ -122,11 +27,10 @@ const Offers = () => {
     seconds: 0
   });
 
-  const fetchCoupons = async () => {
+  const fetchAvailableCoupons = async () => {
     try {
-      setLoadingCoupons(true);
-      const res = await api.get('/coupons');
-      setCoupons(res.data.data.coupons.filter(c => c.isActive));
+      const res = await api.get('/coupons/public');
+      setCoupons(res.data.data.coupons);
     } catch (err) {
       console.error("Failed to fetch divine offers:", err);
     } finally {
@@ -135,7 +39,7 @@ const Offers = () => {
   };
 
   useEffect(() => {
-    fetchCoupons();
+    fetchAvailableCoupons();
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         let { hours, minutes, seconds } = prev;
@@ -160,80 +64,80 @@ const Offers = () => {
       {/* Premium Hero Section */}
       <section className="relative h-[30vh] md:h-[40vh] flex items-center justify-center overflow-hidden bg-brand-dark">
         <div className="absolute inset-0 opacity-40">
-           {/* Decorative background pattern or image could go here */}
-           <div className="absolute inset-0 bg-gradient-to-r from-brand-pink/20 to-brand-gold/20 mix-blend-overlay"></div>
+          {/* Decorative background pattern or image could go here */}
+          <div className="absolute inset-0 bg-gradient-to-r from-brand-pink/20 to-brand-gold/20 mix-blend-overlay"></div>
         </div>
-        
+
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="inline-block bg-[#FF9900] text-brand-dark font-black uppercase tracking-[0.3em] text-[7px] md:text-[9px] px-3 py-1 md:mb-4 shadow-xl"
           >
-            Big Beauty Deals | Limited Time 
+            Big Beauty Deals | Limited Time
           </motion.div>
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, tracking: '0.2em' }}
             animate={{ opacity: 1, tracking: '-0.05em' }}
             transition={{ duration: 1, delay: 0.1 }}
             className="text-4xl md:text-6xl font-sans font-black text-white mb-3 uppercase leading-none drop-shadow-2xl"
           >
-            Divine <br/> <span className="text-brand-gold underline decoration-brand-pink decoration-4 md:decoration-[8px] underline-offset-[8px] md:underline-offset-[12px]">SAVINGS</span>
+            Divine <br /> <span className="text-brand-gold underline decoration-brand-pink decoration-4 md:decoration-[8px] underline-offset-[8px] md:underline-offset-[12px]">SAVINGS</span>
           </motion.h1>
-          <motion.p 
-             initial={{ opacity: 0 }}
-             animate={{ opacity: 1 }}
-             transition={{ delay: 0.4 }}
-             className="text-sm md:text-lg font-sans font-black mb-5 tracking-tight text-white/90"
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="text-sm md:text-lg font-sans font-black mb-5 tracking-tight text-white/90"
           >
-            Up to <span className="text-brand-gold">50% OFF</span> | Starting at <span className="text-brand-pink">₹199</span>
+            Up to <span className="text-brand-gold">50% OFF</span> | Starting at <span className="text-brand-pink">₹200</span>
           </motion.p>
           <motion.div
-             initial={{ opacity: 0, y: 20 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ delay: 0.6 }}
-             className="flex flex-wrap items-center justify-center gap-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="flex flex-wrap items-center justify-center gap-6"
           >
-             <div className="flex items-center gap-2 text-white/80 font-bold uppercase tracking-widest text-[10px]">
-                <div className="w-1.5 h-1.5 bg-brand-gold rounded-full" /> Wide Selection
-             </div>
-             <div className="flex items-center gap-2 text-white/80 font-bold uppercase tracking-widest text-[10px]">
-                <div className="w-1.5 h-1.5 bg-brand-pink rounded-full" /> Top Brands
-             </div>
-             <div className="flex items-center gap-2 text-white/80 font-bold uppercase tracking-widest text-[10px]">
-                <div className="w-1.5 h-1.5 bg-green-500 rounded-full" /> Fast Delivery
-             </div>
+            <div className="flex items-center gap-2 text-white/80 font-bold uppercase tracking-widest text-[10px]">
+              <div className="w-1.5 h-1.5 bg-brand-gold rounded-full" /> Wide Selection
+            </div>
+            <div className="flex items-center gap-2 text-white/80 font-bold uppercase tracking-widest text-[10px]">
+              <div className="w-1.5 h-1.5 bg-brand-pink rounded-full" /> Top Brands
+            </div>
+            <div className="flex items-center gap-2 text-white/80 font-bold uppercase tracking-widest text-[10px]">
+              <div className="w-1.5 h-1.5 bg-green-500 rounded-full" /> Fast Delivery
+            </div>
           </motion.div>
         </div>
       </section>
-      
+
       {/* Promo Codes Section */}
       <section className="container mx-auto px-4 md:px-8 mt-6">
         <div className="bg-white rounded-3xl p-4 md:p-6 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-brand-gold/5 -translate-y-16 translate-x-16 rotate-45" />
           <h2 className="text-xl font-serif font-black text-brand-dark uppercase tracking-widest mb-1 flex items-center gap-3">
-             <FiPercent className="text-brand-pink" /> Promo Architect
+            <FiPercent className="text-brand-pink" /> Promo Architect
           </h2>
           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.3em] mb-4">Copy & Apply at checkout for instant divinity</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {!loadingCoupons ? coupons.map(coupon => (
-              <motion.div 
+              <motion.div
                 key={coupon._id}
                 whileHover={{ y: -5 }}
                 className="bg-brand-light/10 border border-brand-pink/5 rounded-2xl p-4 flex items-center justify-between group overflow-hidden relative"
               >
                 <div className="absolute top-0 left-0 w-1 h-full bg-brand-gold" />
                 <div>
-                   <h3 className="text-xl font-black text-brand-dark tracking-tight">{coupon.code}</h3>
-                   <p className="text-[9px] font-black text-brand-pink uppercase tracking-widest mt-1">
-                     {coupon.discountType === 'percentage' ? `${coupon.discountValue}% OFF` : `₹${coupon.discountValue} FLAT OFF`}
-                   </p>
-                   <p className="text-[8px] text-gray-400 font-serif italic mt-2">
-                     Expires: {new Date(coupon.expiryDate).toLocaleDateString()}
-                   </p>
+                  <h3 className="text-xl font-black text-brand-dark tracking-tight">{coupon.code}</h3>
+                  <p className="text-[9px] font-black text-brand-pink uppercase tracking-widest mt-1">
+                    {coupon.discountType === 'percentage' ? `${coupon.discountValue}% OFF` : `₹${coupon.discountValue} FLAT OFF`}
+                  </p>
+                  <p className="text-[8px] text-gray-400 font-serif italic mt-2">
+                    Expires: {new Date(coupon.expiryDate).toLocaleDateString()}
+                  </p>
                 </div>
-                <button 
+                <button
                   onClick={() => {
                     navigator.clipboard.writeText(coupon.code);
                     alert("Promo Code Transmitted to Clipboard.");
@@ -267,31 +171,31 @@ const Offers = () => {
                 {offerProducts.length} Premium items on sale
               </p>
             </div>
-            
+
             <div className="flex flex-wrap gap-2 md:gap-3">
-               <div className="flex flex-col items-center justify-center bg-brand-dark text-white px-3 py-1.5 rounded-lg border border-white/10 shadow-lg">
-                  <span className="text-[7px] font-black uppercase tracking-widest opacity-60">Offer Ends In</span>
-                  <div className="flex gap-1.5 font-bold text-xs uppercase">
-                    <span>{String(timeLeft.hours).padStart(2, '0')}H</span>
-                    <span>{String(timeLeft.minutes).padStart(2, '0')}M</span>
-                    <span>{String(timeLeft.seconds).padStart(2, '0')}S</span>
-                  </div>
-               </div>
-               <div className="flex flex-col items-center justify-center bg-brand-pink/5 text-brand-pink px-3 py-1.5 rounded-lg border border-brand-pink/10">
-                  <span className="text-[7px] font-black uppercase tracking-widest opacity-60">Cashback Offer</span>
-                  <span className="text-xs font-black">15% CBC</span>
-               </div>
-               <div className="flex flex-col items-center justify-center bg-brand-gold/10 text-brand-gold px-3 py-1.5 rounded-lg border border-brand-gold/10">
-                  <span className="text-[7px] font-black uppercase tracking-widest opacity-40">Today's Perk</span>
-                  <span className="text-xs font-black">Free Delivery</span>
-               </div>
+              <div className="flex flex-col items-center justify-center bg-brand-dark text-white px-3 py-1.5 rounded-lg border border-white/10 shadow-lg">
+                <span className="text-[7px] font-black uppercase tracking-widest opacity-60">Offer Ends In</span>
+                <div className="flex gap-1.5 font-bold text-xs uppercase">
+                  <span>{String(timeLeft.hours).padStart(2, '0')}H</span>
+                  <span>{String(timeLeft.minutes).padStart(2, '0')}M</span>
+                  <span>{String(timeLeft.seconds).padStart(2, '0')}S</span>
+                </div>
+              </div>
+              <div className="flex flex-col items-center justify-center bg-brand-pink/5 text-brand-pink px-3 py-1.5 rounded-lg border border-brand-pink/10">
+                <span className="text-[7px] font-black uppercase tracking-widest opacity-60">Cashback Offer</span>
+                <span className="text-xs font-black">15% CBC</span>
+              </div>
+              <div className="flex flex-col items-center justify-center bg-brand-gold/10 text-brand-gold px-3 py-1.5 rounded-lg border border-brand-gold/10">
+                <span className="text-[7px] font-black uppercase tracking-widest opacity-40">Today's Perk</span>
+                <span className="text-xs font-black">Free Delivery</span>
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             {offerProducts.map((product, index) => (
               <motion.div
-                key={product.id}
+                key={product._id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -308,35 +212,35 @@ const Offers = () => {
 
       {/* Special Offer Banner */}
       <section className="container mx-auto px-4 md:px-8 mt-12">
-         <div className="bg-brand-pink/5 border border-brand-pink/10 rounded-[2.5rem] p-8 md:p-16 flex flex-col md:flex-row items-center gap-12 overflow-hidden relative">
-            <div className="absolute -top-24 -left-24 w-64 h-64 bg-brand-gold/10 rounded-full blur-3xl"></div>
-            <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-brand-pink/10 rounded-full blur-3xl"></div>
-            
-            <div className="flex-1 text-center md:text-left relative z-10">
-               <span className="text-brand-gold font-black text-[10px] uppercase tracking-[0.4em] mb-4 block">Membership Perk</span>
-               <h2 className="text-3xl md:text-5xl font-serif font-black text-brand-dark mb-6 leading-tight">
-                  Join the <span className="text-brand-pink">Glow Circle</span> <br /> 
-                  for Extra 10% Off
-               </h2>
-               <p className="text-gray-500 text-sm md:text-base mb-10 font-medium leading-relaxed max-w-lg">
-                  Become a member today and unlock exclusive access to private sales, early launches, and a permanent 10% discount on all orders.
-               </p>
-               <button className="bg-brand-dark text-white px-10 py-4 rounded-none text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-brand-gold transition-all shadow-xl active:scale-95">
-                  Sign Up For Glow
-               </button>
+        <div className="bg-brand-pink/5 border border-brand-pink/10 rounded-[2.5rem] p-8 md:p-16 flex flex-col md:flex-row items-center gap-12 overflow-hidden relative">
+          <div className="absolute -top-24 -left-24 w-64 h-64 bg-brand-gold/10 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-brand-pink/10 rounded-full blur-3xl"></div>
+
+          <div className="flex-1 text-center md:text-left relative z-10">
+            <span className="text-brand-gold font-black text-[10px] uppercase tracking-[0.4em] mb-4 block">Membership Perk</span>
+            <h2 className="text-3xl md:text-5xl font-serif font-black text-brand-dark mb-6 leading-tight">
+              Join the <span className="text-brand-pink">Glow Circle</span> <br />
+              for Extra 10% Off
+            </h2>
+            <p className="text-gray-500 text-sm md:text-base mb-10 font-medium leading-relaxed max-w-lg">
+              Become a member today and unlock exclusive access to private sales, early launches, and a permanent 10% discount on all orders.
+            </p>
+            <button className="bg-brand-dark text-white px-10 py-4 rounded-none text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-brand-gold transition-all shadow-xl active:scale-95">
+              Sign Up For Glow
+            </button>
+          </div>
+
+          <div className="w-full md:w-1/3 aspect-square bg-white rounded-2xl shadow-2xl p-4 flex items-center justify-center relative overflow-hidden group">
+            <img
+              src={imgRoseGold}
+              alt="Membership Gift"
+              className="w-full h-full object-cover rounded-xl transition-transform duration-700 group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-brand-dark/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <span className="text-white text-[10px] font-black tracking-widest uppercase border border-white/40 px-6 py-2">Welcome Gift</span>
             </div>
-            
-            <div className="w-full md:w-1/3 aspect-square bg-white rounded-2xl shadow-2xl p-4 flex items-center justify-center relative overflow-hidden group">
-               <img 
-                 src={imgRoseGold} 
-                 alt="Membership Gift" 
-                 className="w-full h-full object-cover rounded-xl transition-transform duration-700 group-hover:scale-110"
-               />
-               <div className="absolute inset-0 bg-brand-dark/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <span className="text-white text-[10px] font-black tracking-widest uppercase border border-white/40 px-6 py-2">Welcome Gift</span>
-               </div>
-            </div>
-         </div>
+          </div>
+        </div>
       </section>
     </div>
   );
