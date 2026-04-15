@@ -179,6 +179,8 @@ const AdminProducts = () => {
         sizes: form.sizes.filter(size => size.trim() !== '') // Clean empty sizes
       };
 
+      console.log('Saving product with payload:', payload);
+
       if (editingProduct) {
         await api.patch(`/products/${editingProduct._id}`, payload);
       } else {
@@ -190,6 +192,8 @@ const AdminProducts = () => {
       setForm({ name: '', brand: '', category: '', subCategory: '', price: '', stock: 100, image: '', description: '', badge: '', about: [], skinType: 'All', skinConcern: 'All', gallery: [], sizes: [] });
       fetchData();
     } catch (err) {
+      console.error('Error saving product:', err);
+      console.error('Error response:', err.response?.data);
       alert('Error saving product: ' + (err.response?.data?.message || err.message));
     } finally {
       setIsSubmitting(false);
@@ -443,12 +447,15 @@ const AdminProducts = () => {
                               if (!file) return;
                               setIsUploading(true);
                               try {
+                                console.log(`Uploading ${angle} view image:`, file.name);
                                 const url = await uploadToCloudinary(file);
+                                console.log(`Successfully uploaded ${angle} view:`, url);
                                 const newGallery = [...(form.gallery || [])];
                                 newGallery[idx] = url;
                                 setForm(prev => ({ ...prev, gallery: newGallery }));
                               } catch (err) {
-                                alert(err.message);
+                                console.error(`Error uploading ${angle} view:`, err);
+                                alert(`Failed to upload ${angle} view: ${err.message}`);
                               } finally {
                                 setIsUploading(false);
                               }
@@ -473,6 +480,37 @@ const AdminProducts = () => {
                       <input type="number" name="stock" value={form.stock} onChange={handleInputChange} min="0" placeholder="100" className="w-full bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-[10px] font-bold outline-none focus:border-gray-300 transition-all shadow-inner" />
                     </div>
                   </div>
+                </div>
+
+                {/* Size Options */}
+                <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[9px] font-bold text-gray-800 uppercase tracking-wider">Size Options</h3>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name="hasSizes"
+                        checked={form.hasSizes}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-brand-pink rounded border-gray-300 focus:ring-brand-pink"
+                      />
+                      <span className="text-[9px] font-bold text-gray-400 lowercase italic">Enable Sizes</span>
+                    </label>
+                  </div>
+                  {form.hasSizes && (
+                    <div className="space-y-2">
+                      <label className="text-[9px] font-bold text-gray-400 lowercase italic">Available Sizes (comma-separated)</label>
+                      <input
+                        type="text"
+                        name="sizes"
+                        value={form.sizes}
+                        onChange={handleInputChange}
+                        placeholder="S, M, L, XL, XXL"
+                        className="w-full bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-[10px] font-bold outline-none focus:border-gray-300 transition-all shadow-inner uppercase"
+                      />
+                      <p className="text-[8px] text-gray-400 font-medium">Enter sizes separated by commas (e.g., S, M, L, XL)</p>
+                    </div>
+                  )}
                 </div>
 
                 {/* About This Item Selection */}

@@ -130,6 +130,7 @@ const ProductDetail = () => {
   const [isAdded, setIsAdded] = useState(false);
   const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
 
   const product = products.find(p => p._id === id);
 
@@ -148,6 +149,8 @@ const ProductDetail = () => {
     try {
       const res = await api.get('/coupons/public');
       setAvailableCoupons(res.data.data.coupons);
+      const res = await api.get('/coupons/public');
+      setAvailableCoupons(res.data.data.coupons.filter(c => c.isActive));
     } catch (err) {
       console.error("Failed to fetch divine offers:", err);
     }
@@ -216,6 +219,7 @@ const ProductDetail = () => {
     // Reset coupon when changing product
     setAppliedCoupon(null);
     setCouponInput('');
+    setSelectedSize(null); // Reset size when changing product
 
     if (id) {
       fetchReviews();
@@ -252,6 +256,10 @@ const ProductDetail = () => {
   const finalPrice = calculateDiscountedPrice();
 
   const handleAddToCart = (e) => {
+    if (product.hasSizes && !selectedSize) {
+      alert('Please select a size before adding to cart');
+      return;
+    }
     if (triggerFlyToCart) {
       triggerFlyToCart(e, (product.gallery && product.gallery[selectedImageIndex]) || product.image);
     }
@@ -276,6 +284,8 @@ const ProductDetail = () => {
       ...product,
       price: finalPrice,
       quantity: 1,
+      couponApplied: appliedCoupon?.code,
+      selectedSize
       couponApplied: appliedCoupon?.code,
       selectedSize
     };
@@ -427,6 +437,29 @@ const ProductDetail = () => {
                     <FiTag size={12} />
                     <span className="text-[10px] font-black uppercase tracking-widest">Applied: {appliedCoupon.code}</span>
                     <button onClick={() => setAppliedCoupon(null)} className="ml-1 hover:bg-green-100 p-0.5 rounded-full transition-colors"><FiX size={12} /></button>
+                  </div>
+                )}
+
+                {product.hasSizes && product.sizes && product.sizes.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Select Size</p>
+                    <div className="flex flex-wrap gap-2">
+                      {product.sizes.map((size, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setSelectedSize(size)}
+                          className={`py-2 px-4 border rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${selectedSize === size
+                              ? 'bg-brand-dark text-white border-brand-dark shadow-lg'
+                              : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                            }`}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                    {product.hasSizes && !selectedSize && (
+                      <p className="text-[8px] text-red-400 font-medium mt-2">Please select a size</p>
+                    )}
                   </div>
                 )}
               </div>

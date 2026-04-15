@@ -46,9 +46,14 @@ exports.getProduct = async (req, res, next) => {
 // Admin: Create product
 exports.createProduct = async (req, res, next) => {
     try {
+        console.log('Creating product with body:', req.body);
         const newProduct = await Product.create(req.body);
+        console.log('Product created successfully:', newProduct._id);
         res.status(201).json({ status: 'success', data: { product: newProduct } });
     } catch (err) {
+        console.error('Error creating product:', err);
+        console.error('Error details:', err.message);
+        console.error('Validation errors:', err.errors);
         next(err);
     }
 };
