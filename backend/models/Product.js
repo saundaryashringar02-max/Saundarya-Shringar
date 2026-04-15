@@ -58,6 +58,10 @@ const productSchema = new mongoose.Schema({
         type: Number,
         default: 100
     },
+    fastDelivery: {
+        type: Boolean,
+        default: false
+    },
     cashback: {
         type: Boolean,
         default: false
