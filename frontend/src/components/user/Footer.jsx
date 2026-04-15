@@ -100,7 +100,7 @@ const Footer = () => {
             <Link to="/shipping-policy" className="hover:text-brand-pink transition-colors">Shipping</Link>
           </div>
 
-          <div className="flex flex-col items-center md:items-end gap-2">
+          <div className="flex flex-col items-center md:items-center gap-2">
             <img
               src="/payment_methods_v2.png"
               alt="We Accept"

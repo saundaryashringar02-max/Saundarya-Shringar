@@ -42,7 +42,9 @@ const AdminProducts = () => {
     skinType: 'All',
     skinConcern: 'All',
     gallery: [],
-    brand: ''
+    brand: '',
+    sizes: '',
+    hasSizes: false
   });
 
   const handleInputChange = (e) => {
@@ -139,7 +141,9 @@ const AdminProducts = () => {
       skinType: product.skinType || 'All',
       skinConcern: product.skinConcern || 'All',
       gallery: product.gallery || [],
-      brand: product.brand || ''
+      brand: product.brand || '',
+      sizes: product.sizes || '',
+      hasSizes: product.hasSizes || false
     });
     setIsAdding(true);
   };
@@ -158,8 +162,12 @@ const AdminProducts = () => {
         price: Number(form.price),
         stock: Number(form.stock),
         status: 'active',
-        about: form.about.filter(point => point.trim() !== '') // Clean empty points
+        about: form.about.filter(point => point.trim() !== ''), // Clean empty points
+        gallery: form.gallery || [], // Ensure gallery is always an array
+        sizes: form.sizes ? form.sizes.split(',').map(s => s.trim()).filter(s => s !== '') : [] // Convert comma-separated string to array
       };
+
+      console.log('Saving product with payload:', payload);
 
       if (editingProduct) {
         await api.patch(`/products/${editingProduct._id}`, payload);
@@ -169,9 +177,11 @@ const AdminProducts = () => {
 
       setIsAdding(false);
       setEditingProduct(null);
-      setForm({ name: '', brand: '', category: '', subCategory: '', price: '', stock: 100, image: '', description: '', badge: '', about: [], skinType: 'All', skinConcern: 'All', gallery: [] });
+      setForm({ name: '', brand: '', category: '', subCategory: '', price: '', stock: 100, image: '', description: '', badge: '', about: [], skinType: 'All', skinConcern: 'All', gallery: [], sizes: '', hasSizes: false });
       fetchData();
     } catch (err) {
+      console.error('Error saving product:', err);
+      console.error('Error response:', err.response?.data);
       alert('Error saving product: ' + (err.response?.data?.message || err.message));
     } finally {
       setIsSubmitting(false);
@@ -208,7 +218,7 @@ const AdminProducts = () => {
               <button
                 onClick={() => {
                   setEditingProduct(null);
-                  setForm({ name: '', brand: '', category: '', subCategory: '', price: '', stock: 100, image: '', description: '', badge: '', about: [], skinType: 'All', skinConcern: 'All', gallery: [] });
+                  setForm({ name: '', brand: '', category: '', subCategory: '', price: '', stock: 100, image: '', description: '', badge: '', about: [], skinType: 'All', skinConcern: 'All', gallery: [], sizes: '', hasSizes: false });
                   setIsAdding(true);
                 }}
                 className="bg-brand-dark text-white px-6 py-2.5 rounded-lg text-xs font-bold flex items-center gap-2 shadow-lg shadow-black/10 hover:bg-black transition-all"
@@ -425,12 +435,15 @@ const AdminProducts = () => {
                               if (!file) return;
                               setIsUploading(true);
                               try {
+                                console.log(`Uploading ${angle} view image:`, file.name);
                                 const url = await uploadToCloudinary(file);
+                                console.log(`Successfully uploaded ${angle} view:`, url);
                                 const newGallery = [...(form.gallery || [])];
                                 newGallery[idx] = url;
                                 setForm(prev => ({ ...prev, gallery: newGallery }));
                               } catch (err) {
-                                alert(err.message);
+                                console.error(`Error uploading ${angle} view:`, err);
+                                alert(`Failed to upload ${angle} view: ${err.message}`);
                               } finally {
                                 setIsUploading(false);
                               }
@@ -455,6 +468,37 @@ const AdminProducts = () => {
                       <input type="number" name="stock" value={form.stock} onChange={handleInputChange} min="0" placeholder="100" className="w-full bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-[10px] font-bold outline-none focus:border-gray-300 transition-all shadow-inner" />
                     </div>
                   </div>
+                </div>
+
+                {/* Size Options */}
+                <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[9px] font-bold text-gray-800 uppercase tracking-wider">Size Options</h3>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name="hasSizes"
+                        checked={form.hasSizes}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-brand-pink rounded border-gray-300 focus:ring-brand-pink"
+                      />
+                      <span className="text-[9px] font-bold text-gray-400 lowercase italic">Enable Sizes</span>
+                    </label>
+                  </div>
+                  {form.hasSizes && (
+                    <div className="space-y-2">
+                      <label className="text-[9px] font-bold text-gray-400 lowercase italic">Available Sizes (comma-separated)</label>
+                      <input
+                        type="text"
+                        name="sizes"
+                        value={form.sizes}
+                        onChange={handleInputChange}
+                        placeholder="S, M, L, XL, XXL"
+                        className="w-full bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-[10px] font-bold outline-none focus:border-gray-300 transition-all shadow-inner uppercase"
+                      />
+                      <p className="text-[8px] text-gray-400 font-medium">Enter sizes separated by commas (e.g., S, M, L, XL)</p>
+                    </div>
+                  )}
                 </div>
 
                 {/* About This Item Selection */}

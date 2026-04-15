@@ -3,119 +3,15 @@ import { motion } from 'framer-motion';
 import { FiPercent } from 'react-icons/fi';
 import ProductCard from './ProductCard';
 import { useShop } from '../../context/ShopContext';
-
-// Assets (re-using some from Shop.jsx or general ones)
-import imgTirtirRed from '../../assets/products/tirtir_red_cushion.png';
-import imgTirtirConcealer from '../../assets/products/tirtir_concealer_stick.png';
-import imgCatkin from '../../assets/products/catkin_oriental_lipstick.png';
-import imgVerymiss from '../../assets/products/verymiss_lipstick_set.png';
-import imgRoseGold from '../../assets/products/rose_gold_eyeshadow_palette.png';
-import imgLakmePowder from '../../assets/products/lakme_face_powder.png';
-import imgLipGloss from '../../assets/products/plumping_lip_gloss.png';
-import imgMascara from '../../assets/products/volumizing_mascara.png';
-
-const offerProducts = [
-  {
-    _id: 1,
-    name: 'TIRTIR Mask Fit Red Cushion',
-    price: 899,
-    oldPrice: 1650,
-    rating: 5,
-    reviews: 1245,
-    discount: '45%',
-    image: imgTirtirRed,
-    category: 'makeup',
-    label: 'Big Drop'
-  },
-  {
-    _id: 103,
-    name: 'Glow Vit-C Serum',
-    price: 549,
-    oldPrice: 1250,
-    rating: 5,
-    reviews: 450,
-    discount: '56%',
-    image: imgTirtirRed,
-    category: 'skincare',
-    label: 'Pocket Deal'
-  },
-  {
-    _id: 201,
-    name: 'Oriental Silk Foundation',
-    price: 799,
-    oldPrice: 1899,
-    rating: 5,
-    reviews: 890,
-    discount: '58%',
-    image: imgLakmePowder,
-    category: 'makeup',
-    label: 'Mega Sale'
-  },
-  {
-    _id: 5,
-    name: 'Verymiss Kiss Proof Trio',
-    price: 399,
-    oldPrice: 999,
-    rating: 4,
-    reviews: 856,
-    discount: '60%',
-    image: imgVerymiss,
-    category: 'makeup',
-    label: 'Super Budget'
-  },
-  {
-    _id: 6,
-    name: 'Rose Gold Eyeshadow Palette',
-    price: 649,
-    oldPrice: 1550,
-    rating: 5,
-    reviews: 840,
-    discount: '58%',
-    image: imgRoseGold,
-    category: 'makeup',
-    label: 'Lowest Ever'
-  },
-  {
-    _id: 351,
-    name: 'Bridal Radiance Kit',
-    price: 999,
-    oldPrice: 2800,
-    rating: 5,
-    reviews: 45,
-    discount: '64%',
-    image: imgRoseGold,
-    category: 'beauty kits',
-    label: 'Steal Price'
-  },
-  {
-    _id: 3,
-    name: 'Dual Concealer Stick',
-    price: 349,
-    oldPrice: 899,
-    rating: 5,
-    reviews: 560,
-    discount: '61%',
-    image: imgTirtirConcealer,
-    category: 'makeup',
-    label: 'Budget Find'
-  },
-  {
-    _id: 401,
-    name: 'Oud Majesty Perfume',
-    price: 199,
-    oldPrice: 450,
-    rating: 5,
-    reviews: 120,
-    discount: '55%',
-    image: imgLipGloss,
-    category: 'fragrances',
-    label: 'Daily Steal'
-  }
-];
+import api from '../../utils/api';
 
 const Offers = () => {
+  const { products } = useShop();
   const [coupons, setCoupons] = useState([]);
   const [loadingCoupons, setLoadingCoupons] = useState(true);
+  
+  // Filter products with discounts for offers
+  const offerProducts = products.filter(p => p.discount || p.flashSale).slice(0, 8);
   const [timeLeft, setTimeLeft] = useState({
     hours: 5,
     minutes: 45,
@@ -125,7 +21,7 @@ const Offers = () => {
   const fetchCoupons = async () => {
     try {
       setLoadingCoupons(true);
-      const res = await api.get('/coupons');
+      const res = await api.get('/coupons/public');
       setCoupons(res.data.data.coupons.filter(c => c.isActive));
     } catch (err) {
       console.error("Failed to fetch divine offers:", err);
@@ -291,7 +187,7 @@ const Offers = () => {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             {offerProducts.map((product, index) => (
               <motion.div
-                key={product.id}
+                key={product._id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -328,7 +224,7 @@ const Offers = () => {
             
             <div className="w-full md:w-1/3 aspect-square bg-white rounded-2xl shadow-2xl p-4 flex items-center justify-center relative overflow-hidden group">
                <img 
-                 src={imgRoseGold} 
+                 src={offerProducts[0]?.image || '/placeholder.jpg'} 
                  alt="Membership Gift" 
                  className="w-full h-full object-cover rounded-xl transition-transform duration-700 group-hover:scale-110"
                />

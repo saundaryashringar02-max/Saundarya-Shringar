@@ -16,6 +16,41 @@ import 'swiper/css/effect-fade';
 const HeroCarousel = () => {
   const { banners, loading } = useShop();
 
+  // Function to determine the correct link for a banner based on its content
+  const getBannerLink = (slide) => {
+    const textToCheck = [
+      slide.title?.toLowerCase() || '',
+      slide.subtitle?.toLowerCase() || '',
+      slide.description?.toLowerCase() || ''
+    ].join(' ');
+
+    // Check for Artificial Jewellery and Gold Collection banners
+    const jewelleryKeywords = ['jewellery', 'jewelry', 'gold collection', 'artificial jewellery'];
+    if (jewelleryKeywords.some(keyword => textToCheck.includes(keyword))) {
+      return '/shop?category=Artificial+Jewellery&sort=New+Arrivals';
+    }
+
+    // Check if banner is related to innerwear based on title, subtitle, or description
+    const innerwearKeywords = [
+      'bra', 'innerwear', 'lingerie', 'seamless', 'comfort bra',
+      'lace', 'balconette', 'cotton comfort', 'underwear', 'intimates'
+    ];
+
+    // If any innerwear keywords are found, redirect to innerwear category
+    if (innerwearKeywords.some(keyword => textToCheck.includes(keyword))) {
+      return '/shop?category=Innerwear';
+    }
+
+    // If the banner already has a specific link and it's not a generic /shop, use it
+    // But only if it doesn't conflict with our intelligent routing
+    if (slide.link && slide.link !== '/shop' && !slide.link.includes('/shop/jewellery')) {
+      return slide.link;
+    }
+
+    // Default fallback
+    return slide.link || '/shop';
+  };
+
   const dynamicSlides = banners.filter(b => b.type === 'Main Slider').length > 0
     ? banners.filter(b => b.type === 'Main Slider')
     : banners.slice(0, 5);
@@ -142,7 +177,7 @@ const HeroCarousel = () => {
                       </div>
                     ) : (
                       <Link
-                        to={slide.link || '/shop'}
+                        to={getBannerLink(slide)}
                         className="inline-block bg-[#FFD814] hover:bg-white text-brand-dark px-8 py-2.5 rounded-md text-[10px] md:text-sm font-bold shadow-xl transition-all hover:scale-105 active:scale-95 uppercase tracking-widest w-fit mx-0"
                       >
                         Shop the Range

@@ -9,6 +9,7 @@ import { uploadToCloudinary } from '../../utils/cloudinary';
 const AdminBanners = () => {
   const { banners, fetchData } = useShop();
   const [isAdding, setIsAdding] = useState(false);
+  const [editingBanner, setEditingBanner] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [form, setForm] = useState({
@@ -50,21 +51,49 @@ const AdminBanners = () => {
     }
   };
 
+  const handleEdit = (banner) => {
+    setEditingBanner(banner);
+    setForm({
+      title: banner.title || '',
+      image: banner.image || '',
+      link: banner.link || '',
+      type: banner.type || 'Main Slider',
+      description: banner.description || '',
+      subtitle: banner.subtitle || '',
+      price: banner.price || '',
+      btnText: banner.btnText || 'SHOP NOW',
+      isVideo: banner.isVideo || false
+    });
+    setIsAdding(true);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.image) return alert('Please upload an asset.');
 
     setLoading(true);
     try {
-      await api.post('/banners', form);
+      if (editingBanner) {
+        await api.patch(`/banners/${editingBanner._id}`, form);
+      } else {
+        await api.post('/banners', form);
+      }
       setIsAdding(false);
+      setEditingBanner(null);
       setForm({ title: '', image: '', link: '', type: 'Main Slider', description: '', subtitle: '', price: '', btnText: 'SHOP NOW', isVideo: false });
       fetchData();
     } catch (err) {
-      alert('Error creating banner');
+      console.error('API Error:', err);
+      alert(editingBanner ? `Error updating banner: ${err.response?.data?.message || err.message}` : `Error creating banner: ${err.response?.data?.message || err.message}`);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCancel = () => {
+    setIsAdding(false);
+    setEditingBanner(null);
+    setForm({ title: '', image: '', link: '', type: 'Main Slider', description: '', subtitle: '', price: '', btnText: 'SHOP NOW', isVideo: false });
   };
 
   return (
@@ -91,8 +120,10 @@ const AdminBanners = () => {
             className="bg-white border border-brand-pink/20 p-4 rounded-none shadow-sm space-y-4 font-sans"
           >
             <div className="flex justify-between items-center border-b border-gray-50 pb-2">
-              <h3 className="text-[10px] font-black uppercase tracking-widest text-brand-dark font-serif">Create Campaign Banner</h3>
-              <button onClick={() => setIsAdding(false)}><FiX size={14} /></button>
+              <h3 className="text-[10px] font-black uppercase tracking-widest text-brand-dark font-serif">
+                {editingBanner ? 'Edit Campaign Banner' : 'Create Campaign Banner'}
+              </h3>
+              <button onClick={handleCancel}><FiX size={14} /></button>
             </div>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="space-y-1">
@@ -173,7 +204,7 @@ const AdminBanners = () => {
               </div>
 
               <button type="submit" disabled={loading || isUploading} className="md:col-span-2 lg:col-span-4 bg-brand-gold text-white text-[9px] font-black uppercase py-4 tracking-[0.2em] shadow-lg shadow-brand-gold/10 hover:bg-brand-dark transition-all disabled:opacity-50">
-                {loading ? 'Committing To Live...' : (isUploading ? 'Finalizing Asset...' : 'Deploy Campaign')}
+                {loading ? 'Saving Changes...' : (isUploading ? 'Finalizing Asset...' : (editingBanner ? 'Update Campaign' : 'Deploy Campaign'))}
               </button>
             </form>
           </motion.div>
@@ -208,6 +239,10 @@ const AdminBanners = () => {
                 <div className="flex items-center gap-2 pt-1 border-t border-gray-50/50">
                   <button onClick={() => window.open(banner.image, '_blank')} className="flex items-center gap-1.5 text-[8px] font-black uppercase text-brand-dark hover:text-brand-pink transition-colors">
                     <FiEye size={10} /> View
+                  </button>
+                  <span className="text-gray-100">|</span>
+                  <button onClick={() => handleEdit(banner)} className="flex items-center gap-1.5 text-[8px] font-black uppercase text-brand-dark hover:text-brand-gold transition-colors">
+                    <FiEdit2 size={10} /> Edit
                   </button>
                   <span className="text-gray-100">|</span>
                   <button onClick={() => handleDelete(banner._id)} className="flex items-center gap-1.5 text-[8px] font-black uppercase text-red-400 hover:text-red-600 transition-colors">
