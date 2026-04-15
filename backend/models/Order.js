@@ -31,7 +31,9 @@ const orderSchema = new mongoose.Schema({
     ],
     subTotal: Number,
     taxAmount: Number,
+    taxRate: Number, // Percentage at time of order
     shippingAmount: Number,
+    actualShippingAmount: Number, // Internal admin set value for reporting/invoice
     totalAmount: {
         type: Number,
         required: true

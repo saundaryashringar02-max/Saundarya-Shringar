@@ -3,11 +3,12 @@ const Product = require('../models/Product');
 // Public: Get all products with filters
 exports.getAllProducts = async (req, res, next) => {
     try {
-        const { category, subCategory, search, minPrice, maxPrice, sort } = req.query;
+        const { category, subCategory, search, minPrice, maxPrice, sort, flashSale } = req.query;
         let query = { status: 'active' };
 
         if (category && category !== 'all') query.category = category;
         if (subCategory) query.subCategory = subCategory;
+        if (flashSale === 'true') query.flashSale = true;
         if (search) query.$text = { $search: search };
         if (minPrice || maxPrice) {
             query.price = {};

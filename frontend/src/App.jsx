@@ -45,6 +45,7 @@ import AdminLayout from './components/admin/AdminLayout';
 import AdminComingSoon from './components/admin/AdminComingSoon';
 import AdminInventory from './components/admin/AdminInventory';
 import AdminCoupons from './components/admin/AdminCoupons';
+import AdminOffers from './components/admin/AdminOffers';
 import AdminReturns from './components/admin/AdminReturns';
 import AdminBlogs from './components/admin/AdminBlogs';
 import AdminTestimonials from './components/admin/AdminTestimonials';
@@ -108,6 +109,7 @@ const AdminRoutes = () => (
       <Route path="/inventory" element={<AdminInventory />} />
       <Route path="/returns" element={<AdminReturns />} />
       <Route path="/coupons" element={<AdminCoupons />} />
+      <Route path="/offers" element={<AdminOffers />} />
       <Route path="/customers" element={<AdminUsers />} />
       <Route path="/blogs" element={<AdminBlogs />} />
       <Route path="/testimonials" element={<AdminTestimonials />} />

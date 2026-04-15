@@ -147,7 +147,7 @@ const AdminBanners = () => {
               </div>
               <div className="space-y-1">
                 <label className="text-[8px] font-black uppercase text-gray-400">Starting Price / Badge</label>
-                <input type="text" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} className="w-full bg-gray-50 border-none text-[10px] font-bold p-2 outline-none" placeholder="₹299" />
+                <input type="text" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} className="w-full bg-gray-50 border-none text-[10px] font-bold p-2 outline-none" placeholder="₹300" />
               </div>
 
               <div className="space-y-1 md:col-span-2">

@@ -109,9 +109,9 @@ const Categories = () => {
             className="mt-8 space-y-8 bg-white/40 p-4 md:p-8 rounded-[2rem] border border-brand-gold/5"
           >
             {[
-              { title: "Budget Range", subtitle: "(₹100 – ₹300)", filter: (p) => p.price <= 300 },
-              { title: "Mid Range", subtitle: "(₹500 – ₹1000)", filter: (p) => p.price >= 500 && p.price <= 1000 },
-              { title: "Premium Range", subtitle: "(₹1500 – ₹2000)", filter: (p) => p.price >= 1500 && p.price <= 2000 }
+              { title: "Budget Range", subtitle: "(₹100 – ₹500)", filter: (p) => p.price <= 500 },
+              { title: "Mid Range", subtitle: "(₹501 – ₹1000)", filter: (p) => p.price >= 501 && p.price <= 1000 },
+              { title: "Premium Range", subtitle: "(₹1001 – ₹2000)", filter: (p) => p.price >= 1001 && p.price <= 2000 }
             ].map((tier, tidx) => {
               const tierProducts = products
                 .filter(p => p.category === selectedCategory && p.image && (p.image.startsWith('http') || p.image.startsWith('/images') || p.image.startsWith('res.cloudinary')) && tier.filter(p))

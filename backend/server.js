@@ -29,7 +29,6 @@ app.use(cors({
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
-            console.warn(`[CORS Blocked]: Origin ${origin} not in allowed list: ${allowedOrigins.join(', ')}`);
             callback(new Error('Cross-origin access blocked by professional security policy'));
         }
     },

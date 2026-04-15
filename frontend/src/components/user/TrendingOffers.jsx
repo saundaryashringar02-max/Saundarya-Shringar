@@ -45,7 +45,7 @@ const offers = [
   {
     id: 2,
     title: 'Artificial Jewellery Sale',
-    subtitle: 'Starting @ ₹199 only',
+    subtitle: 'Starting @ ₹200 only',
     image: offerJewellery,
     link: '/shop?category=Artificial Jewellery',
     tag: 'Limited Stock'

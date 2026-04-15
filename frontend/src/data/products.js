@@ -53,7 +53,7 @@ export const initialProducts = [
   {
     id: 201,
     name: 'Lakmé UV Face Powder',
-    price: 1899,
+    price: 1900,
     oldPrice: 3200,
     rating: 5,
     reviews: 890,
@@ -66,7 +66,7 @@ export const initialProducts = [
   {
     id: 202,
     name: 'Lakmé 2-in-1 Lipstick Set',
-    price: 999,
+    price: 1000,
     rating: 5,
     reviews: 120,
     image: '/lakme_2_in_1_lipstick.png',
@@ -115,8 +115,8 @@ export const initialProducts = [
   {
     id: 701,
     name: 'Cotton Comfort Bra',
-    price: 599,
-    oldPrice: 899,
+    price: 600,
+    oldPrice: 900,
     rating: 4,
     reviews: 890,
     image: '/banner_2.png',
@@ -145,7 +145,7 @@ export const initialProducts = [
   {
     id: 151,
     name: 'Onion Hair Oil',
-    price: 599,
+    price: 600,
     rating: 5,
     reviews: 890,
     image: '/cat_haircare.png',
@@ -216,8 +216,8 @@ export const initialProducts = [
   {
     id: 903,
     name: 'Mini Rose Water',
-    price: 99,
-    oldPrice: 199,
+    price: 100,
+    oldPrice: 200,
     rating: 5,
     reviews: 2300,
     discount: '50%',
