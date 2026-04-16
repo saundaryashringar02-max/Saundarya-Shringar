@@ -286,8 +286,6 @@ const ProductDetail = () => {
       quantity: 1,
       couponApplied: appliedCoupon?.code,
       selectedSize
-      couponApplied: appliedCoupon?.code,
-      selectedSize
     };
     setIsCartDrawerOpen(false);
     navigate('/checkout', { state: { directProduct: directProductData } });
@@ -449,8 +447,8 @@ const ProductDetail = () => {
                           key={idx}
                           onClick={() => setSelectedSize(size)}
                           className={`py-2 px-4 border rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${selectedSize === size
-                              ? 'bg-brand-dark text-white border-brand-dark shadow-lg'
-                              : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                            ? 'bg-brand-dark text-white border-brand-dark shadow-lg'
+                            : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
                             }`}
                         >
                           {size}
