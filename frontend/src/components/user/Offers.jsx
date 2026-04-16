@@ -19,11 +19,9 @@ import api from '../../utils/api';
 
 const Offers = () => {
   const { products, loading } = useShop();
-  const offerProducts = products.filter(p => p.flashSale);
-  const { products } = useShop();
   const [coupons, setCoupons] = useState([]);
   const [loadingCoupons, setLoadingCoupons] = useState(true);
-  
+
   // Filter products with discounts for offers
   const offerProducts = products.filter(p => p.discount || p.flashSale).slice(0, 8);
   const [timeLeft, setTimeLeft] = useState({
@@ -34,9 +32,6 @@ const Offers = () => {
 
   const fetchAvailableCoupons = async () => {
     try {
-      const res = await api.get('/coupons/public');
-      setCoupons(res.data.data.coupons);
-      setLoadingCoupons(true);
       const res = await api.get('/coupons/public');
       setCoupons(res.data.data.coupons.filter(c => c.isActive));
     } catch (err) {
@@ -203,7 +198,6 @@ const Offers = () => {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             {offerProducts.map((product, index) => (
               <motion.div
-                key={product._id}
                 key={product._id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}

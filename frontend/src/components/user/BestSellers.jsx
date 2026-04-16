@@ -13,8 +13,9 @@ import 'swiper/css/pagination';
 const BestSellers = () => {
   const { products, loading } = useShop();
 
-  // Filter or sort by best sellers (e.g., higher ratings/reviews)
+  // Specific filter for Innerwear category for the "Our Best Sellers" section
   const bestSellers = [...products]
+    .filter(p => p.category === 'Innerwear' || p.category?.toLowerCase() === 'innerwear')
     .sort((a, b) => (b.rating * b.reviews) - (a.rating * a.reviews))
     .slice(0, 8);
 

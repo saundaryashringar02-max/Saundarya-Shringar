@@ -122,6 +122,68 @@ const PolicySanctuaryModal = ({ onClose, initialTab = 'Genuine' }) => {
   );
 };
 
+const SizeChartModal = ({ onClose, onSelect, currentSize }) => {
+  const sizes = [
+    { size: 'S', bust: '32-34', waist: '26-28' },
+    { size: 'M', bust: '34-36', waist: '28-30' },
+    { size: 'L', bust: '36-38', waist: '30-32' },
+    { size: 'XL', bust: '38-40', waist: '32-34' },
+    { size: 'XXL', bust: '40-42', waist: '34-36' }
+  ];
+
+  return (
+    <div className="fixed inset-0 z-[120] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-white w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl relative">
+        <button onClick={onClose} className="absolute top-4 right-4 p-2 bg-gray-100 rounded-full text-gray-400 hover:text-brand-dark transition-all">
+          <FiX size={18} />
+        </button>
+        <div className="bg-brand-dark p-6 text-white text-center">
+          <h3 className="text-xl font-serif font-black uppercase tracking-widest">Divine Size Guide</h3>
+          <p className="text-[10px] opacity-70 uppercase tracking-widest mt-1">Heritage Fits & Measure Reference</p>
+        </div>
+        <div className="p-6">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-gray-100">
+                  <th className="py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">Brand Size</th>
+                  <th className="py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">Bust (Inches)</th>
+                  <th className="py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">Waist (Inches)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {sizes.map((row, i) => (
+                  <tr
+                    key={i}
+                    onClick={() => { onSelect(row.size); onClose(); }}
+                    className={`cursor-pointer transition-all duration-300 ${currentSize === row.size ? 'bg-brand-pink/20' : 'hover:bg-gray-50'}`}
+                  >
+                    <td className="py-3.5 text-xs font-black text-brand-dark flex items-center gap-3">
+                      {currentSize === row.size ? (
+                        <div className="w-2 h-2 bg-brand-pink rounded-full ring-4 ring-brand-pink/20" />
+                      ) : (
+                        <div className="w-2 h-2 border border-gray-200 rounded-full" />
+                      )}
+                      {row.size}
+                    </td>
+                    <td className={`py-3.5 text-xs font-bold ${currentSize === row.size ? 'text-brand-dark' : 'text-gray-500'}`}>{row.bust}</td>
+                    <td className={`py-3.5 text-xs font-bold ${currentSize === row.size ? 'text-brand-dark' : 'text-gray-500'}`}>{row.waist}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+            <p className="text-[10px] text-gray-400 leading-relaxed font-medium">
+              * Measurements are for reference only. Click on a row to select that size. For the perfect fit, we recommend our <span className="text-brand-pink font-bold">Bra Size Calculator</span>.
+            </p>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -131,6 +193,7 @@ const ProductDetail = () => {
   const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
+  const [quantity, setQuantity] = useState(1);
 
   const product = products.find(p => p._id === id);
 
@@ -141,14 +204,12 @@ const ProductDetail = () => {
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
   const [reviewLoading, setReviewLoading] = useState(true);
   const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false);
+  const [isSizeChartOpen, setIsSizeChartOpen] = useState(false);
   const [selectedPolicyTab, setSelectedPolicyTab] = useState('Genuine');
   const [availableCoupons, setAvailableCoupons] = useState([]);
-  const [selectedSize, setSelectedSize] = useState('');
 
   const fetchAvailableCoupons = async () => {
     try {
-      const res = await api.get('/coupons/public');
-      setAvailableCoupons(res.data.data.coupons);
       const res = await api.get('/coupons/public');
       setAvailableCoupons(res.data.data.coupons.filter(c => c.isActive));
     } catch (err) {
@@ -256,26 +317,25 @@ const ProductDetail = () => {
   const finalPrice = calculateDiscountedPrice();
 
   const handleAddToCart = (e) => {
-    if (product.hasSizes && !selectedSize) {
-      alert('Please select a size before adding to cart');
-      return;
-    }
-    if (triggerFlyToCart) {
-      triggerFlyToCart(e, (product.gallery && product.gallery[selectedImageIndex]) || product.image);
-    }
-    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
-      alert("Please select a sacred size before adding to bag.");
+    const validSizes = Array.isArray(product.sizes) ? product.sizes : [];
+    if (validSizes.length > 0 && !selectedSize) {
+      alert("Please select a size before adding to bag.");
       return;
     }
 
-    addToCart({ ...product, price: finalPrice, couponApplied: appliedCoupon?.code, selectedSize });
+    if (triggerFlyToCart) {
+      triggerFlyToCart(e, (product.gallery && product.gallery[selectedImageIndex]) || product.image);
+    }
+
+    addToCart({ ...product, price: finalPrice, quantity, couponApplied: appliedCoupon?.code, selectedSize });
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
   };
 
 
   const handleBuyNow = () => {
-    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+    const validSizes = Array.isArray(product.sizes) ? product.sizes : [];
+    if (validSizes.length > 0 && !selectedSize) {
       alert("Please select a size before proceeding.");
       return;
     }
@@ -283,9 +343,9 @@ const ProductDetail = () => {
     const directProductData = {
       ...product,
       price: finalPrice,
-      quantity: 1,
+      quantity: quantity,
       couponApplied: appliedCoupon?.code,
-      selectedSize
+      selectedSize,
     };
     setIsCartDrawerOpen(false);
     navigate('/checkout', { state: { directProduct: directProductData } });
@@ -296,6 +356,7 @@ const ProductDetail = () => {
       <AnimatePresence>
         {isCouponModalOpen && <CouponModal onClose={() => setIsCouponModalOpen(false)} onApply={setAppliedCoupon} />}
         {isPolicyModalOpen && <PolicySanctuaryModal onClose={() => setIsPolicyModalOpen(false)} initialTab={selectedPolicyTab} />}
+        {isSizeChartOpen && <SizeChartModal onClose={() => setIsSizeChartOpen(false)} onSelect={setSelectedSize} currentSize={selectedSize} />}
       </AnimatePresence>
 
       <div className="container mx-auto px-4 pt-1 pb-2 flex items-center gap-2 text-[10px] md:text-[11px] text-gray-400 font-medium">
@@ -317,7 +378,7 @@ const ProductDetail = () => {
                 key={selectedImageIndex}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                src={(product.gallery && product.gallery[selectedImageIndex]) || product.image}
+                src={(Array.isArray(product.gallery) && product.gallery[selectedImageIndex]) || product.image}
                 alt={product.name}
                 className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
               />
@@ -334,9 +395,9 @@ const ProductDetail = () => {
             {/* Thumbnails Row Below - Clickable & Labeled */}
             <div className="flex justify-center gap-4 mt-2">
               {[
-                { img: (product.gallery && product.gallery[0]) || product.image, label: 'FRONT' },
-                { img: (product.gallery && product.gallery[1]) || product.image, label: 'SIDE' },
-                { img: (product.gallery && product.gallery[2]) || product.image, label: 'DETAIL' }
+                { img: (Array.isArray(product.gallery) && product.gallery[0]) || product.image, label: 'FRONT' },
+                { img: (Array.isArray(product.gallery) && product.gallery[1]) || product.image, label: 'SIDE' },
+                { img: (Array.isArray(product.gallery) && product.gallery[2]) || product.image, label: 'DETAIL' }
               ].map((item, idx) => (
                 <div key={idx} className="flex flex-col items-center gap-2">
                   <button
@@ -400,86 +461,113 @@ const ProductDetail = () => {
                     M.R.P.: <span className="line-through">₹{product.oldPrice || product.price + 225}</span>
                   </p>
                   <p className="text-[11px] text-gray-500 leading-tight">
-                    FREE delivery <span className="text-brand-dark font-bold">Sunday, 22 March</span> on your first order.
+                    FREE delivery <span className="text-brand-dark font-bold">
+                      {new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
+                    </span> on your first order.
                   </p>
                 </div>
 
-                {/* Size Selection Section */}
-                {product.sizes && product.sizes.length > 0 && (
-                  <div className="space-y-4 pt-2 border-t border-gray-100">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-[10px] font-black text-[#5C2E3E]/60 uppercase tracking-widest flex items-center gap-2">
-                        Available Sizes
-                      </h3>
-                      <span className="text-[8px] font-black text-brand-pink underline uppercase tracking-tighter cursor-pointer">Size Guide</span>
-                    </div>
-                    <div className="flex flex-wrap gap-2.5">
-                      {product.sizes.map((size) => (
-                        <button
-                          key={size}
-                          onClick={() => setSelectedSize(size)}
-                          className={`min-w-[45px] h-[45px] rounded-xl border-2 flex items-center justify-center text-xs font-black transition-all ${selectedSize === size
-                            ? 'border-brand-dark bg-brand-dark text-white shadow-lg'
-                            : 'border-gray-100 text-gray-400 hover:border-brand-pink/30 hover:text-brand-pink'
-                            }`}
-                        >
-                          {size}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
                 {appliedCoupon && (
-                  <div className="mt-2 flex items-center gap-2 bg-green-50 text-green-600 px-3 py-1.5 rounded-lg border border-green-100 w-fit">
+                  <div className="mt-4 flex items-center gap-2 bg-green-50 text-green-600 px-3 py-1.5 rounded-lg border border-green-100 w-fit">
                     <FiTag size={12} />
                     <span className="text-[10px] font-black uppercase tracking-widest">Applied: {appliedCoupon.code}</span>
                     <button onClick={() => setAppliedCoupon(null)} className="ml-1 hover:bg-green-100 p-0.5 rounded-full transition-colors"><FiX size={12} /></button>
                   </div>
                 )}
+              </div>
 
-                {product.hasSizes && product.sizes && product.sizes.length > 0 && (
-                  <div className="mt-4">
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Select Size</p>
-                    <div className="flex flex-wrap gap-2">
+              <div className="flex flex-col gap-6 w-full">
+                {/* Size Selection Header & Grid - Reference Match */}
+                <div className="space-y-4">
+                  <div className="flex items-end justify-between border-b border-gray-100 pb-2">
+                    <h3 className="text-xs font-black text-brand-dark uppercase tracking-widest">Size</h3>
+                    {(product.category?.toLowerCase() === 'innerwear' || product.category?.toLowerCase() === 'inner wear') && (
+                      <div className="flex items-center gap-2">
+                        <button type="button" onClick={() => setIsSizeChartOpen(true)} className="text-[10px] font-bold text-gray-800 underline hover:text-brand-pink transition-colors">Size Chart</button>
+                        <span className="text-gray-300 text-[10px]">|</span>
+                        <button type="button" onClick={() => setIsSizeChartOpen(true)} className="text-[10px] font-bold text-gray-800 underline hover:text-brand-pink transition-colors">Bra Size Calculator</button>
+                      </div>
+                    )}
+                  </div>
+
+                  {Array.isArray(product.sizes) && product.sizes.length > 0 ? (
+                    <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-5 xl:grid-cols-6 gap-2">
                       {product.sizes.map((size, idx) => (
                         <button
                           key={idx}
+                          type="button"
                           onClick={() => setSelectedSize(size)}
-                          className={`py-2 px-4 border rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${selectedSize === size
-                            ? 'bg-brand-dark text-white border-brand-dark shadow-lg'
-                            : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                          className={`h-11 border text-[11px] font-black transition-all flex items-center justify-center ${selectedSize === size
+                            ? 'bg-black border-black text-white'
+                            : 'bg-white border-gray-200 text-brand-dark hover:border-black active:scale-95'
                             }`}
                         >
                           {size}
                         </button>
                       ))}
                     </div>
-                    {product.hasSizes && !selectedSize && (
-                      <p className="text-[8px] text-red-400 font-medium mt-2">Please select a size</p>
-                    )}
+                  ) : (
+                    <div className="py-2">
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest italic">Standard Divine Fit / One Size</p>
+                    </div>
+                  )}
+
+                  {Array.isArray(product.sizes) && product.sizes.length > 0 && !selectedSize && (
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-[9px] text-brand-pink font-black uppercase tracking-widest animate-pulse flex items-center gap-1.5"
+                    >
+                      <FiZap size={10} /> Selection required to unlock divine access
+                    </motion.p>
+                  )}
+                </div>
+
+                {/* Primary Actions: Quantity & Add to Bag - Stacked & Compact Layout */}
+                <div className="flex flex-col gap-3 pt-4">
+                  <div className="flex items-center gap-3">
+                    {/* Quantity Selector */}
+                    <div className="flex items-center border border-gray-200 h-11 rounded-full overflow-hidden bg-gray-50/50">
+                      <button
+                        onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                        className="w-10 h-full flex items-center justify-center hover:bg-gray-100 transition-colors border-r border-gray-200/50"
+                      >
+                        <span className="text-base font-light">−</span>
+                      </button>
+                      <div className="w-10 h-full flex items-center justify-center">
+                        <span className="text-[11px] font-black tabular-nums">{quantity}</span>
+                      </div>
+                      <button
+                        onClick={() => setQuantity(q => q + 1)}
+                        className="w-10 h-full flex items-center justify-center hover:bg-gray-100 transition-colors border-l border-gray-200/50"
+                      >
+                        <span className="text-base font-light">+</span>
+                      </button>
+                    </div>
+
+                    <button
+                      onClick={handleAddToCart}
+                      className={`flex-1 h-11 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all active:scale-95 shadow-sm rounded-full ${(!selectedSize && Array.isArray(product.sizes) && product.sizes.length > 0) ? 'bg-gray-100 text-gray-400 cursor-not-allowed contrast-75' : isAdded ? 'bg-green-600 text-white' : 'bg-brand-dark hover:bg-black text-white'}`}
+                    >
+                      {isAdded ? <FiCheckCircle /> : <FiShoppingCart />}
+                      {isAdded ? 'Collected' : (Array.isArray(product.sizes) && product.sizes.length > 0 && !selectedSize) ? 'Select Size First' : 'Add to Bag'}
+                    </button>
+
+                    <button
+                      onClick={() => toggleWishlist(product)}
+                      className={`w-11 h-11 flex items-center justify-center border transition-all active:scale-90 rounded-full ${isInWishlist(product._id) ? 'border-brand-pink text-brand-pink bg-brand-pink/5' : 'border-gray-200 text-gray-400 hover:border-brand-dark hover:text-brand-dark'}`}
+                    >
+                      <FiHeart className={isInWishlist(product._id) ? 'fill-current' : ''} size={16} />
+                    </button>
                   </div>
-                )}
-              </div>
 
-              <div className="flex flex-row xl:flex-col gap-3 min-w-[240px]">
-                <button
-                  onClick={handleAddToCart}
-                  className={`flex-1 py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-md border-b-2 ${isAdded
-                    ? 'bg-green-600 border-green-800 text-white'
-                    : 'bg-brand-dark hover:bg-black text-white border-gray-900'
-                    }`}
-                >
-                  {isAdded ? <FiCheckCircle /> : <FiShoppingCart />}
-                  {isAdded ? 'Added to Bag' : 'Add to Bag'}
-                </button>
-
-                <button
-                  onClick={handleBuyNow}
-                  className="flex-1 py-3.5 px-6 rounded-xl bg-brand-pink hover:bg-[#A35266] text-white flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-md border-b-2 border-brand-dark/20"
-                >
-                  <FiZap /> Buy Now
-                </button>
+                  <button
+                    onClick={handleBuyNow}
+                    className={`w-full h-11 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all active:scale-[0.98] shadow-md rounded-full ${(!selectedSize && Array.isArray(product.sizes) && product.sizes.length > 0) ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brand-pink hover:bg-[#A35266] text-white'}`}
+                  >
+                    <FiZap /> {(Array.isArray(product.sizes) && product.sizes.length > 0 && !selectedSize) ? 'Size Not Selected' : 'Buy It Now'}
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -561,7 +649,7 @@ const ProductDetail = () => {
             </div>
 
             {/* Bullet Points */}
-            {product.about && product.about.length > 0 && (
+            {Array.isArray(product.about) && product.about.length > 0 && (
               <div className="space-y-3">
                 <h3 className="text-sm font-black text-brand-dark uppercase tracking-widest flex items-center gap-2">
                   <div className="w-1 h-4 bg-brand-gold" /> About this item

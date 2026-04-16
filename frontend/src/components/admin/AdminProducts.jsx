@@ -20,11 +20,15 @@ import { useShop } from '../../context/ShopContext';
 import api from '../../utils/api';
 import { uploadToCloudinary } from '../../utils/cloudinary';
 
+const BRA_SIZES = ['32B', '34B', '36B', '38B', '40B', '32C', '34C', '36C', '38C', '40C'];
+const GENERAL_SIZES = ['S', 'M', 'L', 'XL', 'XXL', '3XL'];
+
 const AdminProducts = () => {
   const { products, categories, fetchData } = useShop();
   const [searchParams] = useSearchParams();
   const [isAdding, setIsAdding] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [customSize, setCustomSize] = useState('');
   const [filter, setFilter] = useState('All Categories');
   const [searchQuery, setSearchQuery] = useState('');
   const [minPrice, setMinPrice] = useState('');
@@ -43,7 +47,8 @@ const AdminProducts = () => {
     skinConcern: 'All',
     gallery: [],
     brand: '',
-    sizes: []
+    sizes: [],
+    hasSizes: false
   });
 
   const handleInputChange = (e) => {
@@ -97,13 +102,35 @@ const AdminProducts = () => {
     setForm(prev => ({ ...prev, sizes: newSizes }));
   };
 
-  const addSize = () => {
-    setForm(prev => ({ ...prev, sizes: [...(prev.sizes || []), ''] }));
+  const handleAddCustomSize = (e) => {
+    if (e) e.preventDefault();
+    if (customSize.trim()) {
+      const size = customSize.trim().toUpperCase();
+      setForm(prev => {
+        const currentSizes = Array.isArray(prev.sizes) ? prev.sizes : [];
+        if (!currentSizes.includes(size)) {
+          return { ...prev, sizes: [...currentSizes, size] };
+        }
+        return prev;
+      });
+      setCustomSize('');
+    }
   };
 
   const removeSize = (index) => {
     const newSizes = form.sizes.filter((_, i) => i !== index);
     setForm(prev => ({ ...prev, sizes: newSizes }));
+  };
+
+  const toggleQuickSize = (size) => {
+    setForm(prev => {
+      const currentSizes = Array.isArray(prev.sizes) ? prev.sizes : [];
+      if (currentSizes.includes(size)) {
+        return { ...prev, sizes: currentSizes.filter(s => s !== size) };
+      } else {
+        return { ...prev, sizes: [...currentSizes, size] };
+      }
+    });
   };
 
   // Handle Filtering and Searching
@@ -156,7 +183,8 @@ const AdminProducts = () => {
       skinConcern: product.skinConcern || 'All',
       gallery: product.gallery || [],
       brand: product.brand || '',
-      sizes: product.sizes || []
+      sizes: Array.isArray(product.sizes) ? product.sizes : [],
+      hasSizes: Array.isArray(product.sizes) && product.sizes.length > 0
     });
     setIsAdding(true);
   };
@@ -175,8 +203,8 @@ const AdminProducts = () => {
         price: Number(form.price),
         stock: Number(form.stock),
         status: 'active',
-        about: form.about.filter(point => point.trim() !== ''), // Clean empty points
-        sizes: form.sizes.filter(size => size.trim() !== '') // Clean empty sizes
+        about: (Array.isArray(form.about) ? form.about : []).filter(point => typeof point === 'string' && point.trim() !== ''), // Clean empty points
+        sizes: form.hasSizes ? (Array.isArray(form.sizes) ? form.sizes : []).filter(size => typeof size === 'string' && size.trim() !== '') : [] // Empty sizes if not enabled
       };
 
       console.log('Saving product with payload:', payload);
@@ -189,7 +217,7 @@ const AdminProducts = () => {
 
       setIsAdding(false);
       setEditingProduct(null);
-      setForm({ name: '', brand: '', category: '', subCategory: '', price: '', stock: 100, image: '', description: '', badge: '', about: [], skinType: 'All', skinConcern: 'All', gallery: [], sizes: [] });
+      setForm({ name: '', brand: '', category: '', subCategory: '', price: '', stock: 100, image: '', description: '', badge: '', about: [], skinType: 'All', skinConcern: 'All', gallery: [], sizes: [], hasSizes: false });
       fetchData();
     } catch (err) {
       console.error('Error saving product:', err);
@@ -301,31 +329,31 @@ const AdminProducts = () => {
                       <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">CATEGORY</th>
                       <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">PLACEMENT</th>
                       <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">PRICE</th>
-                      <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">STOCK</th>
-                      <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">ACTIONS</th>
+                      <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">STOCK</th>
+                      <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">ACTIONS</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
                     {filteredProducts.length > 0 ? filteredProducts.map(p => (
                       <tr key={p._id} className="hover:bg-gray-50/30 transition-colors group">
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-gray-50 rounded-lg overflow-hidden border border-gray-100 p-1 flex-shrink-0">
+                        <td className="px-4 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-gray-50 rounded-lg overflow-hidden border border-gray-100 p-1 flex-shrink-0">
                               <img src={p.image} alt={p.name} className="w-full h-full object-contain" />
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs font-bold text-gray-800 group-hover:text-brand-pink transition-colors line-clamp-1">{p.name}</span>
-                              <span className="text-[10px] text-brand-pink font-bold uppercase tracking-wider">ID: {p._id.slice(-6).toUpperCase()}</span>
+                              <span className="text-xs font-bold text-gray-800 group-hover:text-brand-pink transition-colors line-clamp-1 max-w-[200px]">{p.name}</span>
+                              <span className="text-[9px] text-brand-pink font-bold uppercase tracking-wider">ID: {p._id.slice(-6).toUpperCase()}</span>
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-4">
                           <span className="text-xs font-black text-gray-400 uppercase tracking-wider">{p.brand || 'Generic'}</span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-4">
                           <span className="text-xs font-bold text-gray-600">{p.category}</span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-4">
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <span className="px-2 py-0.5 bg-gray-50 text-gray-400 text-[9px] font-bold uppercase rounded leading-none">{p.subCategory || 'General'}</span>
                             {p.badge && (
@@ -333,23 +361,23 @@ const AdminProducts = () => {
                             )}
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-4">
                           <span className="text-xs font-bold text-gray-800">₹{p.price}</span>
                         </td>
-                        <td className="px-6 py-4 text-center">
+                        <td className="px-4 py-4 text-center">
                           <span className={`inline-flex px-2 py-1 rounded-lg text-[9px] font-black uppercase leading-none ${p.stock > 0 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
                             {p.stock} Units
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex items-center justify-end gap-2 text-gray-400">
-                            <button onClick={() => handleEdit(p)} className="p-1.5 hover:bg-blue-50 hover:text-blue-500 rounded-lg transition-colors"><FiEdit2 size={14} /></button>
-                            <button onClick={() => handleDelete(p._id)} className="p-1.5 hover:bg-red-50 hover:text-red-500 rounded-lg transition-colors"><FiTrash2 size={14} /></button>
+                        <td className="px-4 py-4">
+                          <div className="flex items-center justify-center gap-1">
+                            <button onClick={() => handleEdit(p)} className="p-1.5 hover:bg-blue-50 text-gray-400 hover:text-blue-500 rounded-lg transition-colors" title="Edit Product"><FiEdit2 size={13} /></button>
+                            <button onClick={() => handleDelete(p._id)} className="p-1.5 hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-lg transition-colors" title="Delete Product"><FiTrash2 size={13} /></button>
                           </div>
                         </td>
                       </tr>
                     )) : (
-                      <tr><td colSpan="6" className="py-12 text-center text-[10px] font-black uppercase text-gray-400 tracking-widest">No Products Match The Filter</td></tr>
+                      <tr><td colSpan="7" className="py-12 text-center text-[10px] font-black uppercase text-gray-400 tracking-widest">No Products Match The Filter</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -482,36 +510,6 @@ const AdminProducts = () => {
                   </div>
                 </div>
 
-                {/* Size Options */}
-                <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-[9px] font-bold text-gray-800 uppercase tracking-wider">Size Options</h3>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="hasSizes"
-                        checked={form.hasSizes}
-                        onChange={handleInputChange}
-                        className="w-4 h-4 text-brand-pink rounded border-gray-300 focus:ring-brand-pink"
-                      />
-                      <span className="text-[9px] font-bold text-gray-400 lowercase italic">Enable Sizes</span>
-                    </label>
-                  </div>
-                  {form.hasSizes && (
-                    <div className="space-y-2">
-                      <label className="text-[9px] font-bold text-gray-400 lowercase italic">Available Sizes (comma-separated)</label>
-                      <input
-                        type="text"
-                        name="sizes"
-                        value={form.sizes}
-                        onChange={handleInputChange}
-                        placeholder="S, M, L, XL, XXL"
-                        className="w-full bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-[10px] font-bold outline-none focus:border-gray-300 transition-all shadow-inner uppercase"
-                      />
-                      <p className="text-[8px] text-gray-400 font-medium">Enter sizes separated by commas (e.g., S, M, L, XL)</p>
-                    </div>
-                  )}
-                </div>
 
                 {/* About This Item Selection */}
                 <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-4">
@@ -647,32 +645,104 @@ const AdminProducts = () => {
                     </div>
                   </div>
                   {/* Sizes Management - Dynamic & Optional */}
-                  <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mt-4 space-y-4">
+                  <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mt-4 space-y-5">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-[9px] font-bold text-gray-800 uppercase tracking-wider">Product Size Variations</h3>
-                      <button type="button" onClick={addSize} className="text-[9px] font-black text-brand-pink uppercase hover:underline flex items-center gap-1">
-                        <FiPlus size={10} /> Add Size
-                      </button>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {form.sizes?.map((size, idx) => (
-                        <div key={idx} className="flex items-center bg-gray-50 border border-gray-100 rounded-lg px-2 py-1 gap-2 shadow-inner">
+                      <div>
+                        <h3 className="text-[9px] font-bold text-gray-800 uppercase tracking-wider">Product Size Variations</h3>
+                        <div className="flex items-center gap-2 mt-1">
+                          <label className="relative inline-flex items-center cursor-pointer scale-75 -ml-2">
+                            <input
+                              type="checkbox"
+                              className="sr-only peer"
+                              checked={form.hasSizes}
+                              onChange={(e) => setForm(prev => ({ ...prev, hasSizes: e.target.checked }))}
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-pink"></div>
+                          </label>
+                          <p className="text-[8px] text-gray-400 font-medium uppercase tracking-widest">{form.hasSizes ? 'Enabled' : 'Disabled (One-Size)'}</p>
+                        </div>
+                      </div>
+                      {form.hasSizes && (
+                        <div className="flex items-center gap-2">
                           <input
                             type="text"
-                            value={size}
-                            onChange={(e) => handleSizeChange(idx, e.target.value)}
-                            placeholder="e.g. M, 50ml"
-                            className="bg-transparent border-none outline-none text-[10px] font-black uppercase w-16"
+                            value={customSize}
+                            onChange={(e) => setCustomSize(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleAddCustomSize(e)}
+                            placeholder="Add Custom (e.g. 42B)"
+                            className="px-3 py-1.5 bg-gray-50 border border-gray-100 rounded-lg text-[9px] font-bold outline-none focus:border-brand-pink transition-all w-32"
                           />
-                          <button type="button" onClick={() => removeSize(idx)} className="text-red-300 hover:text-red-500 transition-colors">
-                            <FiX size={12} />
+                          <button type="button" onClick={handleAddCustomSize} className="w-8 h-8 rounded-lg bg-brand-pink text-white flex items-center justify-center hover:bg-brand-dark transition-all shadow-md active:scale-95">
+                            <FiPlus size={14} />
                           </button>
                         </div>
-                      ))}
-                      {(!form.sizes || form.sizes.length === 0) && (
-                        <p className="w-full text-center py-4 bg-gray-50/50 rounded-xl border border-dashed border-gray-200 text-[8px] font-bold text-gray-300 uppercase tracking-widest">No sizes defined (one-size only)</p>
                       )}
                     </div>
+
+                    {form.hasSizes && (
+                      <>
+                        {/* Quick Select Presets */}
+                        <div className="space-y-4 pt-2 border-t border-gray-50">
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Bra Size Presets</p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {BRA_SIZES.map(size => (
+                                  <button
+                                    key={size}
+                                    type="button"
+                                    onClick={() => toggleQuickSize(size)}
+                                    className={`px-2 py-1.5 rounded-md text-[9px] font-bold transition-all border ${
+                                      form.sizes?.includes(size)
+                                        ? 'bg-brand-pink text-white border-brand-pink shadow-md'
+                                        : 'bg-white border-gray-100 text-gray-400 hover:border-gray-300'
+                                    }`}
+                                  >
+                                    {size}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">General Presets</p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {GENERAL_SIZES.map(size => (
+                                  <button
+                                    key={size}
+                                    type="button"
+                                    onClick={() => toggleQuickSize(size)}
+                                    className={`px-2 py-1.5 rounded-md text-[9px] font-bold transition-all border ${
+                                      form.sizes?.includes(size)
+                                        ? 'bg-brand-dark text-white border-brand-dark shadow-md'
+                                        : 'bg-white border-gray-100 text-gray-400 hover:border-gray-300'
+                                    }`}
+                                  >
+                                    {size}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="space-y-3 pt-4 border-t border-gray-50">
+                            <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Active Selections</p>
+                            <div className="flex flex-wrap gap-2">
+                              {Array.isArray(form.sizes) && form.sizes.map((size, idx) => (
+                                <div key={idx} className="flex items-center bg-brand-dark text-white rounded-md pl-3 pr-1 py-1 gap-2 shadow-sm animate-in fade-in zoom-in duration-200">
+                                  <span className="text-[9px] font-black uppercase tracking-wider">{size}</span>
+                                  <button type="button" onClick={() => removeSize(idx)} className="p-1 hover:bg-white/20 rounded transition-colors text-white/50 hover:text-white">
+                                    <FiX size={10} />
+                                  </button>
+                                </div>
+                              ))}
+                              {(!form.sizes || form.sizes.length === 0) && (
+                                <p className="w-full text-center py-4 bg-gray-50/50 rounded-xl border border-dashed border-gray-200 text-[8px] font-bold text-gray-300 uppercase tracking-widest">No sizes defined</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

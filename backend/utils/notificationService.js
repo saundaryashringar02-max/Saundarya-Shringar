@@ -37,14 +37,14 @@ exports.sendToUser = async (userId, payload) => {
 
         const response = await admin.messaging().sendEachForMulticast(message);
         console.log(`Sent to user ${userId}: ${response.successCount} success, ${response.failureCount} fail`);
-        
+
         if (response.failureCount > 0) {
             let updatePayload = {};
             response.responses.forEach((resp, idx) => {
                 if (!resp.success) {
                     const errorToken = tokens[idx];
                     console.error('FCM Error for token:', errorToken, resp.error.code);
-                    
+
                     // Cleanup: Remove invalid/unregistered tokens from DB
                     if (resp.error.code === 'messaging/registration-token-not-registered') {
                         if (errorToken === user.fcmTokenWeb) updatePayload.fcmTokenWeb = '';
@@ -91,7 +91,7 @@ exports.sendToAdmin = async (payload) => {
 
         const response = await admin.messaging().sendEachForMulticast(message);
         console.log(`Sent to admins: ${response.successCount} success, ${response.failureCount} fail`);
-        
+
         if (response.failureCount > 0) {
             for (let i = 0; i < response.responses.length; i++) {
                 const resp = response.responses[i];
