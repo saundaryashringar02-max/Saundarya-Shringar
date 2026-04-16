@@ -7,8 +7,8 @@ import { useShop } from '../../context/ShopContext';
 const FeaturedProducts = () => {
   const { products, loading } = useShop();
 
-  // Reverse the global catalog to always promote the newest created backend products first
-  const featured = [...products].reverse().slice(0, 8);
+  // Sort by price in ascending order to showcase low-priced (e.g., ₹100+) products first
+  const featured = [...products].sort((a, b) => a.price - b.price).slice(0, 8);
 
   if (loading && products.length === 0) {
     return (
