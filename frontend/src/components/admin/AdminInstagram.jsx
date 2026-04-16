@@ -124,7 +124,7 @@ const AdminInstagram = () => {
             )}
 
             {isModalOpen && createPortal(
-                <div data-lenis-prevent className="fixed inset-0 bg-brand-dark/98 backdrop-blur-xl z-[10000] flex items-center justify-center p-4">
+                <div data-lenis-prevent className="fixed inset-0 bg-black/70 backdrop-blur-md z-[99999] flex items-center justify-center p-4">
                     <div className="bg-white w-full max-w-lg rounded-none shadow-2xl relative">
                         <div className="px-8 py-5 border-b border-gray-50 flex justify-between items-center bg-white z-10">
                             <h2 className="text-lg font-black text-brand-dark uppercase tracking-widest leading-none">Moment Synchronizer</h2>

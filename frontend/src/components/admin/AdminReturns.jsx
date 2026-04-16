@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiRotateCcw, FiRefreshCw, FiSearch, FiCheck, FiX, FiMessageSquare, FiImage } from 'react-icons/fi';
 import api from '../../utils/api';
@@ -50,13 +51,16 @@ const AdminReturns = () => {
         )
     );
 
-    const BankDetailsModal = ({ order, onMarkRefunded, onClose }) => (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
-        >
+    const BankDetailsModal = ({ order, onMarkRefunded, onClose }) => {
+        if (!order) return null;
+        
+        return createPortal(
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
+            >
             <motion.div
                 initial={{ scale: 0.95, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
@@ -112,12 +116,14 @@ const AdminReturns = () => {
                     )}
                 </div>
             </motion.div>
-        </motion.div>
-    );
+            </motion.div>,
+            document.body
+        );
+    };
 
     return (
 
-        <div className="space-y-6 lg:space-y-8">
+        <div className="space-y-6 lg:space-y-8 pt-4 md:pt-6">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>

@@ -137,7 +137,7 @@ const AdminBlogs = () => {
             )}
 
             {isModalOpen && createPortal(
-                <div data-lenis-prevent className="fixed inset-0 bg-brand-dark/95 backdrop-blur-sm z-[10000] overflow-y-auto flex justify-center py-10 px-4">
+                <div data-lenis-prevent className="fixed inset-0 bg-black/70 backdrop-blur-md z-[99999] overflow-y-auto flex justify-center py-10 px-4">
                     <div className="bg-white w-full max-w-4xl rounded-none shadow-2xl relative h-fit mb-10 overflow-hidden">
                         <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white z-[60] sticky top-0 shadow-sm">
                             <h2 className="text-xl font-serif font-black text-brand-dark uppercase tracking-widest leading-none">

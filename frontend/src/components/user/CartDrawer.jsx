@@ -7,6 +7,11 @@ import { useNavigate, Link } from 'react-router-dom';
 const CartDrawer = () => {
   const { isCartDrawerOpen, setIsCartDrawerOpen, cart, removeFromCart, updateQuantity, cartTotal, cartCount } = useShop();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  if (location.pathname.startsWith('/admin')) {
+    return null;
+  }
 
   return (
     <AnimatePresence>

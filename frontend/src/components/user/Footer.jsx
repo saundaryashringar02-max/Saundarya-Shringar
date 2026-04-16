@@ -4,6 +4,12 @@ import { FiFacebook, FiInstagram, FiTwitter, FiMail, FiPhone, FiMapPin, FiShield
 import footerBg from '../../assets/images/footer_bg.jpg';
 
 const Footer = () => {
+  const location = useLocation();
+
+  if (location.pathname.startsWith('/admin')) {
+    return null;
+  }
+
   return (
     <footer className="relative bg-[#FBD5DA] text-[#2D1810] pt-8 pb-20 md:pb-10 border-t border-brand-pink/10 overflow-hidden">
       {/* Sketched Cosmetic Background */}

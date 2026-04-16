@@ -132,7 +132,7 @@ const AdminTestimonials = () => {
             )}
 
             {isModalOpen && createPortal(
-                <div data-lenis-prevent className="fixed inset-0 bg-brand-dark/95 backdrop-blur-sm z-[10000] flex items-center justify-center p-4">
+                <div data-lenis-prevent className="fixed inset-0 bg-black/70 backdrop-blur-md z-[99999] flex items-center justify-center p-4">
                     <div className="bg-white w-full max-w-xl rounded-none shadow-2xl">
                         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white">
                             <h2 className="text-lg font-black text-brand-dark uppercase tracking-widest">Document Authority Evidence</h2>

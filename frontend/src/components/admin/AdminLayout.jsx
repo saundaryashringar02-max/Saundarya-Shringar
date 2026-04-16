@@ -115,7 +115,7 @@ const AdminLayout = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsSidebarOpen(false)}
-            className="fixed inset-0 bg-[#5C2E3E]/40 backdrop-blur-sm z-40 lg:hidden"
+            className="fixed inset-0 bg-black/60 backdrop-blur-md z-40 lg:hidden"
           />
         )}
       </AnimatePresence>
@@ -287,7 +287,7 @@ const AdminLayout = () => {
         </header>
 
         {/* Content Container */}
-        <main className="p-3 md:p-4 min-h-[calc(100vh-48px)] bg-[#F2EDED] relative">
+        <main className="p-4 md:p-6 lg:p-8 pt-12 md:pt-14 bg-[#F2EDED] relative min-h-[calc(100vh-48px)]">
           <Outlet />
         </main>
       </div>

@@ -14,6 +14,11 @@ const Navbar = () => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
+  // Prevent navbar from showing on admin routes
+  if (location.pathname.startsWith('/admin')) {
+    return null;
+  }
+
   React.useEffect(() => {
     if (isAuthenticated) {
       const fetchNotifications = async () => {
