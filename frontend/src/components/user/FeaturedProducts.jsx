@@ -7,8 +7,25 @@ import { useShop } from '../../context/ShopContext';
 const FeaturedProducts = () => {
   const { products, loading } = useShop();
 
-  // Sort by price in ascending order to showcase low-priced (e.g., ₹100+) products first
-  const featured = [...products].sort((a, b) => a.price - b.price).slice(0, 8);
+  // Filter products into price ranges (approx 100, 200, 300)
+  const range100 = products.filter(p => p.price <= 150);
+  const range200 = products.filter(p => p.price > 150 && p.price <= 250);
+  const range300 = products.filter(p => p.price > 250 && p.price <= 400);
+
+  // Mix them up (1 from each range repeatedly)
+  const mixed = [];
+  const maxLen = Math.max(range100.length, range200.length, range300.length);
+  for (let i = 0; i < maxLen; i++) {
+    if (i < range100.length) mixed.push(range100[i]);
+    if (i < range200.length) mixed.push(range200[i]);
+    if (i < range300.length) mixed.push(range300[i]);
+  }
+
+  // If we don't have enough in those ranges, append other products
+  const otherProducts = products.filter(p => p.price > 400);
+  
+  // Create final array, remove duplicates (just in case), and slice to 8
+  const featured = [...new Set([...mixed, ...otherProducts])].slice(0, 8);
 
   if (loading && products.length === 0) {
     return (
