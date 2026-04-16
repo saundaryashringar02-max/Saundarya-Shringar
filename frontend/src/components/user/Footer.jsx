@@ -66,9 +66,11 @@ const Footer = () => {
           <div className="space-y-3">
             <h3 className="text-[10px] font-serif font-black uppercase tracking-[0.2em] text-[#2D1810]">Registered Office</h3>
             <div className="space-y-2.5 text-[9px] font-bold uppercase tracking-widest text-[#2D1810]/80 leading-relaxed">
-              <p className="flex gap-2">
-                <FiMapPin className="shrink-0 opacity-60" size={10} />
-                <span>Lajpat Nagar Near Radha Swami Bhawan Fatehabad-125050 Haryana</span>
+              <p className="flex items-start gap-2 group transition-colors hover:text-brand-pink">
+                <FiMapPin className="shrink-0 opacity-60 group-hover:scale-110 transition-transform mt-0.5" size={10} />
+                <a href="https://www.google.com/maps/place/Saundarya+Shringar+Pvt+Ltd/@29.513181,75.450953,17z/data=!3m1!4b1!4m6!3m5!1s0x391165f71de40eb9:0x4cb85d5df39475ff!8m2!3d29.513181!4d75.450953!16s%2Fg%2F11z3vht47m?entry=ttu" target="_blank" rel="noreferrer" className="transition-all underline-offset-4 hover:underline">
+                  Lajpat Nagar Near Radha Swami Bhawan Fatehabad-125050 Haryana
+                </a>
               </p>
               <p className="flex items-center gap-2 group transition-colors hover:text-brand-pink">
                 <FiPhone className="shrink-0 opacity-60 group-hover:scale-110 transition-transform" size={10} />
