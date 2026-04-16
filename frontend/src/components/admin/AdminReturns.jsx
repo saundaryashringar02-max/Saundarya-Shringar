@@ -8,6 +8,8 @@ const AdminReturns = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState('Refunds'); // 'Refunds' or 'Replacements'
+    const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
+
 
     const fetchRequests = async () => {
         try {
@@ -48,7 +50,73 @@ const AdminReturns = () => {
         )
     );
 
+    const BankDetailsModal = ({ order, onMarkRefunded, onClose }) => (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+        >
+            <motion.div
+                initial={{ scale: 0.95, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden"
+            >
+                <div className="bg-[#5C2E3E] px-6 py-4 flex justify-between items-center text-white">
+                    <h3 className="text-xs font-black uppercase tracking-widest">Bank Ritual Details</h3>
+                    <button onClick={onClose}><FiX size={20} /></button>
+                </div>
+                <div className="p-8 space-y-6">
+                    {order.refundAccountDetails ? (
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Account Name</p>
+                                    <p className="text-[11px] font-bold text-[#5C2E3E]">{order.refundAccountDetails.accountName}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Bank Name</p>
+                                    <p className="text-[11px] font-bold text-[#5C2E3E]">{order.refundAccountDetails.bankName}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Account Number</p>
+                                    <p className="text-[11px] font-black text-brand-gold tracking-widest">{order.refundAccountDetails.accountNumber}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">IFSC Code</p>
+                                    <p className="text-[11px] font-black text-brand-gold tracking-widest">{order.refundAccountDetails.ifscCode}</p>
+                                </div>
+                            </div>
+                            <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl">
+                                <p className="text-[9px] text-blue-800 font-serif italic leading-relaxed">
+                                    "Verify the sacred digits before committing the refund. This action is irreversible."
+                                </p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="py-10 flex flex-col items-center justify-center text-center space-y-3">
+                            <FiCheck className="text-gray-200" size={40} />
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Awaiting Customer Details</p>
+                        </div>
+                    )}
+                </div>
+                <div className="px-6 py-4 bg-gray-50 flex items-center justify-between border-t border-gray-100">
+                    <button onClick={onClose} className="text-[10px] font-black uppercase text-gray-400">Cancel</button>
+                    {order.refundAccountDetails && (
+                        <button
+                            onClick={() => { onMarkRefunded(order._id); onClose(); }}
+                            className="bg-green-600 text-white px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-green-700 transition-all"
+                        >
+                            Confirm & Refund
+                        </button>
+                    )}
+                </div>
+            </motion.div>
+        </motion.div>
+    );
+
     return (
+
         <div className="space-y-6 lg:space-y-8">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -199,13 +267,19 @@ const AdminReturns = () => {
                                                 )}
 
                                                 {order.returnStatus?.includes('Approved') && (
-                                                    <button
-                                                        onClick={() => updateReturnStatus(order._id, activeTab === 'Refunds' ? 'Returned' : 'Replaced')}
-                                                        className="px-3 py-1.5 bg-brand-dark text-white text-[8px] font-black uppercase tracking-widest rounded-md hover:bg-green-600 shadow-md transition-colors w-[100px]"
-                                                    >
-                                                        {activeTab === 'Refunds' ? 'Mark Refunded' : 'Dispatch Exchange'}
-                                                    </button>
+                                                    <div className="flex flex-col gap-2 items-end">
+                                                        <button
+                                                            onClick={() => setSelectedOrderDetails(order)}
+                                                            className="px-3 py-1.5 bg-brand-gold text-white text-[8px] font-black uppercase tracking-widest rounded-md hover:bg-brand-dark shadow-md transition-colors w-[100px]"
+                                                        >
+                                                            Show Details
+                                                        </button>
+                                                        {!order.refundAccountDetails && (
+                                                            <span className="text-[7px] font-black text-red-400 uppercase tracking-tighter animate-pulse">Awaiting Bank Info</span>
+                                                        )}
+                                                    </div>
                                                 )}
+
 
                                                 {['Returned', 'Replaced', 'Return Rejected', 'Replacement Rejected'].includes(order.returnStatus) && (
                                                     <span className="text-[8px] font-black uppercase tracking-widest text-gray-300">Resolved</span>
@@ -219,7 +293,18 @@ const AdminReturns = () => {
                     </div>
                 </div>
             )}
+
+            <AnimatePresence>
+                {selectedOrderDetails && (
+                    <BankDetailsModal
+                        order={selectedOrderDetails}
+                        onClose={() => setSelectedOrderDetails(null)}
+                        onMarkRefunded={(id) => updateReturnStatus(id, activeTab === 'Refunds' ? 'Returned' : 'Replaced')}
+                    />
+                )}
+            </AnimatePresence>
         </div>
+
     );
 };
 

@@ -61,6 +61,8 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const ticketRoutes = require('./routes/ticketRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 const locationRoutes = require('./routes/locationRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+
 
 // Root API Route
 app.get('/', (req, res) => {
@@ -89,6 +91,8 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/locations', locationRoutes);
+app.use('/api/notifications', notificationRoutes);
+
 
 // Centralized Error Handling Middleware (Professional Implementation)
 app.use((err, req, res, next) => {

@@ -6,7 +6,8 @@ import { useShop } from '../../context/ShopContext';
 import api from '../../utils/api';
 import { uploadToCloudinary } from '../../utils/cloudinary';
 
-const RMAModal = ({ order, onClose }) => {
+const RMAModal = ({ order, onClose, isBankOnly = false }) => {
+
     const { user } = useShop();
     const [reason, setReason] = useState('');
     const [action, setAction] = useState('Refund'); // Default
@@ -55,8 +56,13 @@ const RMAModal = ({ order, onClose }) => {
                 payload.refundAccountDetails = bankDetails;
             }
 
-            await api.patch(`/orders/${order._id}/request-return`, payload);
+            if (isBankOnly) {
+                await api.patch(`/orders/${order._id}/update-refund-details`, { refundAccountDetails: bankDetails });
+            } else {
+                await api.patch(`/orders/${order._id}/request-return`, payload);
+            }
             window.location.reload();
+
         } catch (error) {
             alert(error.response?.data?.message || "RMA Submission Failure.");
         } finally {
@@ -112,6 +118,18 @@ const RMAModal = ({ order, onClose }) => {
                         </div>
                     </div>
 
+                    {isBankOnly && (
+                        <div className="p-5 bg-brand-gold/10 border border-brand-gold/20 rounded-2xl flex items-start gap-4">
+                            <FiCreditCard className="text-brand-gold shrink-0 mt-1" size={20} />
+                            <div>
+                                <h4 className="text-[10px] font-black text-brand-dark uppercase tracking-widest mb-1">Ritual Approved</h4>
+                                <p className="text-[9px] text-gray-500 font-serif italic leading-relaxed">
+                                    "Your return has been blessed by the curators. Please provide your sacred destination details to begin the gold restoration process."
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Clarification */}
                     <div className="space-y-2">
                         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Describe the Discrepancy</label>
@@ -143,7 +161,8 @@ const RMAModal = ({ order, onClose }) => {
                     </div>
 
                     {/* Bank Details for Refund */}
-                    {action === 'Refund' && (
+                    {(action === 'Refund' || isBankOnly) && (
+
                         <div className="p-4 bg-brand-pink/5 rounded-2xl border border-brand-pink/10 space-y-4">
                             <h4 className="text-[9px] font-black text-brand-dark uppercase tracking-[0.2em] flex items-center gap-2">
                                 <FiCreditCard className="text-brand-pink" /> Sacred Refund Destination
@@ -201,8 +220,9 @@ const RMAModal = ({ order, onClose }) => {
                         disabled={isUploading || isSubmitting}
                         className="bg-brand-dark text-white px-6 py-2 rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl hover:bg-brand-pink transition-all disabled:opacity-50"
                     >
-                        {isSubmitting ? 'Submitting...' : 'Submit Request'}
+                        {isSubmitting ? 'Submitting...' : isBankOnly ? 'Submit Details' : 'Submit Request'}
                     </button>
+
                 </div>
             </motion.div>
         </motion.div>
@@ -214,6 +234,8 @@ const UserOrders = () => {
     const [loading, setLoading] = useState(true);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [showRmaModal, setShowRmaModal] = useState(false);
+    const [isBankOnly, setIsBankOnly] = useState(false);
+
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -263,9 +285,14 @@ const UserOrders = () => {
         <div className="min-h-screen bg-[#FDFCFB] pt-24 pb-20">
             <AnimatePresence>
                 {showRmaModal && selectedOrder && (
-                    <RMAModal order={selectedOrder} onClose={() => { setShowRmaModal(false); setSelectedOrder(null); }} />
+                    <RMAModal
+                        order={selectedOrder}
+                        isBankOnly={isBankOnly}
+                        onClose={() => { setShowRmaModal(false); setSelectedOrder(null); setIsBankOnly(false); }}
+                    />
                 )}
             </AnimatePresence>
+
 
             <div className="container mx-auto px-4 max-w-5xl">
                 <div className="flex justify-between items-end mb-8 border-b border-gray-100 pb-4">
@@ -373,6 +400,24 @@ const UserOrders = () => {
                                         <span className="text-[9px] font-black text-[#5C2E3E]/60 uppercase tracking-widest flex items-center gap-2">
                                             {(!order.returnStatus || order.returnStatus === 'Not Requested') ? 'Need Support?' : 'RMA Status'}
                                         </span>
+
+                                        {order.returnStatus === 'Return Approved' && !order.refundAccountDetails && (
+                                            <div className="flex-1 px-4">
+                                                <div className="bg-brand-pink/5 border border-brand-pink/10 rounded-xl p-3 flex items-center justify-between">
+                                                    <p className="text-[9px] font-bold text-brand-dark uppercase tracking-widest flex items-center gap-2">
+                                                        <FiCreditCard className="text-brand-pink" />
+                                                        Please fill your account details for refund
+                                                    </p>
+                                                    <button
+                                                        onClick={() => { setSelectedOrder(order); setIsBankOnly(true); setShowRmaModal(true); }}
+                                                        className="bg-brand-dark text-white text-[8px] font-black uppercase px-4 py-1.5 rounded-full hover:bg-brand-pink transition-colors"
+                                                    >
+                                                        Fill Details
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+
 
                                         {(!order.returnStatus || order.returnStatus === 'Not Requested') ? (
                                             <div className="flex items-center gap-3">

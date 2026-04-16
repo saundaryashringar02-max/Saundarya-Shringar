@@ -10,6 +10,8 @@ router.post('/', protect, orderController.createOrder);
 router.get('/my-orders', protect, orderController.getMyOrders);
 router.get('/track/:orderId', orderController.getOrder); // Public track via ID
 router.patch('/:id/request-return', protect, orderController.requestReturn); // User RMA Request
+router.patch('/:id/update-refund-details', protect, orderController.updateRefundDetails); // User Update Bank Details post-approval
+
 
 // Admin Routes
 router.use(protect, restrictTo('admin', 'super-admin'));

@@ -4,6 +4,8 @@ const Coupon = require('../models/Coupon');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const notificationService = require('../utils/notificationService');
+const Notification = require('../models/Notification');
+
 
 let razorpay;
 const getRazorpayInstance = () => {
@@ -203,11 +205,23 @@ exports.updateOrderStatus = async (req, res, next) => {
             order.statusHistory.push({ status, timestamp: new Date() });
 
             // NOTIFICATION: User - Order Status Updated
+            const title = 'Order Status Update! ✨';
+            const body = `Your order ${order.orderId} is now ${status}.`
+
             notificationService.sendToUser(order.user, {
-                title: 'Order Status Update! ✨',
-                body: `Your order ${order.orderId} is now ${status}.`,
+                title,
+                body,
                 data: { type: 'order_status', id: order._id.toString() }
             });
+
+            await Notification.create({
+                user: order.user,
+                title,
+                body,
+                type: 'order_status',
+                data: { orderId: order.orderId, id: order._id.toString() }
+            });
+
         }
 
         if (trackingId !== undefined) order.trackingId = trackingId;
@@ -270,13 +284,50 @@ exports.processReturnUpdate = async (req, res, next) => {
         const order = await Order.findByIdAndUpdate(req.params.id, { returnStatus }, { new: true, runValidators: true });
         if (!order) return res.status(404).json({ status: 'error', message: 'Order not found.' });
 
-        // NOTIFICATION: User - Return Resolution
+        let title = 'Return Status Update! ✨';
+        let body = `Your return for order ${order.orderId} is now: ${returnStatus}.`;
+
+        if (returnStatus === 'Return Approved') {
+            title = 'Action Required: Refund Details 🏦';
+            body = "Please fill your account details for return/refund process.";
+        } else if (returnStatus === 'Returned') {
+            title = 'Refund Processed! 💰';
+            body = `The refund for your order ${order.orderId} has been successfully processed. Check your bank account soon!`;
+        }
+
+        // Send Push Notification
         notificationService.sendToUser(order.user, {
-            title: 'Return Status Update! ✨',
-            body: `Your return for order ${order.orderId} is now: ${returnStatus}.`,
+            title,
+            body,
             data: { type: 'rma_status', id: order._id.toString() }
+        });
+
+        // Save In-App Notification
+        await Notification.create({
+            user: order.user,
+            title,
+            body,
+            type: 'rma_status',
+            data: { orderId: order.orderId, id: order._id.toString(), status: returnStatus }
         });
 
         res.status(200).json({ status: 'success', data: { order } });
     } catch (err) { next(err); }
 };
+
+// Customer: Update Refund Details (After Approval)
+exports.updateRefundDetails = async (req, res, next) => {
+    try {
+        const { refundAccountDetails } = req.body;
+        const order = await Order.findOneAndUpdate(
+            { _id: req.params.id, user: req.user._id, returnStatus: 'Return Approved' },
+            { refundAccountDetails },
+            { new: true, runValidators: true }
+        );
+
+        if (!order) return res.status(404).json({ status: 'error', message: 'Order not found or not in Approved state.' });
+
+        res.status(200).json({ status: 'success', data: { order } });
+    } catch (err) { next(err); }
+};
+

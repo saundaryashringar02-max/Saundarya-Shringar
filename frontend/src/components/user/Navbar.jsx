@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { FiHeart, FiShoppingBag, FiUser, FiMenu, FiX, FiHome, FiPercent, FiGrid } from 'react-icons/fi';
+import { FiHeart, FiShoppingBag, FiUser, FiMenu, FiX, FiHome, FiPercent, FiGrid, FiBell, FiClock } from 'react-icons/fi';
+import api from '../../utils/api';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { useShop } from '../../context/ShopContext';
@@ -8,6 +10,33 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { cartCount, wishlistCount, setIsCartDrawerOpen, isAuthenticated, user } = useShop();
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      const fetchNotifications = async () => {
+        try {
+          const res = await api.get('/notifications/my-notifications');
+          setNotifications(res.data.data.notifications);
+          setUnreadCount(res.data.data.notifications.filter(n => !n.read).length);
+        } catch (err) { console.error(err); }
+      };
+      fetchNotifications();
+      const interval = setInterval(fetchNotifications, 60000); // Polling every minute
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated, location]);
+
+  const markAllRead = async () => {
+    try {
+      await api.patch('/notifications/read-all');
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      setUnreadCount(0);
+    } catch (err) { console.error(err); }
+  };
+
 
   const menuItems = [
     { name: 'Home', link: '/' },
@@ -79,6 +108,77 @@ const Navbar = () => {
 
             {/* Icons */}
             <div className="flex items-center gap-4 md:gap-5 text-black shrink-0 ml-auto lg:ml-0">
+
+              {/* Notification Bell */}
+              {isAuthenticated && (
+                <div className="relative">
+                  <button
+                    onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                    className={`relative cursor-pointer hover:scale-110 transition-transform ${isNotificationsOpen ? 'text-brand-dark' : ''}`}
+                  >
+                    <FiBell className="text-lg" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 bg-brand-gold text-white text-[7px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold animate-pulse">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </button>
+
+                  <AnimatePresence>
+                    {isNotificationsOpen && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setIsNotificationsOpen(false)} />
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                          className="absolute right-0 mt-3 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden"
+                        >
+                          <div className="bg-brand-dark p-4 flex justify-between items-center">
+                            <h3 className="text-[10px] font-black uppercase text-white tracking-widest">Ritual Alerts</h3>
+                            {unreadCount > 0 && (
+                              <button onClick={markAllRead} className="text-[8px] font-black uppercase text-brand-gold hover:text-white transition-colors">Mark all read</button>
+                            )}
+                          </div>
+                          <div className="max-h-80 overflow-y-auto scrollbar-hide">
+                            {notifications.length === 0 ? (
+                              <div className="p-8 text-center">
+                                <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest">No Alerts at Present</p>
+                              </div>
+                            ) : (
+                              notifications.map((n) => (
+                                <Link
+                                  key={n._id}
+                                  to={n.type === 'rma_status' ? '/profile?tab=orders' : '#'}
+                                  onClick={() => setIsNotificationsOpen(false)}
+                                  className={`p-4 flex gap-3 border-b border-gray-50 hover:bg-gray-50 transition-colors ${!n.read ? 'bg-brand-pink/5' : ''}`}
+                                >
+                                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${!n.read ? 'bg-brand-pink text-white' : 'bg-gray-100 text-gray-400'}`}>
+                                    <FiClock size={12} />
+                                  </div>
+                                  <div>
+                                    <p className={`text-[10px] uppercase tracking-wider mb-1 ${!n.read ? 'font-black text-brand-dark' : 'font-bold text-gray-500'}`}>{n.title}</p>
+                                    <p className="text-[9px] text-gray-400 font-serif italic leading-snug">{n.body}</p>
+                                    <p className="text-[7px] text-gray-300 uppercase mt-2 font-bold">{new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                  </div>
+                                </Link>
+                              ))
+                            )}
+                          </div>
+                          <Link
+                            to="/profile?tab=orders"
+                            onClick={() => setIsNotificationsOpen(false)}
+                            className="p-3 bg-gray-50 block text-center text-[8px] font-black uppercase text-gray-400 hover:text-brand-pink transition-colors"
+                          >
+                            View All Journeys
+                          </Link>
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
+
               <Link
                 to="/wishlist"
                 className={`relative cursor-pointer hover:scale-110 transition-transform ${isActive('/wishlist') ? 'text-brand-dark' : ''}`}
