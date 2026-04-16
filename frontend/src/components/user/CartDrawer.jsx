@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiX, FiMinus, FiPlus, FiTrash2, FiShoppingBag, FiArrowRight, FiArrowLeft } from 'react-icons/fi';
 import { useShop } from '../../context/ShopContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 
 const CartDrawer = () => {
   const { isCartDrawerOpen, setIsCartDrawerOpen, cart, removeFromCart, updateQuantity, cartTotal, cartCount } = useShop();

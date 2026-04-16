@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { FiFacebook, FiInstagram, FiTwitter, FiMail, FiPhone, FiMapPin, FiShield, FiHelpCircle } from 'react-icons/fi';
 import footerBg from '../../assets/images/footer_bg.jpg';
 
