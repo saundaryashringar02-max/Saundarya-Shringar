@@ -362,7 +362,7 @@ const ProductDetail = () => {
       <div className="container mx-auto px-4 pt-1 pb-2 flex items-center gap-2 text-[10px] md:text-[11px] text-gray-400 font-medium">
         <Link to="/shop" className="hover:text-brand-pink">Shop</Link>
         <FiChevronRight className="w-3 h-3" />
-        <span className="capitalize hover:text-brand-pink cursor-pointer">{product.category}</span>
+        <Link to={`/shop?category=${product.category}`} className="capitalize hover:text-brand-pink cursor-pointer">{product.category}</Link>
         <FiChevronRight className="w-3 h-3" />
         <span className="text-brand-dark font-bold truncate max-w-[150px] md:max-w-none">{product.name}</span>
       </div>
@@ -547,10 +547,10 @@ const ProductDetail = () => {
 
                     <button
                       onClick={handleAddToCart}
-                      className={`flex-1 h-11 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all active:scale-95 shadow-sm rounded-full ${(!selectedSize && Array.isArray(product.sizes) && product.sizes.length > 0) ? 'bg-gray-100 text-gray-400 cursor-not-allowed contrast-75' : isAdded ? 'bg-green-600 text-white' : 'bg-brand-dark hover:bg-black text-white'}`}
+                      className={`flex-1 h-11 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all active:scale-95 shadow-sm rounded-full ${isAdded ? 'bg-green-600 text-white' : 'bg-brand-dark hover:bg-black text-white'}`}
                     >
                       {isAdded ? <FiCheckCircle /> : <FiShoppingCart />}
-                      {isAdded ? 'Collected' : (Array.isArray(product.sizes) && product.sizes.length > 0 && !selectedSize) ? 'Select Size First' : 'Add to Bag'}
+                      {isAdded ? 'Collected' : 'Add to Bag'}
                     </button>
 
                     <button
@@ -563,9 +563,9 @@ const ProductDetail = () => {
 
                   <button
                     onClick={handleBuyNow}
-                    className={`w-full h-11 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all active:scale-[0.98] shadow-md rounded-full ${(!selectedSize && Array.isArray(product.sizes) && product.sizes.length > 0) ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brand-pink hover:bg-[#A35266] text-white'}`}
+                    className="w-full h-11 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all active:scale-[0.98] shadow-md rounded-full bg-brand-pink hover:bg-[#A35266] text-white"
                   >
-                    <FiZap /> {(Array.isArray(product.sizes) && product.sizes.length > 0 && !selectedSize) ? 'Size Not Selected' : 'Buy It Now'}
+                    <FiZap /> Buy It Now
                   </button>
                 </div>
               </div>

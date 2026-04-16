@@ -159,7 +159,7 @@ const ProductCard = ({ product }) => {
             ) : (
               <div className="flex items-center gap-1.5">
                 <FiShoppingBag className="w-3 h-3" />
-                <span>{Array.isArray(product.sizes) && product.sizes.length > 0 ? 'Select Size' : 'Add to Bag'}</span>
+                <span>Add to Bag</span>
               </div>
             )}
           </button>

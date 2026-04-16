@@ -147,7 +147,7 @@ const HeroCarousel = () => {
                           rel="noopener noreferrer"
                           className="hover:scale-105 transition-transform"
                         >
-                          <svg width="100" height="30" mdWidth="130" mdHeight="40" viewBox="0 0 216 64" className="w-[85px] sm:w-[100px] md:w-[130px] h-auto">
+                          <svg width="100" height="30" viewBox="0 0 216 64" className="w-[85px] sm:w-[100px] md:w-[130px] h-auto">
                             <rect width="216" height="64" rx="8" fill="#000" stroke="#333" strokeWidth="1" />
                             {/* Realistic Google Play Icon */}
                             <g transform="translate(20, 12) scale(1.1)">
@@ -166,7 +166,7 @@ const HeroCarousel = () => {
                           href="#"
                           className="hover:scale-105 transition-transform"
                         >
-                          <svg width="100" height="30" mdWidth="130" mdHeight="40" viewBox="0 0 216 64" className="w-[85px] sm:w-[100px] md:w-[130px] h-auto">
+                          <svg width="100" height="30" viewBox="0 0 216 64" className="w-[85px] sm:w-[100px] md:w-[130px] h-auto">
                             <rect width="216" height="64" rx="8" fill="#000" stroke="#333" strokeWidth="1" />
                             {/* Realistic Apple Icon */}
                             <path d="M42 34.1c-.1 4.7 4.1 6.9 4.3 7-.1.2-.7 2.2-2.2 4.4-1.3 1.9-2.6 3.8-4.8 3.8-2.1 0-2.8-1.3-5.2-1.3s-3.2 1.3-5.2 1.3c-2 0-3.5-2.1-4.8-4.1-2.7-3.9-4.8-11-2-15.8 1.4-2.4 3.8-3.9 6.4-3.9 2 0 3.9 1.4 5.1 1.4 1.1 0 3.5-1.7 6-1.4 1 .1 3.9.4 5.8 3.1-.1.1-3.5 2-3.4 5.7M37.8 23.1c1.1-1.4 1.9-3.3 1.7-5.3-1.7.1-3.7 1.1-4.9 2.6-1 1.2-2 3.1-1.8 5 1.9.1 3.8-1 5-2.3" fill="#fff" transform="translate(10, -5) scale(0.9)" />

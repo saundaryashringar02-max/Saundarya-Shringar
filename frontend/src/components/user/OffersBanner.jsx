@@ -1,7 +1,9 @@
 import { useShop } from '../../context/ShopContext';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import offersVideo from '../../assets/videos/offers_video.mp4';
+// Removed local import of offersVideo to fix cache error by using public folder directly
+const offersVideo = '/offers_video.mp4';
+
 
 const OffersBanner = () => {
   const { banners } = useShop();
