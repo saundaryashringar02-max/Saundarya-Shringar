@@ -114,7 +114,7 @@ const Navbar = () => {
                 <div className="relative">
                   <button
                     onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                    className={`relative cursor-pointer hover:scale-110 transition-transform ${isNotificationsOpen ? 'text-brand-dark' : ''}`}
+                    className={`relative cursor-pointer hover:scale-110 transition-transform flex items-center justify-center p-0 ${isNotificationsOpen ? 'text-brand-dark' : ''}`}
                   >
                     <FiBell className="text-lg" />
                     {unreadCount > 0 && (
