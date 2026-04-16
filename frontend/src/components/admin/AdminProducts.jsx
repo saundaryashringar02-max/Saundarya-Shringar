@@ -329,31 +329,31 @@ const AdminProducts = () => {
                       <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">CATEGORY</th>
                       <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">PLACEMENT</th>
                       <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">PRICE</th>
-                      <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">STOCK</th>
-                      <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">ACTIONS</th>
+                      <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">STOCK</th>
+                      <th className="px-4 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">ACTIONS</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
                     {filteredProducts.length > 0 ? filteredProducts.map(p => (
                       <tr key={p._id} className="hover:bg-gray-50/30 transition-colors group">
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-gray-50 rounded-lg overflow-hidden border border-gray-100 p-1 flex-shrink-0">
+                        <td className="px-4 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-gray-50 rounded-lg overflow-hidden border border-gray-100 p-1 flex-shrink-0">
                               <img src={p.image} alt={p.name} className="w-full h-full object-contain" />
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs font-bold text-gray-800 group-hover:text-brand-pink transition-colors line-clamp-1">{p.name}</span>
-                              <span className="text-[10px] text-brand-pink font-bold uppercase tracking-wider">ID: {p._id.slice(-6).toUpperCase()}</span>
+                              <span className="text-xs font-bold text-gray-800 group-hover:text-brand-pink transition-colors line-clamp-1 max-w-[200px]">{p.name}</span>
+                              <span className="text-[9px] text-brand-pink font-bold uppercase tracking-wider">ID: {p._id.slice(-6).toUpperCase()}</span>
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-4">
                           <span className="text-xs font-black text-gray-400 uppercase tracking-wider">{p.brand || 'Generic'}</span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-4">
                           <span className="text-xs font-bold text-gray-600">{p.category}</span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-4">
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <span className="px-2 py-0.5 bg-gray-50 text-gray-400 text-[9px] font-bold uppercase rounded leading-none">{p.subCategory || 'General'}</span>
                             {p.badge && (
@@ -361,23 +361,23 @@ const AdminProducts = () => {
                             )}
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-4">
                           <span className="text-xs font-bold text-gray-800">₹{p.price}</span>
                         </td>
-                        <td className="px-6 py-4 text-center">
+                        <td className="px-4 py-4 text-center">
                           <span className={`inline-flex px-2 py-1 rounded-lg text-[9px] font-black uppercase leading-none ${p.stock > 0 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
                             {p.stock} Units
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex items-center justify-end gap-2 text-gray-400">
-                            <button onClick={() => handleEdit(p)} className="p-1.5 hover:bg-blue-50 hover:text-blue-500 rounded-lg transition-colors"><FiEdit2 size={14} /></button>
-                            <button onClick={() => handleDelete(p._id)} className="p-1.5 hover:bg-red-50 hover:text-red-500 rounded-lg transition-colors"><FiTrash2 size={14} /></button>
+                        <td className="px-4 py-4">
+                          <div className="flex items-center justify-center gap-1">
+                            <button onClick={() => handleEdit(p)} className="p-1.5 hover:bg-blue-50 text-gray-400 hover:text-blue-500 rounded-lg transition-colors" title="Edit Product"><FiEdit2 size={13} /></button>
+                            <button onClick={() => handleDelete(p._id)} className="p-1.5 hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-lg transition-colors" title="Delete Product"><FiTrash2 size={13} /></button>
                           </div>
                         </td>
                       </tr>
                     )) : (
-                      <tr><td colSpan="6" className="py-12 text-center text-[10px] font-black uppercase text-gray-400 tracking-widest">No Products Match The Filter</td></tr>
+                      <tr><td colSpan="7" className="py-12 text-center text-[10px] font-black uppercase text-gray-400 tracking-widest">No Products Match The Filter</td></tr>
                     )}
                   </tbody>
                 </table>

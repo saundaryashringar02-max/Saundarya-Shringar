@@ -461,7 +461,9 @@ const ProductDetail = () => {
                     M.R.P.: <span className="line-through">₹{product.oldPrice || product.price + 225}</span>
                   </p>
                   <p className="text-[11px] text-gray-500 leading-tight">
-                    FREE delivery <span className="text-brand-dark font-bold">Sunday, 22 March</span> on your first order.
+                    FREE delivery <span className="text-brand-dark font-bold">
+                      {new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
+                    </span> on your first order.
                   </p>
                 </div>
 
@@ -479,11 +481,13 @@ const ProductDetail = () => {
                 <div className="space-y-4">
                   <div className="flex items-end justify-between border-b border-gray-100 pb-2">
                     <h3 className="text-xs font-black text-brand-dark uppercase tracking-widest">Size</h3>
-                    <div className="flex items-center gap-2">
-                      <button type="button" onClick={() => setIsSizeChartOpen(true)} className="text-[10px] font-bold text-gray-800 underline hover:text-brand-pink transition-colors">Size Chart</button>
-                      <span className="text-gray-300 text-[10px]">|</span>
-                      <button type="button" onClick={() => setIsSizeChartOpen(true)} className="text-[10px] font-bold text-gray-800 underline hover:text-brand-pink transition-colors">Bra Size Calculator</button>
-                    </div>
+                    {(product.category?.toLowerCase() === 'innerwear' || product.category?.toLowerCase() === 'inner wear') && (
+                      <div className="flex items-center gap-2">
+                        <button type="button" onClick={() => setIsSizeChartOpen(true)} className="text-[10px] font-bold text-gray-800 underline hover:text-brand-pink transition-colors">Size Chart</button>
+                        <span className="text-gray-300 text-[10px]">|</span>
+                        <button type="button" onClick={() => setIsSizeChartOpen(true)} className="text-[10px] font-bold text-gray-800 underline hover:text-brand-pink transition-colors">Bra Size Calculator</button>
+                      </div>
+                    )}
                   </div>
 
                   {Array.isArray(product.sizes) && product.sizes.length > 0 ? (
@@ -519,49 +523,51 @@ const ProductDetail = () => {
                   )}
                 </div>
 
-                {/* Primary Actions: Quantity & Add to Bag - Reference Match */}
-                <div className="flex flex-wrap items-center gap-4 pt-4">
-                  {/* Quantity Selector */}
-                  <div className="flex items-center border border-gray-200 h-11">
-                    <button 
-                      onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                      className="w-10 h-full flex items-center justify-center hover:bg-gray-50 transition-colors border-r border-gray-200"
-                    >
-                      <span className="text-base font-light">−</span>
-                    </button>
-                    <div className="w-10 h-full flex items-center justify-center">
-                      <span className="text-[11px] font-black tabular-nums">{quantity}</span>
+                {/* Primary Actions: Quantity & Add to Bag - Stacked & Compact Layout */}
+                <div className="flex flex-col gap-3 pt-4">
+                  <div className="flex items-center gap-3">
+                    {/* Quantity Selector */}
+                    <div className="flex items-center border border-gray-200 h-11 rounded-full overflow-hidden bg-gray-50/50">
+                      <button 
+                        onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                        className="w-10 h-full flex items-center justify-center hover:bg-gray-100 transition-colors border-r border-gray-200/50"
+                      >
+                        <span className="text-base font-light">−</span>
+                      </button>
+                      <div className="w-10 h-full flex items-center justify-center">
+                        <span className="text-[11px] font-black tabular-nums">{quantity}</span>
+                      </div>
+                      <button 
+                        onClick={() => setQuantity(q => q + 1)}
+                        className="w-10 h-full flex items-center justify-center hover:bg-gray-100 transition-colors border-l border-gray-200/50"
+                      >
+                        <span className="text-base font-light">+</span>
+                      </button>
                     </div>
-                    <button 
-                      onClick={() => setQuantity(q => q + 1)}
-                      className="w-10 h-full flex items-center justify-center hover:bg-gray-50 transition-colors border-l border-gray-200"
+
+                    <button
+                      onClick={handleAddToCart}
+                      className={`flex-1 h-11 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all active:scale-95 shadow-sm rounded-full ${(!selectedSize && Array.isArray(product.sizes) && product.sizes.length > 0) ? 'bg-gray-100 text-gray-400 cursor-not-allowed contrast-75' : isAdded ? 'bg-green-600 text-white' : 'bg-brand-dark hover:bg-black text-white'}`}
                     >
-                      <span className="text-base font-light">+</span>
+                      {isAdded ? <FiCheckCircle /> : <FiShoppingCart />}
+                      {isAdded ? 'Collected' : (Array.isArray(product.sizes) && product.sizes.length > 0 && !selectedSize) ? 'Select Size First' : 'Add to Bag'}
+                    </button>
+
+                    <button
+                      onClick={() => toggleWishlist(product)}
+                      className={`w-11 h-11 flex items-center justify-center border transition-all active:scale-90 rounded-full ${isInWishlist(product._id) ? 'border-brand-pink text-brand-pink bg-brand-pink/5' : 'border-gray-200 text-gray-400 hover:border-brand-dark hover:text-brand-dark'}`}
+                    >
+                      <FiHeart className={isInWishlist(product._id) ? 'fill-current' : ''} size={16} />
                     </button>
                   </div>
 
                   <button
-                    onClick={handleAddToCart}
-                    className={`flex-1 min-w-[140px] h-11 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all active:scale-95 shadow-sm ${(!selectedSize && Array.isArray(product.sizes) && product.sizes.length > 0) ? 'bg-gray-100 text-gray-400 cursor-not-allowed contrast-75' : isAdded ? 'bg-green-600 text-white' : 'bg-brand-dark hover:bg-black text-white'}`}
+                    onClick={handleBuyNow}
+                    className={`w-full h-11 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all active:scale-[0.98] shadow-md rounded-full ${(!selectedSize && Array.isArray(product.sizes) && product.sizes.length > 0) ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brand-pink hover:bg-[#A35266] text-white'}`}
                   >
-                    {isAdded ? <FiCheckCircle /> : <FiShoppingCart />}
-                    {isAdded ? 'Collected' : (Array.isArray(product.sizes) && product.sizes.length > 0 && !selectedSize) ? 'Select Size First' : 'Add to Bag'}
-                  </button>
-
-                  <button
-                    onClick={() => toggleWishlist(product)}
-                    className={`w-11 h-11 flex items-center justify-center border transition-all active:scale-90 ${isInWishlist(product._id) ? 'border-brand-pink text-brand-pink bg-brand-pink/5' : 'border-gray-200 text-gray-400 hover:border-brand-dark hover:text-brand-dark'}`}
-                  >
-                    <FiHeart className={isInWishlist(product._id) ? 'fill-current' : ''} size={16} />
+                    <FiZap /> { (Array.isArray(product.sizes) && product.sizes.length > 0 && !selectedSize) ? 'Size Not Selected' : 'Buy It Now' }
                   </button>
                 </div>
-
-                <button
-                  onClick={handleBuyNow}
-                  className={`w-full h-11 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all active:scale-[0.98] shadow-md rounded-sm ${(!selectedSize && Array.isArray(product.sizes) && product.sizes.length > 0) ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brand-pink hover:bg-[#A35266] text-white'}`}
-                >
-                  <FiZap /> { (Array.isArray(product.sizes) && product.sizes.length > 0 && !selectedSize) ? 'Size Not Selected' : 'Buy It Now' }
-                </button>
               </div>
             </div>
 
