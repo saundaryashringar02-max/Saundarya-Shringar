@@ -1,219 +1,286 @@
 import React from 'react';
-import { FiFileText, FiUserCheck, FiTarget, FiInfo } from 'react-icons/fi';
+import { FiFileText, FiUserCheck, FiTarget, FiInfo, FiLock, FiDollarSign, FiShoppingBag, FiRefreshCcw, FiGlobe, FiAlertTriangle, FiCpu, FiExternalLink, FiShield, FiMail, FiMapPin } from 'react-icons/fi';
 
-const sectionStyle = 'space-y-3';
-const headingStyle = 'text-base md:text-lg font-bold uppercase tracking-widest text-brand-dark';
+const sectionStyle = 'space-y-4';
+const headingStyle = 'text-base md:text-lg font-bold uppercase tracking-widest text-brand-dark flex items-center gap-3';
 const paragraphStyle = 'text-gray-700 text-sm leading-relaxed';
-const bulletListStyle = 'list-disc pl-5 text-gray-700 text-sm leading-relaxed space-y-1';
+const bulletListStyle = 'list-disc pl-5 text-gray-700 text-sm leading-relaxed space-y-2';
+const iconStyle = 'text-brand-pink shrink-0';
 
 const TermsAndConditions = () => {
   return (
-    <div className="container mx-auto px-4 py-4 md:py-8 max-w-4xl">
-      <div className="text-center mb-6">
-        <h1 className="text-xl md:text-2xl font-serif font-black text-brand-dark uppercase tracking-widest mb-2">Terms and Conditions</h1>
-        <div className="h-1 w-12 bg-brand-pink mx-auto rounded-full" />
-        <p className="text-gray-500 text-[10px] mt-2 uppercase tracking-[0.2em]">Effective Date: 01/04/2026</p>
+    <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
+      <div className="text-center mb-10">
+        <h1 className="text-2xl md:text-4xl font-serif font-black text-brand-dark uppercase tracking-widest mb-3">Terms & Conditions</h1>
+        <div className="h-1.5 w-20 bg-brand-pink mx-auto rounded-full mb-4" />
+        <p className="text-gray-500 text-xs uppercase tracking-[0.25em]">Effective Date: April 23, 2026</p>
       </div>
 
-      <div className="space-y-6 bg-white/50 backdrop-blur-sm p-6 md:p-8 rounded-2xl border border-brand-pink/10 shadow-xl shadow-brand-pink/[0.02]">
+      <div className="space-y-10 bg-white/60 backdrop-blur-md p-6 md:p-10 rounded-3xl border border-brand-pink/10 shadow-2xl shadow-brand-pink/[0.03]">
+        {/* Introduction */}
         <section className={sectionStyle}>
-          <p className={paragraphStyle}>
-            Welcome to Saundarya Shringar Private Limited, where elegance meets authenticity. These Terms & Conditions outline the rules and regulations governing your access to and use of our website: www.saundaryashringar.com.
+          <p className="text-gray-800 text-base md:text-lg leading-relaxed font-medium italic border-l-4 border-brand-pink pl-6 py-2 bg-brand-pink/[0.02] rounded-r-xl">
+            Welcome to Saundarya Shringar Private Limited, where elegance meets authenticity.
+            These Terms & Conditions (“Terms”) govern your access to and use of our website
+            <a href="https://www.saundaryashringar.com" className="text-brand-pink hover:underline ml-1">www.saundaryashringar.com</a>.
           </p>
           <p className={paragraphStyle}>
-            By accessing, browsing, or purchasing from our website, you acknowledge that you have read, understood, and agreed to be bound by these Terms, along with our Privacy Policy. If you do not agree, we respectfully request that you discontinue use of the platform.
+            By accessing, browsing, or purchasing from our website, you agree to be bound by these
+            Terms along with our Privacy Policy. If you do not agree, please discontinue use of the
+            platform.
           </p>
         </section>
 
+        {/* 1. About Us */}
         <section className={sectionStyle}>
-          <div className="flex items-center gap-3 text-brand-dark">
-            <FiInfo className="text-brand-pink" size={18} />
-            <h2 className={headingStyle}>1. About Us</h2>
+          <div className={headingStyle}>
+            <FiInfo className={iconStyle} size={20} />
+            <h2>1. About Us</h2>
           </div>
           <p className={paragraphStyle}>
-            Saundarya Shringar Private Limited is dedicated to delivering quality and trust through a seamless digital experience.
+            Saundarya Shringar Private Limited is committed to delivering quality products and a
+            seamless digital experience.
           </p>
-          <p className={paragraphStyle}>
-            Registered Office: Lajpat Nagar, Near Radha Swamibhawan Fatehabad - 125050, Haryana, India
-          </p>
-        </section>
-
-        <section className={sectionStyle}>
-          <div className="flex items-center gap-3 text-brand-dark">
-            <FiUserCheck className="text-brand-pink" size={18} />
-            <h2 className={headingStyle}>2. Your Agreement with Us</h2>
+          <div className="p-4 bg-brand-pink/[0.02] rounded-xl border border-brand-pink/5">
+            <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">Registered Office</p>
+            <p className="text-sm font-semibold text-brand-dark">
+              Lajpat Nagar, Near Radha Swamibhawan<br />
+              Fatehabad – 125050, Haryana, India
+            </p>
           </div>
-          <p className={paragraphStyle}>Your use of our website represents a legally binding agreement. By continuing to engage with our platform, you:</p>
-          <ul className={bulletListStyle}>
-            <li>Accept all present and future Terms & Conditions</li>
-            <li>Agree to comply with applicable laws and regulations</li>
-            <li>Consent to updates made to these Terms from time to time</li>
-          </ul>
-          <p className={paragraphStyle}>
-            We reserve the right to revise these Terms at our sole discretion. Continued usage signifies your acceptance of any modifications.
-          </p>
         </section>
 
+        {/* 2. Acceptance of Terms */}
         <section className={sectionStyle}>
-          <h2 className={headingStyle}>3. Eligibility & Access</h2>
-          <p className={paragraphStyle}>To ensure a safe and responsible environment:</p>
-          <ul className={bulletListStyle}>
-            <li>Users must be at least 18 years of age</li>
-            <li>Minors may only use the website under parental or guardian supervision</li>
-          </ul>
-          <p className={paragraphStyle}>We reserve the right to restrict or terminate access if eligibility conditions are not met.</p>
-        </section>
-
-        <section className={sectionStyle}>
-          <div className="flex items-center gap-3 text-brand-dark">
-            <FiTarget className="text-brand-pink" size={18} />
-            <h2 className={headingStyle}>4. User Conduct & Responsibilities</h2>
+          <div className={headingStyle}>
+            <FiFileText className={iconStyle} size={20} />
+            <h2>2. Acceptance of Terms</h2>
           </div>
-          <p className={paragraphStyle}>You agree to:</p>
+          <p className={paragraphStyle}>By using our website, you:</p>
           <ul className={bulletListStyle}>
-            <li>Provide accurate, authentic, and current information</li>
-            <li>Use the website strictly for personal and lawful purposes</li>
-            <li>Respect the integrity and security of the platform</li>
+            <li>Agree to comply with these Terms and applicable laws</li>
+            <li>Accept any updates or modifications made from time to time</li>
+            <li>Acknowledge that continued use constitutes acceptance of revised Terms</li>
           </ul>
-          <p className={paragraphStyle}>You agree not to:</p>
-          <ul className={bulletListStyle}>
-            <li>Post or transmit harmful, abusive, defamatory, or unlawful content</li>
-            <li>Upload viruses, malware, or disruptive code</li>
-            <li>Misrepresent your identity or impersonate others</li>
-            <li>Engage in spam, fraudulent, or manipulative activities</li>
-            <li>Use the platform for unauthorized commercial gain</li>
-          </ul>
-          <p className={paragraphStyle}>Any violation may result in immediate suspension or permanent termination of access.</p>
+          <p className="text-xs text-gray-500 italic">We reserve the right to update these Terms at our sole discretion.</p>
         </section>
 
+        {/* 3. Eligibility */}
         <section className={sectionStyle}>
-          <h2 className={headingStyle}>5. Account & Security</h2>
+          <div className={headingStyle}>
+            <FiUserCheck className={iconStyle} size={20} />
+            <h2>3. Eligibility</h2>
+          </div>
           <ul className={bulletListStyle}>
-            <li>You must ensure your details are accurate and up to date</li>
-            <li>You are solely responsible for maintaining the confidentiality of your login credentials</li>
-            <li>Any activity under your account is deemed your responsibility</li>
-          </ul>
-          <p className={paragraphStyle}>We reserve the right to suspend accounts that provide false or misleading information.</p>
-        </section>
-
-        <section className={sectionStyle}>
-          <h2 className={headingStyle}>6. Orders, Pricing & Transactions</h2>
-          <p className={paragraphStyle}>Pricing transparency:</p>
-          <ul className={bulletListStyle}>
-            <li>All prices are displayed on the website</li>
-            <li>Additional charges such as taxes, shipping, and handling may apply</li>
-          </ul>
-          <p className={paragraphStyle}>Order acceptance:</p>
-          <ul className={bulletListStyle}>
-            <li>Placing an order signifies your commitment to purchase</li>
-            <li>Orders may be reviewed and canceled by us within 1 business day if necessary</li>
-          </ul>
-          <p className={paragraphStyle}>Payments:</p>
-          <ul className={bulletListStyle}>
-            <li>Transactions are securely processed via trusted third-party payment gateways</li>
-            <li>You agree to use only valid and authorized payment methods</li>
-            <li>We disclaim liability for unauthorized transactions arising from user negligence</li>
+            <li>Users must be 18 years or older to make purchases</li>
+            <li>Minors may use the website only under parental or guardian supervision</li>
+            <li>We reserve the right to restrict or terminate access if eligibility criteria are not met</li>
           </ul>
         </section>
 
+        {/* 4. User Conduct */}
         <section className={sectionStyle}>
-          <h2 className={headingStyle}>7. Product Experience</h2>
+          <div className={headingStyle}>
+            <FiTarget className={iconStyle} size={20} />
+            <h2>4. User Conduct</h2>
+          </div>
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="space-y-3 bg-green-50/30 p-6 rounded-2xl border border-green-100/50">
+              <h3 className="text-xs font-bold text-green-700 uppercase tracking-widest">You Agree To</h3>
+              <ul className={bulletListStyle}>
+                <li>Provide accurate information</li>
+                <li>Use for lawful purposes only</li>
+                <li>Maintain platform security</li>
+              </ul>
+            </div>
+            <div className="space-y-3 bg-red-50/30 p-6 rounded-2xl border border-red-100/50">
+              <h3 className="text-xs font-bold text-red-700 uppercase tracking-widest">You Agree Not To</h3>
+              <ul className={bulletListStyle}>
+                <li>Post harmful or abusive content</li>
+                <li>Upload viruses or malware</li>
+                <li>Impersonate others</li>
+                <li>Engage in fraudulent activities</li>
+              </ul>
+            </div>
+          </div>
+          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest text-center">Violation may result in suspension or termination of access.</p>
+        </section>
+
+        {/* 5. Account & Security */}
+        <section className={sectionStyle}>
+          <div className={headingStyle}>
+            <FiLock className={iconStyle} size={20} />
+            <h2>5. Account & Security</h2>
+          </div>
           <ul className={bulletListStyle}>
-            <li>Product descriptions are provided with maximum accuracy</li>
-            <li>Products are intended for individual use only</li>
-            <li>Unless explicitly stated, products cannot be combined, exchanged, or redeemed for cash</li>
+            <li>You are responsible for maintaining the confidentiality of your account credentials</li>
+            <li>All activities under your account are your responsibility</li>
+            <li>We reserve the right to suspend accounts with false or misleading information</li>
           </ul>
         </section>
 
+        {/* 6. Orders & Pricing */}
         <section className={sectionStyle}>
-          <h2 className={headingStyle}>8. Refund & Resolution Policy</h2>
-          <p className={paragraphStyle}>Refunds may be initiated only under the following circumstances:</p>
-          <ul className={bulletListStyle}>
-            <li>Products received are damaged or defective</li>
-            <li>There is a technical or operational error attributable to us</li>
-            <li>Orders are canceled due to changes in availability or pricing</li>
-          </ul>
-          <p className={paragraphStyle}>All refund decisions are subject to verification and approval.</p>
+          <div className={headingStyle}>
+            <FiDollarSign className={iconStyle} size={20} />
+            <h2>6. Orders, Pricing & Payments</h2>
+          </div>
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-sm font-bold text-brand-pink uppercase tracking-widest mb-3">Pricing</h3>
+              <p className={paragraphStyle}>All prices are listed on the website. Additional charges such as taxes, shipping, and handling may apply.</p>
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-brand-pink uppercase tracking-widest mb-3">Order Acceptance</h3>
+              <p className={paragraphStyle}>Placing an order constitutes an offer to purchase. We reserve the right to accept, reject, or cancel orders within 1 business day.</p>
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-brand-pink uppercase tracking-widest mb-3">Payments</h3>
+              <p className={paragraphStyle}>Payments are processed via secure third-party payment gateways. You agree to use only authorized payment methods. We are not liable for unauthorized transactions due to user negligence.</p>
+            </div>
+          </div>
         </section>
 
+        {/* 7. Product Info */}
         <section className={sectionStyle}>
-          <h2 className={headingStyle}>9. Website Performance & Availability</h2>
+          <div className={headingStyle}>
+            <FiShoppingBag className={iconStyle} size={20} />
+            <h2>7. Product Information</h2>
+          </div>
           <ul className={bulletListStyle}>
-            <li>The website may occasionally undergo maintenance or upgrades</li>
-            <li>We do not guarantee uninterrupted, error-free, or virus-free access</li>
-            <li>Certain features may be temporarily unavailable</li>
-          </ul>
-          <p className={paragraphStyle}>We are not liable for disruptions beyond our reasonable control.</p>
-        </section>
-
-        <section className={sectionStyle}>
-          <h2 className={headingStyle}>10. Disclaimer of Warranties</h2>
-          <p className={paragraphStyle}>All content and services are provided on an as-is and as-available basis.</p>
-          <p className={paragraphStyle}>We do not warrant:</p>
-          <ul className={bulletListStyle}>
-            <li>Absolute accuracy or completeness of information</li>
-            <li>Continuous availability of services</li>
-            <li>Error-free functionality</li>
-          </ul>
-          <p className={paragraphStyle}>We expressly disclaim liability for:</p>
-          <ul className={bulletListStyle}>
-            <li>Financial or data loss</li>
-            <li>Business interruption</li>
-            <li>Unauthorized payment usage</li>
-            <li>Damages arising from third-party services</li>
+            <li>We strive to ensure accurate product descriptions and images</li>
+            <li>Minor variations may occur due to display settings or availability</li>
+            <li>Products are intended for personal use only and not for resale unless permitted</li>
           </ul>
         </section>
 
+        {/* 8. Returns & Refunds */}
         <section className={sectionStyle}>
-          <div className="flex items-center gap-3 text-brand-dark">
-            <FiFileText className="text-brand-pink" size={18} />
-            <h2 className={headingStyle}>11. Intellectual Property Rights</h2>
+          <div className={headingStyle}>
+            <FiRefreshCcw className={iconStyle} size={20} />
+            <h2>8. Returns, Refunds & Cancellations</h2>
           </div>
           <p className={paragraphStyle}>
-            All content on this website including text, visuals, logos, and design is the intellectual property of Saundarya Shringar Private Limited or its licensors.
+            All returns, refunds, and cancellations are governed by our <a href="/return-policy" className="text-brand-pink font-bold hover:underline">Return & Refund Policy</a>.
+            Refunds are subject to verification and approval.
           </p>
-          <p className={paragraphStyle}>You may:</p>
-          <ul className={bulletListStyle}>
-            <li>Access and use content for personal purposes</li>
-          </ul>
-          <p className={paragraphStyle}>You may not:</p>
-          <ul className={bulletListStyle}>
-            <li>Copy, reproduce, or commercially exploit content without prior written consent</li>
-          </ul>
         </section>
 
+        {/* 9. Availability */}
         <section className={sectionStyle}>
-          <h2 className={headingStyle}>12. Third-Party Integrations</h2>
+          <div className={headingStyle}>
+            <FiGlobe className={iconStyle} size={20} />
+            <h2>9. Website Availability</h2>
+          </div>
           <ul className={bulletListStyle}>
-            <li>These are provided for convenience only</li>
-            <li>We do not control or endorse third-party content</li>
-            <li>Use of such services is entirely at your own risk</li>
+            <li>The website may undergo maintenance, updates, or interruptions</li>
+            <li>We do not guarantee uninterrupted or error-free access</li>
+            <li>We are not liable for delays or disruptions beyond our control</li>
           </ul>
         </section>
 
+        {/* 10. Disclaimer */}
         <section className={sectionStyle}>
-          <h2 className={headingStyle}>13. Legal Jurisdiction</h2>
-          <p className={paragraphStyle}>These Terms are governed by the laws of India.</p>
-          <p className={paragraphStyle}>All disputes shall fall under the exclusive jurisdiction of the courts in Fatehabad, Haryana.</p>
+          <div className={headingStyle}>
+            <FiAlertTriangle className={iconStyle} size={20} />
+            <h2>10. Disclaimer of Warranties</h2>
+          </div>
+          <p className={paragraphStyle}>All services and content are provided on an “as is” and “as available” basis. We do not guarantee complete accuracy or secure operation.</p>
+          <div className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
+            <p className="text-xs font-bold text-brand-dark uppercase tracking-widest mb-3">We disclaim liability for:</p>
+            <ul className={bulletListStyle}>
+              <li>Financial loss or data loss</li>
+              <li>Business interruption</li>
+              <li>Unauthorized transactions</li>
+              <li>Issues arising from third-party services</li>
+            </ul>
+          </div>
         </section>
 
+        {/* 11. Intellectual Property */}
         <section className={sectionStyle}>
-          <h2 className={headingStyle}>14. Severability</h2>
-          <p className={paragraphStyle}>If any provision of these Terms is deemed invalid or unenforceable, the remaining provisions shall continue in full force and effect.</p>
-        </section>
-
-        <section className={sectionStyle}>
-          <h2 className={headingStyle}>15. Get in Touch</h2>
+          <div className={headingStyle}>
+            <FiCpu className={iconStyle} size={20} />
+            <h2>11. Intellectual Property</h2>
+          </div>
+          <p className={paragraphStyle}>All website content, including text, images, logos, and design, is the property of Saundarya Shringar Private Limited or its licensors.</p>
           <ul className={bulletListStyle}>
-            <li>Email: care@saundaryashringar.com</li>
-            <li>Phone/WhatsApp: +91-9896472169</li>
-            <li>Address: Lajpat Nagar, Near Radha Swamibhawan, Fatehabad, Haryana</li>
+            <li><span className="font-bold">You may:</span> Access content for personal use.</li>
+            <li><span className="font-bold text-red-600">You may NOT:</span> Copy, reproduce, distribute, or exploit content without prior written permission.</li>
           </ul>
         </section>
 
-        <div className="pt-8 border-t border-brand-pink/5 text-center">
-          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-relaxed">
-            © 2026 Saundarya Shringar Pvt Ltd. All Rights Reserved.
+        {/* 12. Third-Party Services */}
+        <section className={sectionStyle}>
+          <div className={headingStyle}>
+            <FiExternalLink className={iconStyle} size={20} />
+            <h2>12. Third-Party Services</h2>
+          </div>
+          <ul className={bulletListStyle}>
+            <li>The website may contain links or integrations with third-party services</li>
+            <li>We do not control or endorse such services</li>
+            <li>Use of third-party platforms is at your own risk</li>
+          </ul>
+        </section>
+
+        {/* 13. Limitation of Liability */}
+        <section className={sectionStyle}>
+          <div className={headingStyle}>
+            <FiAlertTriangle className={iconStyle} size={20} />
+            <h2>13. Limitation of Liability</h2>
+          </div>
+          <p className="text-gray-800 text-base md:text-lg leading-relaxed font-bold border-l-4 border-brand-pink pl-6 py-2 bg-brand-pink/[0.02] rounded-r-xl">
+            To the maximum extent permitted by law, our liability shall be limited to the value of the
+            purchased product. We shall not be liable for indirect or consequential damages.
+          </p>
+        </section>
+
+        {/* 14. Governing Law */}
+        <section className={sectionStyle}>
+          <div className={headingStyle}>
+            <FiShield className={iconStyle} size={20} />
+            <h2>14. Governing Law & Jurisdiction</h2>
+          </div>
+          <p className={paragraphStyle}>
+            These Terms are governed by the laws of India.
+            All disputes shall be subject to the exclusive jurisdiction of courts in Fatehabad, Haryana.
+          </p>
+        </section>
+
+        {/* 15. Severability */}
+        <section className={sectionStyle}>
+          <div className={headingStyle}>
+            <FiFileText className={iconStyle} size={20} />
+            <h2>15. Severability</h2>
+          </div>
+          <p className={paragraphStyle}>If any provision of these Terms is found to be invalid or unenforceable, the remaining provisions shall continue in full force and effect.</p>
+        </section>
+
+        {/* 16. Contact Us */}
+        <section className={sectionStyle}>
+          <div className={headingStyle}>
+            <FiMail className={iconStyle} size={20} />
+            <h2>16. Contact Us</h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6 bg-brand-pink/[0.02] p-6 rounded-2xl border border-brand-pink/5">
+            <div>
+              <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">Email</p>
+              <a href="mailto:care@saundaryashringar.com" className="text-sm text-brand-dark hover:text-brand-pink transition-colors">care@saundaryashringar.com</a>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">WhatsApp</p>
+              <a href="https://wa.me/919896472169" className="text-sm text-brand-dark hover:text-brand-pink transition-colors">+91-9896472169</a>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">Address</p>
+              <p className="text-sm text-brand-dark flex gap-2"><FiMapPin className="mt-1 shrink-0" size={12} /> Lajpat Nagar, Near Radha Swamibhawan, Fatehabad, Haryana</p>
+            </div>
+          </div>
+        </section>
+
+        <div className="pt-10 border-t border-brand-pink/10 text-center">
+          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.3em]">
+            © 2026 Saundarya Shringar Private Limited. Ethical Luxury, Defined.
           </p>
         </div>
       </div>
