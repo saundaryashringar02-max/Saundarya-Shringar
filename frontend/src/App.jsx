@@ -128,7 +128,10 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { FiX, FiBell } from 'react-icons/fi';
 
 const NotificationListener = () => {
-  const { user, isAuthenticated } = useShop();
+  const shopData = useShop();
+
+  // If ShopContext is not yet available, don't try to access user/isAuthenticated
+  const { user, isAuthenticated } = shopData || { user: null, isAuthenticated: false };
 
   React.useEffect(() => {
     // 1. Sync Token

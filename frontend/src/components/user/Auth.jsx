@@ -107,7 +107,8 @@ const Auth = () => {
 
         showNotification("Ritual Success! Welcome to Saundarya Shringar.");
         const from = location.state?.from || '/';
-        setTimeout(() => navigate(from), 1000);
+        const forwardState = location.state?.formData ? { formData: location.state.formData } : null;
+        setTimeout(() => navigate(from, { state: forwardState }), 1000);
       }
     } catch (err) {
       showNotification(err.response?.data?.message || "Error processing request.", 'error');
@@ -152,7 +153,8 @@ const Auth = () => {
         }
 
         showNotification("Login Successful! Welcome to the Admin Portal.");
-        setTimeout(() => navigate('/admin'), 1200);
+        const forwardState = location.state?.formData ? { formData: location.state.formData } : null;
+        setTimeout(() => navigate('/admin', { state: forwardState }), 1200);
       } else {
         // Assume registering admin (requires special backend check or invite usually)
         if (form.name && form.email && form.password) {
@@ -177,7 +179,8 @@ const Auth = () => {
           }
 
           showNotification("Account Created & Authenticated Successfully!");
-          setTimeout(() => navigate('/admin'), 1200);
+          const forwardState = location.state?.formData ? { formData: location.state.formData } : null;
+          setTimeout(() => navigate('/admin', { state: forwardState }), 1200);
         }
       }
     } catch (err) {

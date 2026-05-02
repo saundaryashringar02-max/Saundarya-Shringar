@@ -8,13 +8,7 @@ import api from '../../utils/api';
 const Checkout = () => {
   const { cart, removeFromCart, updateQuantity, cartTotal, cartCount, clearCart, verifyAndClearCart, orderId, user, isAuthenticated, isAuthLoading, settings } = useShop();
   const navigate = useNavigate();
-
-  // Enforce authentication for checkout
-  useEffect(() => {
-    if (!isAuthLoading && !isAuthenticated) {
-      navigate('/login', { state: { from: '/checkout' } });
-    }
-  }, [isAuthenticated, isAuthLoading, navigate]);
+  const location = useLocation();
 
   const [step, setStep] = useState(1); // 1: Cart, 2: Details, 3: Payment
   const [isSuccess, setIsSuccess] = useState(false);
@@ -31,6 +25,14 @@ const Checkout = () => {
     district: '',
     state: ''
   });
+
+  // Restore state from login redirect if available
+  useEffect(() => {
+    if (location.state?.formData) {
+      setFormData(location.state.formData);
+      setStep(3); // Jump to payment step if coming back from login
+    }
+  }, [location.state]);
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [discountAmount, setDiscountAmount] = useState(0);
@@ -112,7 +114,6 @@ const Checkout = () => {
   }, [step, isSuccess]);
 
   // Router State Payload checks (Promos from Bag)
-  const location = useLocation();
   const directProduct = location.state?.directProduct || null;
   const passedCouponCode = location.state?.couponApplied || null;
 
@@ -274,6 +275,18 @@ const Checkout = () => {
     } else if (step === 2) {
       if (validateDetails()) setStep(3);
     } else if (step === 3) {
+      // MANDATORY: User MUST log in before they can finalize the order
+      if (!isAuthenticated) {
+        // Save form data and current state before redirecting to login
+        navigate('/login', { 
+          state: { 
+            from: '/checkout',
+            formData: formData 
+          } 
+        });
+        return;
+      }
+
       if (!isDisclaimerAccepted) {
         setDisclaimerError('Please accept the disclaimer to continue.');
         return;

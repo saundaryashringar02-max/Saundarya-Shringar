@@ -107,8 +107,6 @@ export const ShopProvider = ({ children }) => {
 
   const verifyAndClearCart = async (razorpayResponse, details, customTotal, breakdown) => {
     try {
-      if (!isAuthenticated) throw new Error("User unauthorized.");
-
       const { items: _, totalAmount: __, couponCode: ___, ...shippingAddress } = details;
 
       const payload = {
@@ -152,11 +150,6 @@ export const ShopProvider = ({ children }) => {
 
   const clearCart = async (details, customTotal, breakdown) => {
     try {
-      if (!isAuthenticated) {
-        alert("Please login or create an account to process your divine purchase.");
-        throw new Error("User unauthorized.");
-      }
-
       const defaultTotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
       const totalAmount = customTotal !== undefined ? customTotal : defaultTotal;
 

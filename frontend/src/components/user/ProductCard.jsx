@@ -49,12 +49,6 @@ const ProductCard = ({ product }) => {
       e.stopPropagation();
     }
 
-    // Auth Check
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-
     if (product.sizes && product.sizes.length > 0) {
       navigate(`/product/${product._id}`);
       return;
@@ -78,11 +72,7 @@ const ProductCard = ({ product }) => {
   };
 
   const handleCardClick = () => {
-    if (!isAuthenticated) {
-      navigate('/login');
-    } else {
-      navigate(`/product/${product._id}`);
-    }
+    navigate(`/product/${product._id}`);
   };
 
   return (
