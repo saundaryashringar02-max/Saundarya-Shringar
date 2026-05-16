@@ -55,7 +55,7 @@ exports.sendOtp = async (req, res, next) => {
         if (USE_SMSHUB) {
             const apiKey = process.env.SMSINDIAHUB_API_KEY;
             const senderId = process.env.SMSINDIAHUB_SENDER_ID;
-            const message = `Welcome to the saundarya shringar powered by SMSINDIAHUB. Your OTP for registration is ${otpCode}`;
+            const message = `Welcome to Saundarya Shringar Powered by IIDMTB. Use OTP ${otpCode} to verify your login.`;
 
             if (!apiKey || !senderId) {
                 return res.status(500).json({
