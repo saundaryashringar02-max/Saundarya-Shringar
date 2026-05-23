@@ -4,7 +4,7 @@ const Product = require('../models/Product');
 exports.getAllProducts = async (req, res, next) => {
     try {
         const { category, subCategory, search, minPrice, maxPrice, sort, flashSale } = req.query;
-        let query = { status: 'active' };
+        let query = { status: 'active', isVisible: true };
 
         if (category && category !== 'all') query.category = category;
         if (subCategory) query.subCategory = subCategory;
@@ -35,9 +35,19 @@ exports.getAllProducts = async (req, res, next) => {
 // Public: Get single product
 exports.getProduct = async (req, res, next) => {
     try {
-        const product = await Product.findById(req.params.id).lean();
-        if (!product) return res.status(404).json({ status: 'error', message: 'Product not found.' });
+        const product = await Product.findOne({ _id: req.params.id, isVisible: true }).lean();
+        if (!product) return res.status(404).json({ status: 'error', message: 'Product not found or hidden.' });
         res.status(200).json({ status: 'success', data: { product } });
+    } catch (err) {
+        next(err);
+    }
+};
+
+// Admin: Get all products
+exports.getAdminProducts = async (req, res, next) => {
+    try {
+        const products = await Product.find().sort('-createdAt').lean();
+        res.status(200).json({ status: 'success', count: products.length, data: { products } });
     } catch (err) {
         next(err);
     }

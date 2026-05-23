@@ -9,6 +9,7 @@ router.get('/:id', productController.getProduct);
 
 // Admin Only Routes
 router.use(protect, restrictTo('admin', 'super-admin'));
+router.get('/admin/all', productController.getAdminProducts);
 router.post('/', productController.createProduct);
 router.patch('/:id', productController.updateProduct);
 router.delete('/:id', productController.deleteProduct);

@@ -36,6 +36,7 @@ import ShippingPolicy from './components/user/policies/ShippingPolicy';
 import AdminDashboard from './components/admin/AdminDashboard';
 import AdminProducts from './components/admin/AdminProducts';
 import AdminCategories from './components/admin/AdminCategories';
+import AdminCategoryVisibility from './components/admin/AdminCategoryVisibility';
 import AdminUsers from './components/admin/AdminUsers';
 import AdminOrders from './components/admin/AdminOrders';
 import AdminFinance from './components/admin/AdminFinance';
@@ -101,6 +102,7 @@ const AdminRoutes = () => (
       <Route path="/" element={<AdminDashboard />} />
       <Route path="/products" element={<AdminProducts />} />
       <Route path="/categories" element={<AdminCategories />} />
+      <Route path="/category-visibility" element={<AdminCategoryVisibility />} />
       <Route path="/users" element={<AdminUsers />} />
       <Route path="/orders" element={<AdminOrders />} />
       <Route path="/finance" element={<AdminFinance />} />

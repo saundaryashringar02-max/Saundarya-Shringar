@@ -79,6 +79,10 @@ const productSchema = new mongoose.Schema({
         enum: ['active', 'draft', 'archived'],
         default: 'active'
     },
+    isVisible: {
+        type: Boolean,
+        default: true
+    },
     about: [String],
     skinType: {
         type: String,

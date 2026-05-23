@@ -25,7 +25,8 @@ import {
   FiHelpCircle,
   FiTruck,
   FiMapPin,
-  FiZap
+  FiZap,
+  FiEye
 } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { onMessageListener } from '../../utils/firebase-config';
@@ -86,6 +87,7 @@ const AdminLayout = () => {
   const menuItems = [
     { title: 'Overview', path: '/admin', icon: <FiBox /> },
     { title: 'Categories', path: '/admin/categories', icon: <FiLayers /> },
+    { title: 'Category Visibility', path: '/admin/category-visibility', icon: <FiEye /> },
     { title: 'Products', path: '/admin/products', icon: <FiShoppingBag /> },
     { title: 'Inventory', path: '/admin/inventory', icon: <FiBox /> },
     { title: 'Orders', path: '/admin/orders', icon: <FiShoppingBag /> },

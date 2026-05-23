@@ -37,17 +37,32 @@ export const ShopProvider = ({ children }) => {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const [prodRes, catRes, banRes, setRes] = await Promise.all([
-        api.get('/products'),
-        api.get('/categories'),
+      const isAdminScope = window.location.pathname.startsWith('/admin');
+      const catEndpoint = isAdminScope ? '/categories/admin/all' : '/categories';
+      const prodEndpoint = isAdminScope ? '/products/admin/all' : '/products';
+      
+      let catRes, prodRes;
+      try {
+        [catRes, prodRes] = await Promise.all([
+            api.get(catEndpoint),
+            api.get(prodEndpoint)
+        ]);
+      } catch (err) {
+        [catRes, prodRes] = await Promise.all([
+            api.get('/categories'),
+            api.get('/products')
+        ]);
+      }
+
+      const [banRes, setRes] = await Promise.all([
         api.get('/banners'),
         api.get('/settings')
       ]);
 
-      setProducts(prodRes.data.data.products);
-      setCategories(catRes.data.data.categories);
-      setBanners(banRes.data.data.banners);
-      if (setRes.data.data.settings) {
+      setProducts(prodRes.data?.data?.products || []);
+      setCategories(catRes.data?.data?.categories || []);
+      setBanners(banRes.data?.data?.banners || []);
+      if (setRes.data?.data?.settings) {
         setSettings(setRes.data.data.settings);
       }
     } catch (err) {
@@ -95,6 +110,13 @@ export const ShopProvider = ({ children }) => {
       console.error("Local storage error:", e);
     }
   }, [fetchData, checkAuth]);
+
+  // Re-fetch data when authentication status changes to sync admin-specific data
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchData();
+    }
+  }, [isAuthenticated, fetchData]);
 
   // Sync Cart/Wishlist back to local storage
   useEffect(() => {

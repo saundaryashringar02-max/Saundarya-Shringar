@@ -11,6 +11,10 @@ const categorySchema = new mongoose.Schema({
         type: String,
         required: [true, 'Category image is required']
     },
+    isVisible: {
+        type: Boolean,
+        default: true
+    },
     count: {
         type: Number,
         default: 0
