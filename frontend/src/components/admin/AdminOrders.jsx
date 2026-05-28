@@ -4,6 +4,7 @@ import { FiSearch, FiFilter, FiExternalLink, FiTruck, FiCheckCircle, FiClock, Fi
 import api from '../../utils/api';
 import { useShop } from '../../context/ShopContext';
 import html2pdf from 'html2pdf.js';
+import InvoiceTemplate from './InvoiceTemplate';
 
 const AdminOrders = () => {
   const { fetchData: fetchGlobalData } = useShop(); // For inventory sync
@@ -56,9 +57,9 @@ const AdminOrders = () => {
   };
 
   const handlePrint = () => {
-    const element = document.getElementById('printable-invoice');
+    const element = document.getElementById('actual-pdf-invoice');
     const opt = {
-      margin: 10,
+      margin: 0,
       filename: `invoice_${selectedOrder._id.slice(-6)}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2 },
@@ -223,6 +224,11 @@ const AdminOrders = () => {
               ></textarea>
             </div>
           </div>
+        </div>
+
+        {/* Hidden Invoice Template for PDF Generation */}
+        <div className="absolute top-[-9999px] left-[-9999px] opacity-0 pointer-events-none">
+            <InvoiceTemplate order={selectedOrder} />
         </div>
       </div>
     );

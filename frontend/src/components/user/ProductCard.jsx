@@ -90,12 +90,12 @@ const ProductCard = ({ product }) => {
             {(product.discount || product.flashSale) && (
               <>
                 <div className="flex items-center">
-                  <span className="bg-[#5C2E3E] text-white text-[6px] font-black px-1.5 py-0.5 rounded-sm shadow-sm uppercase tracking-widest border border-white/10">
+                  <span className="bg-[#5C2E3E] text-white text-[8px] font-black px-2 py-1 rounded-sm shadow-sm uppercase tracking-widest border border-white/10">
                     Running Sale
                   </span>
                 </div>
                 {product.discount && (
-                  <span className="bg-brand-pink text-white text-[6px] font-black px-1.5 py-0.5 rounded-sm shadow-md flex items-center gap-1">
+                  <span className="bg-brand-pink text-white text-[8px] font-black px-2 py-1 rounded-sm shadow-md flex items-center gap-1">
                     {product.discount}
                   </span>
                 )}

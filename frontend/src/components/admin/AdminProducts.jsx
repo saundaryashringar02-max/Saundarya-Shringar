@@ -692,11 +692,10 @@ const AdminProducts = () => {
                                     key={size}
                                     type="button"
                                     onClick={() => toggleQuickSize(size)}
-                                    className={`px-2 py-1.5 rounded-md text-[9px] font-bold transition-all border ${
-                                      form.sizes?.includes(size)
+                                    className={`px-2 py-1.5 rounded-md text-[9px] font-bold transition-all border ${form.sizes?.includes(size)
                                         ? 'bg-brand-pink text-white border-brand-pink shadow-md'
                                         : 'bg-white border-gray-100 text-gray-400 hover:border-gray-300'
-                                    }`}
+                                      }`}
                                   >
                                     {size}
                                   </button>
@@ -712,11 +711,10 @@ const AdminProducts = () => {
                                     key={size}
                                     type="button"
                                     onClick={() => toggleQuickSize(size)}
-                                    className={`px-2 py-1.5 rounded-md text-[9px] font-bold transition-all border ${
-                                      form.sizes?.includes(size)
+                                    className={`px-2 py-1.5 rounded-md text-[9px] font-bold transition-all border ${form.sizes?.includes(size)
                                         ? 'bg-brand-dark text-white border-brand-dark shadow-md'
                                         : 'bg-white border-gray-100 text-gray-400 hover:border-gray-300'
-                                    }`}
+                                      }`}
                                   >
                                     {size}
                                   </button>

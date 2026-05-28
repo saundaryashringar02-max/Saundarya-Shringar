@@ -1,16 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminLayout from './AdminLayout';
-import { FiEdit2, FiPlus, FiTrash2, FiEye, FiImage, FiX, FiUploadCloud } from 'react-icons/fi';
-import { useShop } from '../../context/ShopContext';
+import { FiEdit2, FiPlus, FiTrash2, FiEye, FiImage, FiX, FiUploadCloud, FiPauseCircle, FiPlayCircle } from 'react-icons/fi';
 import api from '../../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { uploadToCloudinary } from '../../utils/cloudinary';
+import { useShop } from '../../context/ShopContext';
 
 const AdminBanners = () => {
-  const { banners, fetchData } = useShop();
+  const [banners, setBanners] = useState([]);
+  const { fetchData: fetchPublicData } = useShop();
   const [isAdding, setIsAdding] = useState(false);
   const [editingBanner, setEditingBanner] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const fetchAdminBanners = async () => {
+    try {
+      const res = await api.get('/banners/all');
+      setBanners(res.data.data.banners);
+    } catch (err) {
+      console.error('Failed to fetch admin banners');
+    }
+  };
+
+  useEffect(() => {
+    fetchAdminBanners();
+  }, []);
   const [isUploading, setIsUploading] = useState(false);
   const [form, setForm] = useState({
     title: '',
@@ -41,12 +55,13 @@ const AdminBanners = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Securely remove this visual asset? This will reflect on the live storefront.')) {
+    if (window.confirm('Are you sure you want to delete this asset?')) {
       try {
         await api.delete(`/banners/${id}`);
-        fetchData();
+        fetchAdminBanners();
+        fetchPublicData();
       } catch (err) {
-        alert('Failed to remove banner');
+        alert('Deletion failed');
       }
     }
   };
@@ -62,9 +77,21 @@ const AdminBanners = () => {
       subtitle: banner.subtitle || '',
       price: banner.price || '',
       btnText: banner.btnText || 'SHOP NOW',
-      isVideo: banner.isVideo || false
+      isVideo: banner.isVideo || false,
+      status: banner.status || 'Live'
     });
     setIsAdding(true);
+  };
+
+  const handleToggleStatus = async (banner) => {
+    try {
+      const newStatus = banner.status === 'Live' ? 'Draft' : 'Live';
+      await api.patch(`/banners/${banner._id}`, { status: newStatus });
+      fetchAdminBanners();
+      fetchPublicData();
+    } catch (err) {
+      alert('Failed to update banner status');
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -81,10 +108,10 @@ const AdminBanners = () => {
       setIsAdding(false);
       setEditingBanner(null);
       setForm({ title: '', image: '', link: '', type: 'Main Slider', description: '', subtitle: '', price: '', btnText: 'SHOP NOW', isVideo: false });
-      fetchData();
+      fetchAdminBanners();
+      fetchPublicData();
     } catch (err) {
-      console.error('API Error:', err);
-      alert(editingBanner ? `Error updating banner: ${err.response?.data?.message || err.message}` : `Error creating banner: ${err.response?.data?.message || err.message}`);
+      alert(err.response?.data?.message || 'Operation failed');
     } finally {
       setLoading(false);
     }
@@ -197,7 +224,7 @@ const AdminBanners = () => {
                     id="banner-upload"
                     type="file"
                     className="hidden"
-                    accept="image/*,video/*"
+                    accept={form.isVideo ? "video/*" : "image/*"}
                     onChange={handleFileChange}
                   />
                 </div>
@@ -211,56 +238,126 @@ const AdminBanners = () => {
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-        {banners.map((banner) => {
-          return (
-            <div key={banner._id} className="bg-white rounded-none border border-brand-pink/10 shadow-sm group relative overflow-hidden">
-              <div className="p-1">
-                <div className="relative aspect-[21/9] bg-brand-light overflow-hidden rounded-none">
-                  <img src={banner.image} alt={banner.title} className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all group-hover:scale-105" />
-                  <div className="absolute top-1 left-1 flex gap-1">
-                    <span className="bg-brand-dark/80 text-white text-[5px] font-black px-1 py-0.5 rounded-none uppercase tracking-widest backdrop-blur-sm">{banner.type}</span>
+      <div className="space-y-12">
+        {/* IMAGE BANNERS SECTION */}
+        <section>
+          <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-2">
+            <h2 className="text-sm font-black uppercase tracking-widest text-brand-dark">Image Banners</h2>
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{banners.filter(b => !b.isVideo && !b.image?.match(/\.(mp4|webm|ogg)$/i)).length} Assets</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {banners.filter(b => !b.isVideo && !b.image?.match(/\.(mp4|webm|ogg)$/i)).map((banner) => (
+              <div key={banner._id} className="bg-white rounded-none border border-brand-pink/10 shadow-sm group relative overflow-hidden">
+                <div className="p-1">
+                  <div className="relative aspect-[21/9] bg-brand-light overflow-hidden rounded-none">
+                    <img src={banner.image} alt={banner.title} className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all group-hover:scale-105" />
+                    <div className="absolute top-1 left-1 flex gap-1">
+                      <span className="bg-brand-dark/80 text-white text-[5px] font-black px-1 py-0.5 rounded-none uppercase tracking-widest backdrop-blur-sm">{banner.type}</span>
+                    </div>
                   </div>
+                </div>
 
+                <div className="p-3 bg-white border-t border-brand-pink/5 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="min-w-0">
+                      <h3 className="text-[9px] font-black text-brand-dark uppercase tracking-widest mb-0.5 truncate">{banner.title}</h3>
+                      <span className="text-[7px] text-gray-400 font-bold uppercase tracking-tighter block">URL: {banner.link || 'Internal'}</span>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <div className={`w-1.5 h-1.5 rounded-full shadow-sm ${banner.status === 'Live' ? 'bg-green-500 shadow-green-500/50' : 'bg-yellow-500 shadow-yellow-500/50'}`} />
+                      <span className={`text-[7px] font-black uppercase tracking-tighter ${banner.status === 'Live' ? 'text-green-500' : 'text-yellow-500'}`}>{banner.status}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-gray-50/50">
+                    <button onClick={() => window.open(banner.image, '_blank')} className="flex items-center gap-1 text-[8px] font-black uppercase text-brand-dark hover:text-brand-pink transition-colors">
+                      <FiEye size={10} /> View
+                    </button>
+                    <span className="text-gray-100">|</span>
+                    <button onClick={() => handleToggleStatus(banner)} className="flex items-center gap-1 text-[8px] font-black uppercase text-brand-dark hover:text-blue-500 transition-colors">
+                      {banner.status === 'Live' ? <><FiPauseCircle size={10} /> Pause</> : <><FiPlayCircle size={10} /> Resume</>}
+                    </button>
+                    <span className="text-gray-100">|</span>
+                    <button onClick={() => handleEdit(banner)} className="flex items-center gap-1 text-[8px] font-black uppercase text-brand-dark hover:text-brand-gold transition-colors">
+                      <FiEdit2 size={10} /> Edit
+                    </button>
+                    <span className="text-gray-100">|</span>
+                    <button onClick={() => handleDelete(banner._id)} className="flex items-center gap-1 text-[8px] font-black uppercase text-red-400 hover:text-red-600 transition-colors">
+                      <FiTrash2 size={10} /> Del
+                    </button>
+                  </div>
                 </div>
               </div>
+            ))}
+            
+            <button
+              onClick={() => { setForm({ ...form, isVideo: false }); setIsAdding(true); }}
+              className="border border-dashed border-brand-pink/10 rounded-none min-h-[120px] flex flex-col items-center justify-center gap-1 text-gray-300 hover:border-brand-pink hover:text-brand-pink hover:bg-brand-pink/[0.02] transition-all group bg-white/40"
+            >
+              <FiImage size={16} className="group-hover:scale-110 transition-transform" />
+              <span className="text-[6px] font-bold uppercase tracking-widest">Add Image</span>
+            </button>
+          </div>
+        </section>
 
-              <div className="p-3 bg-white border-t border-brand-pink/5 space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="min-w-0">
-                    <h3 className="text-[9px] font-black text-brand-dark uppercase tracking-widest mb-0.5 truncate">{banner.title}</h3>
-                    <span className="text-[7px] text-gray-400 font-bold uppercase tracking-tighter block">URL: {banner.link || 'Internal'}</span>
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-sm shadow-green-500/50" />
-                    <span className="text-[7px] font-black text-green-500 uppercase tracking-tighter">Live</span>
+        {/* VIDEO BANNERS SECTION */}
+        <section>
+          <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-2">
+            <h2 className="text-sm font-black uppercase tracking-widest text-brand-dark">Promotional Videos</h2>
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{banners.filter(b => b.isVideo || b.image?.match(/\.(mp4|webm|ogg)$/i)).length} Assets</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {banners.filter(b => b.isVideo || b.image?.match(/\.(mp4|webm|ogg)$/i)).map((banner) => (
+              <div key={banner._id} className="bg-white rounded-none border border-brand-pink/10 shadow-sm group relative overflow-hidden">
+                <div className="p-1">
+                  <div className="relative aspect-[21/9] bg-brand-light overflow-hidden rounded-none">
+                    <video src={banner.image} className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all group-hover:scale-105" autoPlay loop muted playsInline />
+                    <div className="absolute top-1 left-1 flex gap-1">
+                      <span className="bg-brand-dark/80 text-white text-[5px] font-black px-1 py-0.5 rounded-none uppercase tracking-widest backdrop-blur-sm">{banner.type}</span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 pt-1 border-t border-gray-50/50">
-                  <button onClick={() => window.open(banner.image, '_blank')} className="flex items-center gap-1.5 text-[8px] font-black uppercase text-brand-dark hover:text-brand-pink transition-colors">
-                    <FiEye size={10} /> View
-                  </button>
-                  <span className="text-gray-100">|</span>
-                  <button onClick={() => handleEdit(banner)} className="flex items-center gap-1.5 text-[8px] font-black uppercase text-brand-dark hover:text-brand-gold transition-colors">
-                    <FiEdit2 size={10} /> Edit
-                  </button>
-                  <span className="text-gray-100">|</span>
-                  <button onClick={() => handleDelete(banner._id)} className="flex items-center gap-1.5 text-[8px] font-black uppercase text-red-400 hover:text-red-600 transition-colors">
-                    <FiTrash2 size={10} /> Remove
-                  </button>
+
+                <div className="p-3 bg-white border-t border-brand-pink/5 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="min-w-0">
+                      <h3 className="text-[9px] font-black text-brand-dark uppercase tracking-widest mb-0.5 truncate">{banner.title}</h3>
+                      <span className="text-[7px] text-gray-400 font-bold uppercase tracking-tighter block">URL: {banner.link || 'Internal'}</span>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <div className={`w-1.5 h-1.5 rounded-full shadow-sm ${banner.status === 'Live' ? 'bg-green-500 shadow-green-500/50' : 'bg-yellow-500 shadow-yellow-500/50'}`} />
+                      <span className={`text-[7px] font-black uppercase tracking-tighter ${banner.status === 'Live' ? 'text-green-500' : 'text-yellow-500'}`}>{banner.status}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-gray-50/50">
+                    <button onClick={() => window.open(banner.image, '_blank')} className="flex items-center gap-1 text-[8px] font-black uppercase text-brand-dark hover:text-brand-pink transition-colors">
+                      <FiEye size={10} /> View
+                    </button>
+                    <span className="text-gray-100">|</span>
+                    <button onClick={() => handleToggleStatus(banner)} className="flex items-center gap-1 text-[8px] font-black uppercase text-brand-dark hover:text-blue-500 transition-colors">
+                      {banner.status === 'Live' ? <><FiPauseCircle size={10} /> Pause</> : <><FiPlayCircle size={10} /> Resume</>}
+                    </button>
+                    <span className="text-gray-100">|</span>
+                    <button onClick={() => handleEdit(banner)} className="flex items-center gap-1 text-[8px] font-black uppercase text-brand-dark hover:text-brand-gold transition-colors">
+                      <FiEdit2 size={10} /> Edit
+                    </button>
+                    <span className="text-gray-100">|</span>
+                    <button onClick={() => handleDelete(banner._id)} className="flex items-center gap-1 text-[8px] font-black uppercase text-red-400 hover:text-red-600 transition-colors">
+                      <FiTrash2 size={10} /> Del
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
-
-        <button
-          onClick={() => setIsAdding(true)}
-          className="border border-dashed border-brand-pink/10 rounded-none h-24 flex flex-col items-center justify-center gap-1 text-gray-300 hover:border-brand-pink hover:text-brand-pink hover:bg-brand-pink/[0.02] transition-all group bg-white/40"
-        >
-          <FiImage size={16} className="group-hover:scale-110 transition-transform" />
-          <span className="text-[6px] font-bold uppercase tracking-widest">Add Asset</span>
-        </button>
+            ))}
+            
+            <button
+              onClick={() => { setForm({ ...form, isVideo: true }); setIsAdding(true); }}
+              className="border border-dashed border-brand-pink/10 rounded-none min-h-[120px] flex flex-col items-center justify-center gap-1 text-gray-300 hover:border-brand-pink hover:text-brand-pink hover:bg-brand-pink/[0.02] transition-all group bg-white/40"
+            >
+              <FiImage size={16} className="group-hover:scale-110 transition-transform" />
+              <span className="text-[6px] font-bold uppercase tracking-widest">Add Video</span>
+            </button>
+          </div>
+        </section>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import AdminLayout from './AdminLayout';
-import { FiSearch, FiUser, FiMail, FiPhone, FiDollarSign, FiShoppingBag, FiArrowLeft, FiClock, FiStar, FiFilter, FiTrendingUp } from 'react-icons/fi';
+import { FiSearch, FiUser, FiMail, FiPhone, FiDollarSign, FiShoppingBag, FiArrowLeft, FiClock, FiStar, FiFilter, FiTrendingUp, FiMapPin } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../utils/api';
 
@@ -29,11 +29,31 @@ const AdminUsers = () => {
   const fetchUserDetails = async (user) => {
     try {
       const res = await api.get(`/users/${user._id}`);
+      
+      const orders = res.data.data.orders;
+      let displayAddress = user.address;
+      let displayEmail = user.email;
+      
+      if (orders && orders.length > 0) {
+          const latestOrder = orders[0];
+          if (latestOrder.shippingAddress) {
+              const sa = latestOrder.shippingAddress;
+              if (!displayAddress) {
+                  displayAddress = [sa.address, sa.city, sa.state, sa.pincode].filter(Boolean).join(', ');
+              }
+              if (!displayEmail && sa.email) {
+                  displayEmail = sa.email;
+              }
+          }
+      }
+
       setSelectedUser({
         ...user,
-        recentOrders: res.data.data.orders,
-        totalSpent: res.data.data.orders.reduce((acc, o) => acc + o.totalAmount, 0),
-        orderCount: res.data.data.orders.length
+        recentOrders: orders,
+        totalSpent: orders.reduce((acc, o) => acc + o.totalAmount, 0),
+        orderCount: orders.length,
+        displayAddress: displayAddress,
+        displayEmail: displayEmail
       });
     } catch (err) {
       alert('Failed to load user details');
@@ -98,7 +118,7 @@ const AdminUsers = () => {
                   <div className="p-2 bg-gray-50 rounded-lg text-brand-pink"><FiMail size={12} /></div>
                   <div className="overflow-hidden">
                     <p className="text-[6px] font-black uppercase tracking-widest text-gray-400">Communication</p>
-                    <p className="text-[10px] font-bold text-brand-dark truncate">{selectedUser.email}</p>
+                    <p className="text-[10px] font-bold text-brand-dark break-all">{selectedUser.displayEmail || selectedUser.email || 'N/A'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -106,6 +126,13 @@ const AdminUsers = () => {
                   <div>
                     <p className="text-[6px] font-black uppercase tracking-widest text-gray-400">Secure Line</p>
                     <p className="text-[10px] font-bold text-brand-dark">{selectedUser.phone || 'N/A'}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gray-50 rounded-lg text-brand-dark"><FiMapPin size={12} /></div>
+                  <div className="overflow-hidden">
+                    <p className="text-[6px] font-black uppercase tracking-widest text-gray-400">Address</p>
+                    <p className="text-[10px] font-bold text-brand-dark break-words" title={selectedUser.displayAddress || selectedUser.address || 'N/A'}>{selectedUser.displayAddress || selectedUser.address || 'N/A'}</p>
                   </div>
                 </div>
               </div>
