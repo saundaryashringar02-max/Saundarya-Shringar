@@ -7,6 +7,9 @@ import api from '../../utils/api';
 const AdminFinance = () => {
   const [data, setData] = useState({ stats: [], recentTransactions: [] });
   const [loading, setLoading] = useState(true);
+  const [selectedTxns, setSelectedTxns] = useState([]);
+  const [bulkStatus, setBulkStatus] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const fetchFinanceData = useCallback(async () => {
     try {
@@ -31,6 +34,41 @@ const AdminFinance = () => {
     } catch (err) {
       alert("Failed to update payment ledger");
     }
+  };
+
+  const handleBulkUpdate = async () => {
+    if (selectedTxns.length === 0) return alert("Please select transactions to update.");
+    if (!bulkStatus) return alert("Please select a status to apply.");
+    
+    setIsUpdating(true);
+    try {
+      // Run updates in parallel
+      await Promise.all(
+        selectedTxns.map(id => api.patch(`/orders/${id}`, { paymentStatus: bulkStatus }))
+      );
+      setSelectedTxns([]);
+      setBulkStatus('');
+      fetchFinanceData();
+      alert("Bulk update successful!");
+    } catch (err) {
+      console.error(err);
+      alert("Some updates failed. Ledger refreshed to show current state.");
+      fetchFinanceData();
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedTxns.length === data.recentTransactions.length) {
+      setSelectedTxns([]);
+    } else {
+      setSelectedTxns(data.recentTransactions.map(tr => tr._id));
+    }
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedTxns(prev => prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]);
   };
 
   const totalRevenue = data.stats.find(s => s._id === 'Completed')?.total || 0;
@@ -97,8 +135,30 @@ const AdminFinance = () => {
             <h3 className="text-base font-serif font-black text-brand-gold uppercase tracking-widest leading-none mb-1">Audit Logs</h3>
             <p className="text-[8px] text-gray-500 font-black uppercase tracking-[0.2em]">Financial summary</p>
           </div>
-          <div className="flex bg-white/5 p-1 rounded-none">
-            <button className="px-3 py-1 bg-brand-gold text-brand-dark rounded-none text-[8px] font-black uppercase tracking-widest">Live</button>
+          <div className="flex items-center gap-2 bg-white/5 p-1 rounded-none">
+            {selectedTxns.length > 0 && (
+              <>
+                <select
+                  value={bulkStatus}
+                  onChange={(e) => setBulkStatus(e.target.value)}
+                  className="px-2 py-1 bg-brand-dark border border-white/20 text-[8px] font-black uppercase tracking-widest text-brand-gold outline-none"
+                >
+                  <option value="">Select Status</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Failed">Failed</option>
+                  <option value="Refunded">Refunded</option>
+                  <option value="Pending">Pending</option>
+                </select>
+                <button 
+                  onClick={handleBulkUpdate}
+                  disabled={isUpdating}
+                  className="px-3 py-1 bg-brand-gold text-brand-dark rounded-none text-[8px] font-black uppercase tracking-widest hover:bg-brand-gold/80 transition-colors disabled:opacity-50"
+                >
+                  {isUpdating ? 'Updating...' : 'Bulk Update'}
+                </button>
+              </>
+            )}
+            <button className="px-3 py-1 bg-brand-gold text-brand-dark rounded-none text-[8px] font-black uppercase tracking-widest ml-2">Live</button>
           </div>
         </div>
 
@@ -106,6 +166,14 @@ const AdminFinance = () => {
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-white/5">
+                <th className="px-4 py-3 text-[6px] font-black uppercase tracking-widest text-brand-gold/50 w-8">
+                  <input 
+                    type="checkbox" 
+                    className="cursor-pointer accent-brand-gold"
+                    checked={data.recentTransactions?.length > 0 && selectedTxns.length === data.recentTransactions.length}
+                    onChange={toggleSelectAll}
+                  />
+                </th>
                 <th className="px-4 py-3 text-[6px] font-black uppercase tracking-widest text-brand-gold/50">Txn ID</th>
                 <th className="px-4 py-3 text-[6px] font-black uppercase tracking-widest text-brand-gold/50">User</th>
                 <th className="px-4 py-3 text-[6px] font-black uppercase tracking-widest text-brand-gold/50">Amount</th>
@@ -116,6 +184,14 @@ const AdminFinance = () => {
               {data.recentTransactions?.length > 0 ? (
                 data.recentTransactions.map((tr) => (
                   <tr key={tr._id} className="hover:bg-white/[0.02] transition-colors group text-[9px]">
+                    <td className="px-4 py-3">
+                      <input 
+                        type="checkbox" 
+                        className="cursor-pointer accent-brand-gold"
+                        checked={selectedTxns.includes(tr._id)}
+                        onChange={() => toggleSelect(tr._id)}
+                      />
+                    </td>
                     <td className="px-4 py-3 font-black text-brand-gold uppercase">#{tr.orderId}</td>
                     <td className="px-4 py-3 font-bold text-gray-300 uppercase">{tr.user?.name || 'Guest'}</td>
                     <td className="px-4 py-3 font-black">₹{tr.totalAmount}</td>
@@ -155,7 +231,7 @@ const AdminFinance = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="px-4 py-10 text-center opacity-40 italic text-brand-gold text-[10px] font-black uppercase tracking-[0.3em]">No Transactions Logged</td>
+                  <td colSpan="5" className="px-4 py-10 text-center opacity-40 italic text-brand-gold text-[10px] font-black uppercase tracking-[0.3em]">No Transactions Logged</td>
                 </tr>
               )}
             </tbody>

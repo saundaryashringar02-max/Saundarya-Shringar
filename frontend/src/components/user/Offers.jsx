@@ -21,6 +21,7 @@ const Offers = () => {
   const { products, loading } = useShop();
   const [coupons, setCoupons] = useState([]);
   const [loadingCoupons, setLoadingCoupons] = useState(true);
+  const [copiedCode, setCopiedCode] = useState(null);
 
   // Filter products with discounts for offers
   const offerProducts = products.filter(p => p.discount || p.flashSale).slice(0, 8);
@@ -33,7 +34,7 @@ const Offers = () => {
   const fetchAvailableCoupons = async () => {
     try {
       const res = await api.get('/coupons/public');
-      setCoupons(res.data.data.coupons.filter(c => c.isActive));
+      setCoupons(res.data.data.coupons);
     } catch (err) {
       console.error("Failed to fetch divine offers:", err);
     } finally {
@@ -143,11 +144,15 @@ const Offers = () => {
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(coupon.code);
-                    alert("Promo Code Transmitted to Clipboard.");
+                    setCopiedCode(coupon.code);
+                    setTimeout(() => setCopiedCode(null), 3000);
                   }}
-                  className="bg-brand-dark text-white text-[10px] font-black uppercase tracking-widest px-6 py-3 rounded-full hover:bg-black transition-all shadow-xl shadow-brand-dark/20"
+                  className={`text-[10px] font-black uppercase tracking-widest px-6 py-3 rounded-full transition-all shadow-xl ${copiedCode === coupon.code
+                      ? 'bg-green-600 text-white shadow-green-600/20'
+                      : 'bg-brand-dark text-white hover:bg-black shadow-brand-dark/20'
+                    }`}
                 >
-                  Copy Code
+                  {copiedCode === coupon.code ? 'COPIED!' : 'COPY CODE'}
                 </button>
               </motion.div>
             )) : (
@@ -244,35 +249,35 @@ const Offers = () => {
             </div>
           </div>
         </div>
-         <div className="bg-brand-pink/5 border border-brand-pink/10 rounded-[2.5rem] p-8 md:p-16 flex flex-col md:flex-row items-center gap-12 overflow-hidden relative">
-            <div className="absolute -top-24 -left-24 w-64 h-64 bg-brand-gold/10 rounded-full blur-3xl"></div>
-            <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-brand-pink/10 rounded-full blur-3xl"></div>
-            
-            <div className="flex-1 text-center md:text-left relative z-10">
-               <span className="text-brand-gold font-black text-[10px] uppercase tracking-[0.4em] mb-4 block">Membership Perk</span>
-               <h2 className="text-3xl md:text-5xl font-serif font-black text-brand-dark mb-6 leading-tight">
-                  Join the <span className="text-brand-pink">Glow Circle</span> <br /> 
-                  for Extra 10% Off
-               </h2>
-               <p className="text-gray-500 text-sm md:text-base mb-10 font-medium leading-relaxed max-w-lg">
-                  Become a member today and unlock exclusive access to private sales, early launches, and a permanent 10% discount on all orders.
-               </p>
-               <button className="bg-brand-dark text-white px-10 py-4 rounded-none text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-brand-gold transition-all shadow-xl active:scale-95">
-                  Sign Up For Glow
-               </button>
+        <div className="bg-brand-pink/5 border border-brand-pink/10 rounded-[2.5rem] p-8 md:p-16 flex flex-col md:flex-row items-center gap-12 overflow-hidden relative">
+          <div className="absolute -top-24 -left-24 w-64 h-64 bg-brand-gold/10 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-brand-pink/10 rounded-full blur-3xl"></div>
+
+          <div className="flex-1 text-center md:text-left relative z-10">
+            <span className="text-brand-gold font-black text-[10px] uppercase tracking-[0.4em] mb-4 block">Membership Perk</span>
+            <h2 className="text-3xl md:text-5xl font-serif font-black text-brand-dark mb-6 leading-tight">
+              Join the <span className="text-brand-pink">Glow Circle</span> <br />
+              for Extra 10% Off
+            </h2>
+            <p className="text-gray-500 text-sm md:text-base mb-10 font-medium leading-relaxed max-w-lg">
+              Become a member today and unlock exclusive access to private sales, early launches, and a permanent 10% discount on all orders.
+            </p>
+            <button className="bg-brand-dark text-white px-10 py-4 rounded-none text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-brand-gold transition-all shadow-xl active:scale-95">
+              Sign Up For Glow
+            </button>
+          </div>
+
+          <div className="w-full md:w-1/3 aspect-square bg-white rounded-2xl shadow-2xl p-4 flex items-center justify-center relative overflow-hidden group">
+            <img
+              src={offerProducts[0]?.image || '/placeholder.jpg'}
+              alt="Membership Gift"
+              className="w-full h-full object-cover rounded-xl transition-transform duration-700 group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-brand-dark/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <span className="text-white text-[10px] font-black tracking-widest uppercase border border-white/40 px-6 py-2">Welcome Gift</span>
             </div>
-            
-            <div className="w-full md:w-1/3 aspect-square bg-white rounded-2xl shadow-2xl p-4 flex items-center justify-center relative overflow-hidden group">
-               <img 
-                 src={offerProducts[0]?.image || '/placeholder.jpg'} 
-                 alt="Membership Gift" 
-                 className="w-full h-full object-cover rounded-xl transition-transform duration-700 group-hover:scale-110"
-               />
-               <div className="absolute inset-0 bg-brand-dark/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <span className="text-white text-[10px] font-black tracking-widest uppercase border border-white/40 px-6 py-2">Welcome Gift</span>
-               </div>
-            </div>
-         </div>
+          </div>
+        </div>
       </section>
     </div>
   );

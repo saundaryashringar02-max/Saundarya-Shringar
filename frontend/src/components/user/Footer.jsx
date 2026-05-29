@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { FiFacebook, FiInstagram, FiTwitter, FiMail, FiPhone, FiMapPin, FiShield, FiHelpCircle } from 'react-icons/fi';
+import { FaGooglePlay } from 'react-icons/fa';
 import footerBg from '../../assets/images/footer_bg.jpg';
 
 const Footer = () => {
@@ -23,7 +24,7 @@ const Footer = () => {
       ></div>
 
       <div className="container mx-auto px-6 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-2">
 
           {/* Column 1: Get to Know Us */}
           <div className="space-y-3">
@@ -31,9 +32,19 @@ const Footer = () => {
             <ul className="space-y-1.5 text-[9px] font-bold uppercase tracking-widest text-[#2D1810]/80">
               <li><Link to="/about" className="hover:text-brand-pink transition-colors">About Us</Link></li>
               <li><Link to="/shop" className="hover:text-brand-pink transition-colors">Our Catalog</Link></li>
-              <li><Link to="/blog" className="hover:text-brand-pink transition-colors">Journal</Link></li>
+              <li><Link to="/blog" className="hover:text-brand-pink transition-colors">Blogs</Link></li>
               <li><Link to="/contact" className="hover:text-brand-pink transition-colors">Contact US</Link></li>
             </ul>
+
+            <div className="pt-3">
+              <a href="https://play.google.com/store/apps/details?id=com.company.saundarya_shringar" target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-3 bg-[#2D1810] text-white px-6 py-1.5 md:px-5 md:py-2.5 whitespace-nowrap rounded-xl hover:bg-green-600 hover:scale-105 transition-all shadow-xl shadow-brand-dark/20">
+                <FaGooglePlay className="text-[20px] md:text-2xl" />
+                <div className="flex flex-col text-left">
+                  <span className="text-[8px] uppercase tracking-widest font-bold opacity-80 leading-none mb-0.5">Get it on</span>
+                  <span className="text-[13px] md:text-sm font-black leading-none tracking-wider">Google Play</span>
+                </div>
+              </a>
+            </div>
           </div>
 
           {/* Column 2: Connect with Us */}
@@ -95,10 +106,10 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-4 border-t border-brand-pink/5 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="pt-3 border-t border-brand-pink/5 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex flex-col items-center md:items-start leading-none group transition-transform hover:scale-105">
             <span className="text-sm md:text-base font-black tracking-[0.2em] text-[#5C2E3E] uppercase" style={{ fontFamily: "'Cinzel Decorative', serif" }}>Saundarya</span>
-            <span className="text-[7px] md:text-[8px] tracking-[0.5em] text-[#5C2E3E]/60 uppercase mt-1 font-bold" style={{ fontFamily: "'Cinzel', serif" }}>Shringar</span>
+            <span className="text-[7px] md:text-[8px] tracking-[0.5em] text-[#5C2E3E]/60 uppercase mt-1 font-bold" style={{ fontFamily: "'Cinzel', serif" }}>Shringar Pvt Ltd</span>
           </div>
 
           <div className="flex gap-4 text-[8px] font-black uppercase tracking-widest text-[#2D1810]/40">
@@ -115,7 +126,7 @@ const Footer = () => {
               className="h-14 md:h-20 object-contain mix-blend-multiply opacity-95 transition-all hover:opacity-100 brightness-[1.1] contrast-[1.1]"
             />
             <p className="text-[8px] font-bold text-[#2D1810]/50 uppercase tracking-wider leading-none">
-              © 2026 Saundarya Shringar.
+              © 2026 Saundarya Shringar Pvt Ltd.
             </p>
           </div>
         </div>

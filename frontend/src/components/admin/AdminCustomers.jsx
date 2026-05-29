@@ -81,8 +81,8 @@ const AdminCustomers = () => {
             <p className="text-[8px] text-gray-400 font-black uppercase tracking-[0.2em]">Real-time Booking & Delivery Tracking</p>
           </div>
           <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-brand-pink/10 w-80 shadow-sm">
-             <FiSearch className="text-gray-300" size={14} />
-             <input type="text" placeholder="Search customers..." className="bg-transparent border-none outline-none text-[10px] font-bold uppercase w-full" />
+            <FiSearch className="text-gray-300" size={14} />
+            <input type="text" placeholder="Search customers..." className="bg-transparent border-none outline-none text-[10px] font-bold uppercase w-full" />
           </div>
         </div>
 

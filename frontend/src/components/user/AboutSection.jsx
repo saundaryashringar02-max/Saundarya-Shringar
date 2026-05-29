@@ -130,9 +130,9 @@ const AboutSection = () => {
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="space-y-3"
+              className="space-y-3 px-6 md:px-10"
             >
-              <h2 className="text-2xl md:text-4xl font-serif font-bold text-brand-dark italic">
+              <h2 className="text-2xl md:text-4xl font-serif font-bold text-brand-dark italic uppercase">
                 Our Vision
               </h2>
               <ul className="text-gray-600 leading-relaxed font-inter space-y-2">
@@ -152,9 +152,9 @@ const AboutSection = () => {
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="space-y-2"
+              className="space-y-2 px-6 md:px-10"
             >
-              <h2 className="text-2xl md:text-3xl font-serif font-bold text-brand-dark italic">
+              <h2 className="text-2xl md:text-3xl font-serif font-bold text-brand-dark italic uppercase">
                 Our Mission
               </h2>
               <ul className="text-gray-600 leading-relaxed font-inter space-y-2">
@@ -171,9 +171,9 @@ const AboutSection = () => {
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.5 }}
-              className="space-y-2"
+              className="space-y-2 px-6 md:px-10"
             >
-              <h2 className="text-2xl md:text-3xl font-serif font-bold text-brand-dark italic">
+              <h2 className="text-2xl md:text-3xl font-serif font-bold text-brand-dark italic uppercase">
                 What Makes Us Different
               </h2>
               <ul className="text-gray-600 leading-relaxed font-inter space-y-2">
@@ -190,9 +190,9 @@ const AboutSection = () => {
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
-              className="space-y-2"
+              className="space-y-2 px-6 md:px-10"
             >
-              <h2 className="text-2xl md:text-3xl font-serif font-bold text-brand-dark italic">
+              <h2 className="text-2xl md:text-3xl font-serif font-bold text-brand-dark italic uppercase">
                 Our Promise
               </h2>
               <p className="text-gray-600 leading-relaxed font-inter">

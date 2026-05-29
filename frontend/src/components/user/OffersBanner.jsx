@@ -1,16 +1,14 @@
 import { useShop } from '../../context/ShopContext';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-// Removed local import of offersVideo to fix cache error by using public folder directly
-const offersVideo = '/offers_video.mp4';
-
+// The video is now fetched dynamically from the database Banners API
 
 const OffersBanner = () => {
   const { banners } = useShop();
   const offer = banners.find(b => b.type === 'Offer' || b.type === 'Offers') || banners.find(b => b.type === 'Main Slider') || banners[0];
 
-  // We always want to show the video if it exists locally, regardless of backend banners
-  if (!offer && !offersVideo) return null;
+  // If no dynamic offer banner exists, don't show the section
+  if (!offer) return null;
 
   const displayOffer = offer || {
     title: "Exclusive Divine Offers",
@@ -25,18 +23,7 @@ const OffersBanner = () => {
     <section className="py-12 md:py-20 bg-brand-pink/10">
       <div className="container mx-auto px-4 md:px-8">
         <div className="relative rounded-none overflow-hidden h-[400px] md:h-[450px] shadow-2xl group">
-          {offersVideo ? (
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105"
-            >
-              <source src={offersVideo} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-          ) : isVideo ? (
+          {isVideo ? (
             <video
               autoPlay
               loop

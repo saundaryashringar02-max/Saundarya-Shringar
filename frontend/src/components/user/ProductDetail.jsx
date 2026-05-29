@@ -54,7 +54,7 @@ const CouponModal = ({ onClose, onApply }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-brand-dark text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all disabled:opacity-50"
+            className="w-full bg-brand-dark text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-pink transition-all disabled:opacity-50"
           >
             {loading ? 'Validating...' : 'Apply Coupon'}
           </button>
@@ -203,6 +203,7 @@ const ProductDetail = () => {
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
   const [reviewLoading, setReviewLoading] = useState(true);
+  const [visibleReviews, setVisibleReviews] = useState(5);
   const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false);
   const [isSizeChartOpen, setIsSizeChartOpen] = useState(false);
   const [selectedPolicyTab, setSelectedPolicyTab] = useState('Genuine');
@@ -211,7 +212,7 @@ const ProductDetail = () => {
   const fetchAvailableCoupons = async () => {
     try {
       const res = await api.get('/coupons/public');
-      setAvailableCoupons(res.data.data.coupons.filter(c => c.isActive));
+      setAvailableCoupons(res.data.data.coupons);
     } catch (err) {
       console.error("Failed to fetch divine offers:", err);
     }
@@ -281,6 +282,7 @@ const ProductDetail = () => {
     setAppliedCoupon(null);
     setCouponInput('');
     setSelectedSize(null); // Reset size when changing product
+    setVisibleReviews(5); // Reset visible reviews
 
     if (id) {
       fetchReviews();
@@ -360,6 +362,11 @@ const ProductDetail = () => {
     setIsCartDrawerOpen(false);
     navigate('/checkout', { state: { directProduct: directProductData } });
   };
+
+  const totalReviewsCount = reviews.length;
+  const dynamicRating = totalReviewsCount > 0 
+    ? (reviews.reduce((acc, curr) => acc + curr.rating, 0) / totalReviewsCount).toFixed(1) 
+    : Number(product.rating || 5.0).toFixed(1);
 
   return (
     <div className="min-h-screen bg-white pb-10 pt-0 font-sans focus:outline-none">
@@ -582,60 +589,59 @@ const ProductDetail = () => {
             </div>
 
             {/* Available Offers Grid - Replacing Manual Input */}
-            <div className="space-y-4">
-              <h3 className="text-[9px] font-black text-[#5C2E3E]/60 uppercase tracking-[0.3em] flex items-center gap-2">
-                Available Offers
-              </h3>
+            {availableCoupons && availableCoupons.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="text-[9px] font-black text-[#5C2E3E]/60 uppercase tracking-[0.3em] flex items-center gap-2">
+                  Available Offers
+                </h3>
 
-              <div className="grid grid-cols-2 gap-3">
-                {(availableCoupons.length > 0 ? availableCoupons.slice(0, 2) : [
-                  { code: 'SAUNDARYA10', discountValue: 10, discountType: 'percentage', _id: 'def1' },
-                  { code: 'WELCOME20', discountValue: 50, discountType: 'fixed', _id: 'def2' }
-                ]).map((coupon) => (
-                  <div
-                    key={coupon._id}
-                    className={`bg-white border rounded-xl p-4 flex flex-col justify-between relative overflow-hidden transition-all duration-300 ${appliedCoupon?.code === coupon.code
-                      ? 'border-brand-pink ring-2 ring-brand-pink/5 shadow-inner bg-brand-pink/[0.01]'
-                      : 'border-gray-100 hover:border-brand-pink/20 hover:shadow-lg hover:shadow-brand-pink/5'
-                      }`}
-                  >
-                    {/* Header: Code & Label */}
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-xs font-black text-[#5C2E3E] tracking-tight">{coupon.code}</span>
-                      <span className="text-[6px] font-black text-gray-300 uppercase tracking-widest border border-gray-100 px-1 rounded-sm">Coupon</span>
+                <div className="grid grid-cols-2 gap-3">
+                  {availableCoupons.slice(0, 2).map((coupon) => (
+                    <div
+                      key={coupon._id}
+                      className={`bg-white border rounded-xl p-4 flex flex-col justify-between relative overflow-hidden transition-all duration-300 ${appliedCoupon?.code === coupon.code
+                        ? 'border-brand-pink ring-2 ring-brand-pink/5 shadow-inner bg-brand-pink/[0.01]'
+                        : 'border-gray-100 hover:border-brand-pink/20 hover:shadow-lg hover:shadow-brand-pink/5'
+                        }`}
+                    >
+                      {/* Header: Code & Label */}
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="text-xs font-black text-[#5C2E3E] tracking-tight">{coupon.code}</span>
+                        <span className="text-[6px] font-black text-gray-300 uppercase tracking-widest border border-gray-100 px-1 rounded-sm">Coupon</span>
+                      </div>
+
+                      {/* Description */}
+                      <p className="text-[8px] text-gray-400 font-bold uppercase tracking-tighter leading-tight mb-4 min-h-[16px]">
+                        Flat {coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `₹${coupon.discountValue}`} Off on orders...
+                      </p>
+
+                      {/* Footer: Apply Action */}
+                      <div className="flex items-center justify-between mt-auto">
+                        <button
+                          onClick={() => {
+                            if (appliedCoupon?.code !== coupon.code) {
+                              setAppliedCoupon(coupon);
+                            }
+                          }}
+                          className={`text-[8px] font-black uppercase tracking-widest transition-all ${appliedCoupon?.code === coupon.code
+                            ? 'text-green-500'
+                            : 'text-brand-pink hover:bg-brand-pink hover:text-white border border-transparent hover:border-brand-pink px-2 py-1 rounded-md'
+                            }`}
+                        >
+                          {appliedCoupon?.code === coupon.code ? 'APPLIED' : 'APPLY'}
+                        </button>
+
+                        {appliedCoupon?.code === coupon.code && (
+                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-green-500">
+                            <FiCheckCircle size={10} strokeWidth={3} />
+                          </motion.div>
+                        )}
+                      </div>
                     </div>
-
-                    {/* Description */}
-                    <p className="text-[8px] text-gray-400 font-bold uppercase tracking-tighter leading-tight mb-4 min-h-[16px]">
-                      Flat {coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `₹${coupon.discountValue}`} Off on orders...
-                    </p>
-
-                    {/* Footer: Apply Action */}
-                    <div className="flex items-center justify-between mt-auto">
-                      <button
-                        onClick={() => {
-                          if (appliedCoupon?.code !== coupon.code) {
-                            setAppliedCoupon(coupon);
-                          }
-                        }}
-                        className={`text-[8px] font-black uppercase tracking-widest transition-all ${appliedCoupon?.code === coupon.code
-                          ? 'text-green-500'
-                          : 'text-brand-pink hover:bg-brand-pink hover:text-white border border-transparent hover:border-brand-pink px-2 py-1 rounded-md'
-                          }`}
-                      >
-                        {appliedCoupon?.code === coupon.code ? 'APPLIED' : 'APPLY'}
-                      </button>
-
-                      {appliedCoupon?.code === coupon.code && (
-                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-green-500">
-                          <FiCheckCircle size={10} strokeWidth={3} />
-                        </motion.div>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Icons - Grid style */}
             <div className="grid grid-cols-4 gap-2 py-4 border-y border-gray-100 bg-gray-50/30 rounded-lg px-2">
@@ -657,6 +663,18 @@ const ProductDetail = () => {
                 </button>
               ))}
             </div>
+
+            {/* Product Description */}
+            {product.description && (
+              <div className="space-y-3 pt-2">
+                <h3 className="text-sm font-black text-brand-dark uppercase tracking-widest flex items-center gap-2">
+                  <div className="w-1 h-4 bg-brand-gold" /> Description
+                </h3>
+                <p className="text-xs md:text-sm text-gray-600 leading-relaxed font-serif">
+                  {product.description}
+                </p>
+              </div>
+            )}
 
             {/* Bullet Points */}
             {Array.isArray(product.about) && product.about.length > 0 && (
@@ -680,28 +698,28 @@ const ProductDetail = () => {
 
         </div>
 
-        {/* Global Feedback Section - New High-End Experience */}
-        <div className="mt-20 border-t border-gray-100 pt-16 max-w-5xl mx-auto pb-20">
-          <div className="flex flex-col md:flex-row justify-between items-start gap-12">
+        {/* Global Feedback Section - Simplified Single Column */}
+        <div className="mt-20 border-t border-gray-100 pt-16 max-w-4xl mx-auto pb-20">
+          <div className="flex flex-col">
 
-            {/* Left Col: Aggregate Rating */}
-            <div className="w-full md:w-1/3">
+            {/* Top Area: Aggregate Rating & Write Review */}
+            <div className="w-full">
               <h3 className="text-xl font-serif font-black text-brand-dark uppercase tracking-widest mb-2">Verified Insights</h3>
               <div className="flex items-center gap-3 mb-1">
                 <div className="flex items-center gap-0.5">
                   {[...Array(5)].map((_, i) => (
-                    <FiStar key={i} className={`w-4 h-4 ${i < Math.floor(product.rating) ? 'fill-brand-gold text-brand-gold' : 'text-gray-200'}`} />
+                    <FiStar key={i} className={`w-4 h-4 ${i < Math.floor(dynamicRating) ? 'fill-brand-gold text-brand-gold' : 'text-gray-200'}`} />
                   ))}
                 </div>
-                <span className="text-lg font-black text-brand-dark">{Number(product.rating).toFixed(1)} / 5.0</span>
+                <span className="text-lg font-black text-brand-dark">{dynamicRating} / 5.0</span>
               </div>
-              <p className="text-xs text-gray-400 font-medium mb-6">Global Ratings & Testimony</p>
+              <p className="text-xs text-gray-400 font-medium mb-6">{totalReviewsCount} Global Ratings & Testimony</p>
 
 
 
               {/* Write Review Trigger */}
               {canSubmitReview && (
-                <div className="bg-brand-pink/5 p-6 rounded-2xl border border-brand-pink/10">
+                <div className="bg-brand-pink/5 p-6 rounded-2xl border border-brand-pink/10 mt-6 mb-8">
                   <h4 className="text-[10px] font-black text-brand-pink uppercase tracking-widest mb-4 flex items-center gap-2">
                     <FiCheckCircle size={12} /> Verified Owner Recognition
                   </h4>
@@ -739,42 +757,54 @@ const ProductDetail = () => {
               )}
             </div>
 
-            {/* Right Col: Individual Reviews */}
-            <div className="w-full md:w-2/3 space-y-10">
+            {/* Bottom Area: Individual Reviews */}
+            <div className="w-full space-y-8 mt-8 border-t border-gray-50 pt-8">
               {reviewLoading ? (
                 <div className="animate-pulse space-y-8">
                   {[1, 2].map(i => <div key={i} className="h-24 bg-gray-50 rounded-2xl" />)}
                 </div>
               ) : reviews.length > 0 ? (
-                reviews.map((r, i) => (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                    key={r._id}
-                    className="border-b border-gray-50 pb-8 last:border-0"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-brand-light/50 rounded-full flex items-center justify-center text-brand-dark font-black text-[10px] uppercase shadow-inner">
-                          {r.user?.name?.charAt(0) || 'A'}
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-black text-brand-dark uppercase tracking-widest">{r.user?.name || 'Verified Beauty'}</p>
-                          <div className="flex items-center gap-0.5 text-brand-gold">
-                            {[...Array(5)].map((_, idx) => (
-                              <FiStar key={idx} size={8} className={idx < r.rating ? 'fill-current' : 'text-gray-200'} />
-                            ))}
+                <>
+                  {reviews.slice(0, visibleReviews).map((r, i) => (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      key={r._id}
+                      className="border-b border-gray-50 pb-8 last:border-0"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-brand-light/50 rounded-full flex items-center justify-center text-brand-dark font-black text-[10px] uppercase shadow-inner">
+                            {r.user?.name?.charAt(0) || 'A'}
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black text-brand-dark uppercase tracking-widest">{r.user?.name || 'Verified Beauty'}</p>
+                            <div className="flex items-center gap-0.5 text-brand-gold">
+                              {[...Array(5)].map((_, idx) => (
+                                <FiStar key={idx} size={8} className={idx < r.rating ? 'fill-current' : 'text-gray-200'} />
+                              ))}
+                            </div>
                           </div>
                         </div>
+                        <span className="text-[8px] font-bold text-gray-300 uppercase tracking-tighter">
+                          Verified Purchase • {new Date(r.createdAt).toLocaleDateString()}
+                        </span>
                       </div>
-                      <span className="text-[8px] font-bold text-gray-300 uppercase tracking-tighter">
-                        Verified Purchase • {new Date(r.createdAt).toLocaleDateString()}
-                      </span>
+                      <p className="text-xs md:text-sm text-gray-600 leading-relaxed font-serif italic">"{r.review}"</p>
+                    </motion.div>
+                  ))}
+                  {visibleReviews < reviews.length && (
+                    <div className="pt-4 flex justify-center">
+                      <button 
+                        onClick={() => setVisibleReviews(prev => prev + 5)}
+                        className="border border-brand-dark text-brand-dark px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-brand-dark hover:text-white transition-all"
+                      >
+                        See More Reviews
+                      </button>
                     </div>
-                    <p className="text-xs md:text-sm text-gray-600 leading-relaxed font-serif italic">"{r.review}"</p>
-                  </motion.div>
-                ))
+                  )}
+                </>
               ) : (
                 <div className="text-center py-20 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
                   <FiMessageSquare className="mx-auto text-gray-200 mb-4" size={40} />
