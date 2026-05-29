@@ -713,7 +713,7 @@ const ProductDetail = () => {
                 </div>
                 <span className="text-lg font-black text-brand-dark">{dynamicRating} / 5.0</span>
               </div>
-              <p className="text-xs text-gray-400 font-medium mb-6">{totalReviewsCount} Global Ratings & Testimony</p>
+              <p className="text-xs text-gray-400 font-medium mb-6">Global Ratings & Testimony</p>
 
 
 
