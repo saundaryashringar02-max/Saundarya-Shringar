@@ -13,7 +13,10 @@ const bannerSchema = new mongoose.Schema({
     },
     image: {
         type: String,
-        required: [true, 'Asset URL is required']
+        required: [
+            function() { return this.type !== 'AppPromo'; },
+            'Asset URL is required'
+        ]
     },
     isVideo: {
         type: Boolean,

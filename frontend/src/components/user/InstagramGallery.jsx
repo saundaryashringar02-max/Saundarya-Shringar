@@ -3,7 +3,14 @@ import { FiInstagram } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import api from '../../utils/api';
 
-const instagramUrl = "https://www.instagram.com/saundaryashringarpvtltd/";
+const instagramUrl = "https://www.instagram.com/saundaryashringarpvtltd?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==";
+
+const getInstagramPostLink = (postLink) => {
+  if (!postLink || postLink === "https://instagram.com" || postLink === "https://www.instagram.com" || postLink === "https://instagram.com/") {
+    return instagramUrl;
+  }
+  return postLink;
+};
 
 const InstagramGallery = () => {
   const [dynamicInsta, setDynamicInsta] = useState([]);
@@ -34,16 +41,23 @@ const InstagramGallery = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-4 group"
         >
-          <FiInstagram size={24} className="mx-auto mb-1 text-brand-gold transition-transform group-hover:scale-110" />
-          <h2 className="text-sm md:text-base font-serif font-black text-brand-dark uppercase tracking-widest group-hover:text-brand-gold transition-colors">Follow Our Journey</h2>
-          <div className="w-10 h-0.5 bg-brand-gold mx-auto"></div>
+          <a
+            href={instagramUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block cursor-pointer animate-fade-in"
+          >
+            <FiInstagram size={24} className="mx-auto mb-1 text-brand-gold transition-transform group-hover:scale-110" />
+            <h2 className="text-sm md:text-base font-serif font-black text-brand-dark uppercase tracking-widest group-hover:text-brand-gold transition-colors">Follow Our Journey</h2>
+            <div className="w-10 h-0.5 bg-brand-gold mx-auto group-hover:w-16 transition-all duration-300"></div>
+          </a>
         </motion.div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
           {dynamicInsta.map((item, index) => (
             <motion.a
               key={item._id}
-              href={item.link || instagramUrl}
+              href={getInstagramPostLink(item.link)}
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 0.98 }}

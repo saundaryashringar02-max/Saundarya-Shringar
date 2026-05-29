@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { useShop } from '../../context/ShopContext';
 import logo from '../../assets/images/logo.png';
 import logoPink from '../../assets/images/logo_pink.png';
+import appPromoLuxBg from '../../assets/images/app_promo_lux_bg.png';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -55,17 +56,25 @@ const HeroCarousel = () => {
     ? banners.filter(b => b.type === 'Main Slider')
     : banners.slice(0, 5);
 
-  const appPromoSlide = {
+  const dynamicAppPromoSlides = banners.filter(b => b.type === 'AppPromo').map(b => ({
+    ...b,
+    isAppPromo: true
+  }));
+
+  const fallbackAppPromoSlide = {
     _id: 'app-promo-custom',
     title: 'Beauty At Your\nFingertips',
     subtitle: 'DOWNLOAD OUR APP',
+    description: 'Download the Saundarya Shringar app for a faster shopping experience.',
     type: 'AppPromo',
     image: '', // No background image, we'll use a custom background
-    link: '#',
+    link: 'https://play.google.com/store/apps/details?id=com.company.saundarya_shringar',
     isAppPromo: true
   };
 
-  const mainSlides = [...dynamicSlides, appPromoSlide];
+  const appPromoSlidesToUse = dynamicAppPromoSlides.length > 0 ? dynamicAppPromoSlides : [fallbackAppPromoSlide];
+
+  const mainSlides = [...dynamicSlides, ...appPromoSlidesToUse];
 
   if (loading && banners.length === 0) {
     return <div className="w-full h-[450px] md:h-[500px] bg-gray-100 animate-pulse" />;
@@ -84,8 +93,18 @@ const HeroCarousel = () => {
       >
         {mainSlides.map((slide, index) => (
           <SwiperSlide key={slide._id || index}>
-            <div className={`relative h-full w-full overflow-hidden flex items-center ${slide.isAppPromo ? 'bg-gradient-to-r from-brand-dark to-[#4A2226]' : 'bg-white'}`}>
-              {!slide.isAppPromo ? (
+            <div className={`relative h-full w-full overflow-hidden flex items-center ${slide.isAppPromo ? 'bg-[#2A1416]' : 'bg-white'}`}>
+              {slide.isAppPromo ? (
+                <>
+                  <img
+                    src={slide.image || appPromoLuxBg}
+                    alt={slide.title || "Saundarya App Promotion"}
+                    className="absolute inset-0 w-full h-full object-cover object-right-bottom sm:object-right md:object-center z-0 opacity-100"
+                  />
+                  {/* Luxury red/burgundy gradient to keep text readable on left and reveal products on right */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#2A1416]/95 via-[#2A1416]/75 md:via-[#2A1416]/40 to-transparent z-10" />
+                </>
+              ) : (
                 <>
                   <img
                     src={slide.image}
@@ -94,11 +113,6 @@ const HeroCarousel = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/30 to-transparent z-10" />
                 </>
-              ) : (
-                <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
-                  <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[100%] bg-brand-gold/10 rounded-full blur-[100px]" />
-                  <div className="absolute bottom-[-10%] left-[-10%] w-[30%] h-[60%] bg-brand-pink/10 rounded-full blur-[80px]" />
-                </div>
               )}
 
               <div className={`container mx-auto px-4 md:px-20 lg:px-32 relative z-20 h-full flex flex-row items-center justify-between py-4 md:py-0`}>
@@ -114,9 +128,18 @@ const HeroCarousel = () => {
                         {slide.subtitle}
                       </span>
                     )}
-                    <h2 className={`text-xl sm:text-2xl md:text-5xl lg:text-6xl font-serif font-black tracking-tighter leading-[1.1] mb-1 italic ${slide.isAppPromo ? 'text-white' : 'text-brand-dark'} whitespace-pre-line`}
-                      style={{ fontFamily: slide.isAppPromo ? "'Cinzel Decorative', serif" : "'Cinzel', serif", textShadow: slide.isAppPromo ? 'none' : '2px 2px 4px rgba(255,255,255,0.8)' }}>
-                      {slide.title}
+                    <h2 className={`text-xl sm:text-2xl md:text-5xl lg:text-6xl font-serif font-black tracking-tighter leading-[1.1] mb-1 uppercase ${slide.isAppPromo ? 'text-white' : 'text-brand-dark'} whitespace-pre-line`}
+                      style={{ fontFamily: "'Cinzel', serif", textShadow: slide.isAppPromo ? 'none' : '2px 2px 4px rgba(255,255,255,0.8)' }}>
+                      {slide.isAppPromo ? (
+                        <>
+                          <span className="text-white">{slide.title?.split(/\\n|\n/)[0] || slide.title || 'Beauty At'} </span>
+                          <span className="block text-[#FFE07D] bg-gradient-to-r from-[#FFF0BD] via-[#FFE07D] to-[#D4AF37] bg-clip-text text-transparent drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">
+                            {slide.title?.split(/\\n|\n/).slice(1).join('\n') || 'Your Fingertips'}
+                          </span>
+                        </>
+                      ) : (
+                        slide.title
+                      )}
                     </h2>
 
                     {!slide.isAppPromo && (
@@ -128,7 +151,7 @@ const HeroCarousel = () => {
 
                     {slide.isAppPromo ? (
                       <p className="hidden sm:block text-[10px] md:text-base text-white/70 max-w-[200px] md:max-w-md font-sans mb-2">
-                        Download the Saundarya Shringar app for a faster shopping experience.
+                        {slide.description || 'Download the Saundarya Shringar app for a faster shopping experience.'}
                       </p>
                     ) : (
                       <div className="flex items-center justify-start gap-4 mb-4 mt-2 text-[9px] md:text-xs font-serif font-black text-brand-dark uppercase tracking-[0.2em]">
@@ -142,7 +165,7 @@ const HeroCarousel = () => {
                       <div className="flex flex-col sm:flex-row gap-2 mt-2 md:mt-4 items-start">
                         {/* Google Play Button */}
                         <a
-                          href="https://play.google.com/store/search?q=Saundarya+Shringar&c=apps"
+                          href={slide.link || "https://play.google.com/store/apps/details?id=com.company.saundarya_shringar"}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="hover:scale-105 transition-transform"
@@ -158,20 +181,6 @@ const HeroCarousel = () => {
                             </g>
                             <text x="62" y="28" fill="#fff" fontSize="12" fontStyle="italic" opacity="0.8">GET IT ON</text>
                             <text x="62" y="48" fill="#fff" fontSize="20" fontWeight="bold">Google Play</text>
-                          </svg>
-                        </a>
-
-                        {/* App Store Button */}
-                        <a
-                          href="#"
-                          className="hover:scale-105 transition-transform"
-                        >
-                          <svg width="100" height="30" viewBox="0 0 216 64" className="w-[85px] sm:w-[100px] md:w-[130px] h-auto">
-                            <rect width="216" height="64" rx="8" fill="#000" stroke="#333" strokeWidth="1" />
-                            {/* Realistic Apple Icon */}
-                            <path d="M42 34.1c-.1 4.7 4.1 6.9 4.3 7-.1.2-.7 2.2-2.2 4.4-1.3 1.9-2.6 3.8-4.8 3.8-2.1 0-2.8-1.3-5.2-1.3s-3.2 1.3-5.2 1.3c-2 0-3.5-2.1-4.8-4.1-2.7-3.9-4.8-11-2-15.8 1.4-2.4 3.8-3.9 6.4-3.9 2 0 3.9 1.4 5.1 1.4 1.1 0 3.5-1.7 6-1.4 1 .1 3.9.4 5.8 3.1-.1.1-3.5 2-3.4 5.7M37.8 23.1c1.1-1.4 1.9-3.3 1.7-5.3-1.7.1-3.7 1.1-4.9 2.6-1 1.2-2 3.1-1.8 5 1.9.1 3.8-1 5-2.3" fill="#fff" transform="translate(10, -5) scale(0.9)" />
-                            <text x="62" y="28" fill="#fff" fontSize="12" fontStyle="italic" opacity="0.8">Download on the</text>
-                            <text x="62" y="48" fill="#fff" fontSize="20" fontWeight="bold">App Store</text>
                           </svg>
                         </a>
                       </div>

@@ -69,7 +69,7 @@ const AdminBanners = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.image) return alert('Please upload an asset.');
+    if (!form.image && form.type !== 'AppPromo') return alert('Please upload an asset.');
 
     setLoading(true);
     try {
@@ -217,7 +217,7 @@ const AdminBanners = () => {
             <div key={banner._id} className="bg-white rounded-none border border-brand-pink/10 shadow-sm group relative overflow-hidden">
               <div className="p-1">
                 <div className="relative aspect-[21/9] bg-brand-light overflow-hidden rounded-none">
-                  <img src={banner.image} alt={banner.title} className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all group-hover:scale-105" />
+                  <img src={banner.image || 'https://placehold.co/1920x800/2A1416/FFF?text=App+Promo+Banner'} alt={banner.title} className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all group-hover:scale-105" />
                   <div className="absolute top-1 left-1 flex gap-1">
                     <span className="bg-brand-dark/80 text-white text-[5px] font-black px-1 py-0.5 rounded-none uppercase tracking-widest backdrop-blur-sm">{banner.type}</span>
                   </div>

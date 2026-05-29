@@ -5,7 +5,7 @@ import { FiArrowRight, FiZap, FiClock } from 'react-icons/fi';
 
 // Import New Generated Assets
 import offerMakeup from '../../assets/images/offer_makeup.png';
-import offerJewellery from '../../assets/images/offer_jewellery.png';
+import offerHaircare from '../../assets/images/offer_haircare.png';
 import offerSkincare from '../../assets/images/offer_skincare.png';
 import offerSoaps from '../../assets/images/offer_soaps.png';
 
@@ -44,11 +44,11 @@ const offers = [
   },
   {
     id: 2,
-    title: 'Artificial Jewellery Sale',
-    subtitle: 'Starting @ ₹200 only',
-    image: offerJewellery,
-    link: '/shop?category=Artificial Jewellery',
-    tag: 'Limited Stock'
+    title: 'Haircare Luxury',
+    subtitle: 'Up to 40% Off on Oils & Shampoos',
+    image: offerHaircare,
+    link: '/shop?category=Haircare',
+    tag: 'Highly Rated'
   },
   {
     id: 3,

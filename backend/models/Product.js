@@ -102,10 +102,17 @@ productSchema.index({ name: 'text', brand: 'text', description: 'text', category
 
 // MIDDLEWARE: Logic to normalize pricing and add shipping charge
 productSchema.pre('save', async function () {
-    if (this.isModified('price') || this.isModified('basePrice') || this.isNew) {
-        const Settings = mongoose.model('Settings');
-        let settings = await Settings.findOne({ type: 'global' });
-        const deliveryCharge = settings ? settings.deliveryCharge : 50;
+    if (this.isModified('price') || this.isModified('basePrice') || this.isNew || this.isModified('oldPrice')) {
+        let deliveryCharge = 50;
+        try {
+            if (mongoose.models.Settings) {
+                const Settings = mongoose.model('Settings');
+                let settings = await Settings.findOne({ type: 'global' });
+                if (settings) deliveryCharge = settings.deliveryCharge;
+            }
+        } catch (err) {
+            // ignore if model not registered yet
+        }
 
         // 1. Determine base price (if user updated 'price', consider it the new base)
         const base = this.isModified('price') && !this.isModified('basePrice') ? this.price : (this.basePrice || this.price);
@@ -124,7 +131,10 @@ productSchema.pre('save', async function () {
         this.price = this.finalPrice;
 
         // 5. Update discount/oldPrice for UI
-        if (base > this.finalPrice) {
+        if (this.oldPrice && this.oldPrice > this.price) {
+            const discPerc = Math.round(((this.oldPrice - this.price) / this.oldPrice) * 100);
+            this.discount = `${discPerc}% OFF`;
+        } else if (base > this.finalPrice) {
             const discPerc = Math.round(((base - this.finalPrice) / base) * 100);
             this.discount = `${discPerc}% OFF`;
             this.oldPrice = base;
