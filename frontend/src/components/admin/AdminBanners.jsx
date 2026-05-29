@@ -299,8 +299,8 @@ const AdminBanners = () => {
           </div>
               </section>
 
-        {/* VIDEO BANNERS SECTION */ }
-              < section >
+        {/* VIDEO BANNERS SECTION */}
+        <section>
           <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-2">
             <h2 className="text-sm font-black uppercase tracking-widest text-brand-dark">Promotional Videos</h2>
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{banners.filter(b => b.isVideo || b.image?.match(/\.(mp4|webm|ogg)$/i)).length} Assets</span>
