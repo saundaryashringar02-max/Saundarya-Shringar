@@ -135,7 +135,7 @@ const ShippingPolicy = () => {
             <a href="mailto:saundaryashringar02@gmail.com" className="flex items-center gap-3 text-sm text-brand-dark hover:text-brand-pink transition-colors">
               <FiMail className="text-brand-pink" /> saundaryashringar02@gmail.com
             </a>
-            <a href="https://wa.me/919896472169" className="flex items-center gap-3 text-sm text-brand-dark hover:text-brand-pink transition-colors">
+            <a href="https://api.whatsapp.com/send?phone=919896472169" target="_blank" rel="noreferrer" className="flex items-center gap-3 text-sm text-brand-dark hover:text-brand-pink transition-colors">
               <FiPhone className="text-brand-pink" /> +91-9896472169
             </a>
           </div>

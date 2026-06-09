@@ -318,6 +318,16 @@ const ProductDetail = () => {
 
   const finalPrice = calculateDiscountedPrice();
 
+  const getDynamicDiscount = () => {
+    if (product.oldPrice && product.price && product.oldPrice > product.price) {
+      return `${Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)}%`;
+    }
+    if (product.discount) {
+      return product.discount.replace(' OFF', '');
+    }
+    return '29%';
+  };
+
   const handleAddToCart = (e) => {
     const validSizes = Array.isArray(product.sizes) ? product.sizes : [];
     if (validSizes.length > 0 && !selectedSize) {
@@ -451,8 +461,8 @@ const ProductDetail = () => {
 
             <div className="py-2 flex flex-col xl:flex-row xl:items-center justify-start gap-10 xl:gap-24 border-b border-gray-100 pb-5">
               <div>
-                <div className="flex items-center gap-3 mb-1">
-                  <span className="text-brand-pink text-3xl font-medium">-{product.discount || '29%'}</span>
+                 <div className="flex items-center gap-3 mb-1">
+                  <span className="text-brand-pink text-3xl font-medium">-{getDynamicDiscount()}</span>
                   <div className="flex flex-col">
                     {appliedCoupon && (
                       <span className="text-gray-400 line-through text-xs font-bold font-sans">₹{product.price}</span>
@@ -465,7 +475,7 @@ const ProductDetail = () => {
                 </div>
                 <div className="flex flex-col gap-1">
                   <p className="text-gray-500 text-xs font-medium">
-                    M.R.P.: <span className="line-through">₹{product.oldPrice || product.price + 225}</span>
+                    M.R.P.: <span className="line-through">₹{product.oldPrice || Math.round(product.price * 1.35)}</span>
                   </p>
                   <p className="text-[11px] text-gray-500 leading-tight">
                     FREE delivery <span className="text-brand-dark font-bold">
@@ -703,7 +713,7 @@ const ProductDetail = () => {
                 </div>
                 <span className="text-lg font-black text-brand-dark">{dynamicRating} / 5.0</span>
               </div>
-              <p className="text-xs text-gray-400 font-medium mb-6">{totalReviewsCount} Global Ratings & Testimony</p>
+              <p className="text-xs text-gray-400 font-medium mb-6">Global Ratings & Testimony</p>
 
 
 

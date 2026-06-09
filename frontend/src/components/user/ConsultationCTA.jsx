@@ -34,7 +34,7 @@ const ConsultationCTA = () => {
               Book Ritual
             </button>
             <a 
-              href="https://wa.me/919896472169?text=Hello%20Saundarya%20Shringar,%20I%20have%20an%20inquiry%20regarding%20your%20products."
+              href="https://api.whatsapp.com/send?phone=919896472169&text=Hello%20Saundarya%20Shringar,%20I%20have%20an%20inquiry%20regarding%20your%20products."
               target="_blank"
               rel="noreferrer"
               className="w-full sm:w-auto bg-white/5 text-white backdrop-blur-md px-8 py-3 rounded-full font-bold uppercase tracking-widest text-[9px] border border-white/10 text-center"

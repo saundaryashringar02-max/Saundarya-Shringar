@@ -313,7 +313,7 @@ const PrivacyPolicy = () => {
             </div>
             <div>
               <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">WhatsApp</p>
-              <a href="https://wa.me/919896472169" className="text-sm text-brand-dark hover:text-brand-pink transition-colors">+91-9896472169</a>
+              <a href="https://api.whatsapp.com/send?phone=919896472169" target="_blank" rel="noreferrer" className="text-sm text-brand-dark hover:text-brand-pink transition-colors">+91-9896472169</a>
             </div>
             <div>
               <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">Address</p>

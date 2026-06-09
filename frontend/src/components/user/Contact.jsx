@@ -143,7 +143,7 @@ const Contact = () => {
 
                 {/* Float CTA */}
                 <motion.a
-                  href="https://wa.me/919896472169"
+                  href="https://api.whatsapp.com/send?phone=919896472169"
                   target="_blank"
                   rel="noreferrer"
                   whileHover={{ scale: 1.05 }}
