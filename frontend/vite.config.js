@@ -7,13 +7,6 @@ export default defineConfig({
   root: '.',
   build: {
     chunkSizeWarningLimit: 2000,
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      },
-    },
     rollupOptions: {
       output: {
         manualChunks: (id) => {
@@ -60,18 +53,9 @@ export default defineConfig({
             return 'policy-cancel';
           }
 
-          // Admin - each major component separate
-          if (id.includes('admin/AdminDashboard')) {
-            return 'admin-dashboard';
-          }
-          if (id.includes('admin/AdminProducts')) {
-            return 'admin-products';
-          }
-          if (id.includes('admin/AdminOrders')) {
-            return 'admin-orders';
-          }
-          if (id.includes('admin/Admin')) {
-            return 'admin-other';
+          // Admin - keep simple to avoid circular deps
+          if (id.includes('admin')) {
+            return 'admin';
           }
 
           // User pages
