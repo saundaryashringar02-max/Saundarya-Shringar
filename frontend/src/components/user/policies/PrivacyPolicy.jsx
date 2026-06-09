@@ -163,7 +163,7 @@ const PrivacyPolicy = () => {
             <FiClock className={iconStyle} size={20} />
             <h2>11. Data Retention</h2>
           </div>
-          <p className={paragraphStyle}>Account information: Duration + 2 years after closure. Order & transaction data: 7 years (per Indian tax law). Closed accounts: 2 years. Return disputes: 3 years minimum. Data deletion requests processed within 30 days where legally permissible.</p>
+          <p className={paragraphStyle}>We retain your personal and customer data only for as long as necessary to provide our services and fulfill the purposes outlined in this Privacy Policy. Specifically: Account information and general customer data are retained for the active duration of the account plus 2 years after closure. Order and transaction data are kept for 7 years as required by Indian tax law. Data related to return disputes is retained for a minimum of 3 years. Data deletion requests are processed within 30 days where legally permissible.</p>
         </section>
 
         {/* 12. Your Rights */}
