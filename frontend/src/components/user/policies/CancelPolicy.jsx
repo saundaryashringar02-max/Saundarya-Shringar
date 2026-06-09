@@ -8,6 +8,16 @@ const CancelPolicy = () => {
           Cancellation Policy
         </h1>
 
+        <div className="text-center mb-8 pb-6 border-b-2 border-brand-pink/20">
+          <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-brand-pink mb-2">Legal Entity</p>
+          <p className="text-lg md:text-xl font-serif font-black text-brand-dark tracking-wider">
+            SAUNDARYA SHRINGAR PRIVATE LIMITED
+          </p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-brand-dark/60 mt-3">
+            CIN: U47722HR2026PTC142451
+          </p>
+        </div>
+
         <div className="space-y-6 text-brand-dark/70 font-sans leading-relaxed text-[13px] md:text-sm">
           <section>
             <h2 className="text-xs md:text-sm font-black text-brand-dark uppercase tracking-widest mb-2 flex items-center gap-2">
@@ -46,7 +56,7 @@ const CancelPolicy = () => {
           </section>
 
           <div className="mt-8 p-4 bg-brand-pink/5 border-l-2 border-brand-gold italic text-[12px] opacity-80">
-            "We strive to provide a seamless shopping experience. For any queries regarding your order status, please reach out to us at care@saundaryashringar.com"
+            "We strive to provide a seamless shopping experience. For any queries regarding your order status, please reach out to us at saundaryashringar02@gmail.com"
           </div>
         </div>
       </div>
