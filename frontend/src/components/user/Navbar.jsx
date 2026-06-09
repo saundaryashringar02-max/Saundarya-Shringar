@@ -137,7 +137,7 @@ const Navbar = () => {
                           initial={{ opacity: 0, y: 10, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          className="absolute right-0 mt-3 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden"
+                          className="fixed top-[64px] left-2 right-2 md:absolute md:top-full md:right-0 md:left-auto md:mt-3 md:w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 z-[60] overflow-hidden"
                         >
                           <div className="bg-brand-dark p-4 flex justify-between items-center">
                             <h3 className="text-[10px] font-black uppercase text-white tracking-widest">Ritual Alerts</h3>
