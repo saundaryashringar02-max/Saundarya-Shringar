@@ -6,28 +6,70 @@ export default defineConfig({
   plugins: [react()],
   root: '.',
   build: {
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 1500,
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Policy pages as separate chunks
-          'policies': [
-            './src/components/user/policies/TermsAndConditions.jsx',
-            './src/components/user/policies/PrivacyPolicy.jsx',
-            './src/components/user/policies/ReturnPolicy.jsx',
-            './src/components/user/policies/ShippingPolicy.jsx',
-            './src/components/user/policies/CancelPolicy.jsx',
-          ],
-          // Admin pages
-          'admin-dashboard': [
-            './src/components/admin/AdminDashboard.jsx',
-          ],
+        manualChunks: (id) => {
+          // Vendor libraries
+          if (id.includes('node_modules')) {
+            if (id.includes('react')) {
+              return 'react-vendor';
+            }
+            if (id.includes('framer-motion')) {
+              return 'framer-motion-vendor';
+            }
+            if (id.includes('axios')) {
+              return 'axios-vendor';
+            }
+            if (id.includes('firebase')) {
+              return 'firebase-vendor';
+            }
+            return 'vendor';
+          }
+
+          // Admin components - separate chunk
+          if (id.includes('admin')) {
+            return 'admin';
+          }
+
+          // Policy pages - individual chunks
+          if (id.includes('TermsAndConditions')) {
+            return 'policy-terms';
+          }
+          if (id.includes('PrivacyPolicy')) {
+            return 'policy-privacy';
+          }
+          if (id.includes('ReturnPolicy')) {
+            return 'policy-return';
+          }
+          if (id.includes('ShippingPolicy')) {
+            return 'policy-shipping';
+          }
+          if (id.includes('CancelPolicy')) {
+            return 'policy-cancel';
+          }
+
           // User pages
-          'user-pages': [
-            './src/components/user/Home.jsx',
-            './src/components/user/Shop.jsx',
-            './src/components/user/ProductDetail.jsx',
-          ],
+          if (id.includes('Shop.jsx')) {
+            return 'page-shop';
+          }
+          if (id.includes('ProductDetail')) {
+            return 'page-product';
+          }
+          if (id.includes('Checkout')) {
+            return 'page-checkout';
+          }
+          if (id.includes('Home.jsx')) {
+            return 'page-home';
+          }
+
+          // Context and utilities
+          if (id.includes('context')) {
+            return 'context';
+          }
+          if (id.includes('utils')) {
+            return 'utils';
+          }
         }
       }
     }

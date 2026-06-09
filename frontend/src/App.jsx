@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ShopProvider, useShop } from './context/ShopContext';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 
-// User Module Imports
+// User Module Imports (core components)
 import Navbar from './components/user/Navbar';
 import Home from './components/user/Home';
 import AboutSection from './components/user/AboutSection';
@@ -25,38 +25,49 @@ import UserOrders from './components/user/UserOrders';
 import ScrollToTop from './components/user/ScrollToTop';
 import RaiseTicket from './components/user/RaiseTicket';
 
-// Policy Imports
-import PrivacyPolicy from './components/user/policies/PrivacyPolicy';
-import ReturnPolicy from './components/user/policies/ReturnPolicy';
-import TermsAndConditions from './components/user/policies/TermsAndConditions';
-import CancelPolicy from './components/user/policies/CancelPolicy';
-import ShippingPolicy from './components/user/policies/ShippingPolicy';
+// Policy Imports - Dynamic imports to reduce initial bundle
+const PrivacyPolicy = lazy(() => import('./components/user/policies/PrivacyPolicy'));
+const ReturnPolicy = lazy(() => import('./components/user/policies/ReturnPolicy'));
+const TermsAndConditions = lazy(() => import('./components/user/policies/TermsAndConditions'));
+const CancelPolicy = lazy(() => import('./components/user/policies/CancelPolicy'));
+const ShippingPolicy = lazy(() => import('./components/user/policies/ShippingPolicy'));
 
-// Admin Module Imports
-import AdminDashboard from './components/admin/AdminDashboard';
-import AdminProducts from './components/admin/AdminProducts';
-import AdminCategories from './components/admin/AdminCategories';
-import AdminCategoryVisibility from './components/admin/AdminCategoryVisibility';
-import AdminUsers from './components/admin/AdminUsers';
-import AdminOrders from './components/admin/AdminOrders';
-import AdminFinance from './components/admin/AdminFinance';
-import AdminBanners from './components/admin/AdminBanners';
-import AdminSettings from './components/admin/AdminSettings';
-import AdminLayout from './components/admin/AdminLayout';
-import AdminComingSoon from './components/admin/AdminComingSoon';
-import AdminInventory from './components/admin/AdminInventory';
-import AdminCoupons from './components/admin/AdminCoupons';
-import AdminOffers from './components/admin/AdminOffers';
-import AdminReturns from './components/admin/AdminReturns';
-import AdminBlogs from './components/admin/AdminBlogs';
-import AdminTestimonials from './components/admin/AdminTestimonials';
-import AdminInstagram from './components/admin/AdminInstagram';
-import AdminReplacements from './components/admin/AdminReplacements';
-import AdminReviews from './components/admin/AdminReviews';
-import AdminSupport from './components/admin/AdminSupport';
-import AdminLogistics from './components/admin/AdminLogistics';
-import AdminLocations from './components/admin/AdminLocations';
+// Admin Module Imports - Dynamic imports
+const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard'));
+const AdminProducts = lazy(() => import('./components/admin/AdminProducts'));
+const AdminCategories = lazy(() => import('./components/admin/AdminCategories'));
+const AdminCategoryVisibility = lazy(() => import('./components/admin/AdminCategoryVisibility'));
+const AdminUsers = lazy(() => import('./components/admin/AdminUsers'));
+const AdminOrders = lazy(() => import('./components/admin/AdminOrders'));
+const AdminFinance = lazy(() => import('./components/admin/AdminFinance'));
+const AdminBanners = lazy(() => import('./components/admin/AdminBanners'));
+const AdminSettings = lazy(() => import('./components/admin/AdminSettings'));
+const AdminLayout = lazy(() => import('./components/admin/AdminLayout'));
+const AdminComingSoon = lazy(() => import('./components/admin/AdminComingSoon'));
+const AdminInventory = lazy(() => import('./components/admin/AdminInventory'));
+const AdminCoupons = lazy(() => import('./components/admin/AdminCoupons'));
+const AdminOffers = lazy(() => import('./components/admin/AdminOffers'));
+const AdminReturns = lazy(() => import('./components/admin/AdminReturns'));
+const AdminBlogs = lazy(() => import('./components/admin/AdminBlogs'));
+const AdminTestimonials = lazy(() => import('./components/admin/AdminTestimonials'));
+const AdminInstagram = lazy(() => import('./components/admin/AdminInstagram'));
+const AdminReplacements = lazy(() => import('./components/admin/AdminReplacements'));
+const AdminReviews = lazy(() => import('./components/admin/AdminReviews'));
+const AdminSupport = lazy(() => import('./components/admin/AdminSupport'));
+const AdminLogistics = lazy(() => import('./components/admin/AdminLogistics'));
+const AdminLocations = lazy(() => import('./components/admin/AdminLocations'));
+
 import { FiBox, FiRotateCcw, FiRefreshCw, FiTag, FiShoppingBag, FiUsers } from 'react-icons/fi';
+
+// Loading component for lazy routes
+const Loading = () => (
+  <div className="min-h-screen flex items-center justify-center bg-brand-light">
+    <div className="text-center">
+      <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-brand-pink"></div>
+      <p className="mt-4 text-brand-dark font-medium">Loading...</p>
+    </div>
+  </div>
+);
 
 const UserRoutes = () => (
   <>
@@ -79,11 +90,11 @@ const UserRoutes = () => (
           <Route path="/orders" element={<UserOrders />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/bag" element={<Bag />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/return-policy" element={<ReturnPolicy />} />
-          <Route path="/terms-conditions" element={<TermsAndConditions />} />
-          <Route path="/cancellation-policy" element={<CancelPolicy />} />
-          <Route path="/shipping-policy" element={<ShippingPolicy />} />
+          <Route path="/privacy-policy" element={<Suspense fallback={<Loading />}><PrivacyPolicy /></Suspense>} />
+          <Route path="/return-policy" element={<Suspense fallback={<Loading />}><ReturnPolicy /></Suspense>} />
+          <Route path="/terms-conditions" element={<Suspense fallback={<Loading />}><TermsAndConditions /></Suspense>} />
+          <Route path="/cancellation-policy" element={<Suspense fallback={<Loading />}><CancelPolicy /></Suspense>} />
+          <Route path="/shipping-policy" element={<Suspense fallback={<Loading />}><ShippingPolicy /></Suspense>} />
           <Route path="/support" element={<RaiseTicket />} />
         </Routes>
       </main>
@@ -98,28 +109,28 @@ const AdminRoutes = () => (
     <Route path="/login" element={<Auth />} />
 
     {/* Nested Routes inside AdminLayout */}
-    <Route element={<AdminLayout />}>
-      <Route path="/" element={<AdminDashboard />} />
-      <Route path="/products" element={<AdminProducts />} />
-      <Route path="/categories" element={<AdminCategories />} />
-      <Route path="/category-visibility" element={<AdminCategoryVisibility />} />
-      <Route path="/users" element={<AdminUsers />} />
-      <Route path="/orders" element={<AdminOrders />} />
-      <Route path="/finance" element={<AdminFinance />} />
-      <Route path="/banners" element={<AdminBanners />} />
-      <Route path="/settings" element={<AdminSettings />} />
-      <Route path="/inventory" element={<AdminInventory />} />
-      <Route path="/returns" element={<AdminReturns />} />
-      <Route path="/coupons" element={<AdminCoupons />} />
-      <Route path="/offers" element={<AdminOffers />} />
-      <Route path="/customers" element={<AdminUsers />} />
-      <Route path="/blogs" element={<AdminBlogs />} />
-      <Route path="/testimonials" element={<AdminTestimonials />} />
-      <Route path="/instagram" element={<AdminInstagram />} />
-      <Route path="/reviews" element={<AdminReviews />} />
-      <Route path="/support" element={<AdminSupport />} />
-      <Route path="/logistics" element={<AdminLogistics />} />
-      <Route path="/locations" element={<AdminLocations />} />
+    <Route element={<Suspense fallback={<Loading />}><AdminLayout /></Suspense>}>
+      <Route path="/" element={<Suspense fallback={<Loading />}><AdminDashboard /></Suspense>} />
+      <Route path="/products" element={<Suspense fallback={<Loading />}><AdminProducts /></Suspense>} />
+      <Route path="/categories" element={<Suspense fallback={<Loading />}><AdminCategories /></Suspense>} />
+      <Route path="/category-visibility" element={<Suspense fallback={<Loading />}><AdminCategoryVisibility /></Suspense>} />
+      <Route path="/users" element={<Suspense fallback={<Loading />}><AdminUsers /></Suspense>} />
+      <Route path="/orders" element={<Suspense fallback={<Loading />}><AdminOrders /></Suspense>} />
+      <Route path="/finance" element={<Suspense fallback={<Loading />}><AdminFinance /></Suspense>} />
+      <Route path="/banners" element={<Suspense fallback={<Loading />}><AdminBanners /></Suspense>} />
+      <Route path="/settings" element={<Suspense fallback={<Loading />}><AdminSettings /></Suspense>} />
+      <Route path="/inventory" element={<Suspense fallback={<Loading />}><AdminInventory /></Suspense>} />
+      <Route path="/returns" element={<Suspense fallback={<Loading />}><AdminReturns /></Suspense>} />
+      <Route path="/coupons" element={<Suspense fallback={<Loading />}><AdminCoupons /></Suspense>} />
+      <Route path="/offers" element={<Suspense fallback={<Loading />}><AdminOffers /></Suspense>} />
+      <Route path="/customers" element={<Suspense fallback={<Loading />}><AdminUsers /></Suspense>} />
+      <Route path="/blogs" element={<Suspense fallback={<Loading />}><AdminBlogs /></Suspense>} />
+      <Route path="/testimonials" element={<Suspense fallback={<Loading />}><AdminTestimonials /></Suspense>} />
+      <Route path="/instagram" element={<Suspense fallback={<Loading />}><AdminInstagram /></Suspense>} />
+      <Route path="/reviews" element={<Suspense fallback={<Loading />}><AdminReviews /></Suspense>} />
+      <Route path="/support" element={<Suspense fallback={<Loading />}><AdminSupport /></Suspense>} />
+      <Route path="/logistics" element={<Suspense fallback={<Loading />}><AdminLogistics /></Suspense>} />
+      <Route path="/locations" element={<Suspense fallback={<Loading />}><AdminLocations /></Suspense>} />
     </Route>
   </Routes>
 );
