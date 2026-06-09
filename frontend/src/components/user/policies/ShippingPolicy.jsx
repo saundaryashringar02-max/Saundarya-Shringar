@@ -19,6 +19,12 @@ const ShippingPolicy = () => {
       <div className="space-y-10 bg-white/60 backdrop-blur-md p-6 md:p-10 rounded-3xl border border-brand-pink/10 shadow-2xl shadow-brand-pink/[0.03]">
         {/* Introduction */}
         <section className={sectionStyle}>
+          <div className="mb-4 pb-4 border-b-2 border-brand-pink/20">
+            <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-brand-pink mb-2">Legal Entity</p>
+            <p className="text-lg md:text-xl font-serif font-black text-brand-dark tracking-wider">
+              SAUNDARYA SHRINGAR PRIVATE LIMITED
+            </p>
+          </div>
           <p className="text-gray-800 text-base md:text-lg leading-relaxed font-medium italic border-l-4 border-brand-pink pl-6 py-2 bg-brand-pink/[0.02] rounded-r-xl">
             At Saundarya Shringar Private Limited, we are committed to delivering your orders in a
             timely, safe, and reliable manner. This Shipping Policy outlines our order processing,
@@ -126,8 +132,8 @@ const ShippingPolicy = () => {
             If you face any delays, tracking issues, or delivery concerns, please contact us:
           </p>
           <div className="flex flex-col md:flex-row gap-6 p-6 bg-brand-dark/5 rounded-2xl">
-            <a href="mailto:care@saundaryashringar.com" className="flex items-center gap-3 text-sm text-brand-dark hover:text-brand-pink transition-colors">
-              <FiMail className="text-brand-pink" /> care@saundaryashringar.com
+            <a href="mailto:saundaryashringar02@gmail.com" className="flex items-center gap-3 text-sm text-brand-dark hover:text-brand-pink transition-colors">
+              <FiMail className="text-brand-pink" /> saundaryashringar02@gmail.com
             </a>
             <a href="https://wa.me/919896472169" className="flex items-center gap-3 text-sm text-brand-dark hover:text-brand-pink transition-colors">
               <FiPhone className="text-brand-pink" /> +91-9896472169
@@ -157,6 +163,10 @@ const ShippingPolicy = () => {
           <div className="bg-brand-pink/[0.03] p-8 rounded-3xl border border-brand-pink/5 relative overflow-hidden group">
             <div className="relative z-10 space-y-4">
               <h3 className="font-serif text-lg text-brand-dark font-black tracking-widest uppercase">Saundarya Shringar Private Limited</h3>
+              <div className="pb-4 border-b border-brand-pink/10">
+                <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">CIN</p>
+                <p className="text-sm font-semibold text-brand-dark">U47722HR2026PTC142451</p>
+              </div>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest">Address</p>
@@ -167,7 +177,7 @@ const ShippingPolicy = () => {
                 </div>
                 <div className="space-y-2">
                   <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest">Direct Contact</p>
-                  <p className="text-sm text-gray-700">Email: care@saundaryashringar.com</p>
+                  <p className="text-sm text-gray-700">Email: saundaryashringar02@gmail.com</p>
                   <p className="text-sm text-gray-700">Phone: +91-9896472169</p>
                 </div>
               </div>

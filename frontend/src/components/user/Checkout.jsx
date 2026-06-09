@@ -619,7 +619,7 @@ const Checkout = () => {
                           अगर ऐसा कोई मैसेज/कॉल मिले, जानकारी शेयर न करें। हमसे संपर्क करें:
                           <span className="font-black"> +91 9896472169 </span>
                           या
-                          <span className="font-black"> care@saundaryashringar.com</span>
+                          <span className="font-black"> saundaryashringar02@gmail.com</span>
                           ।
                         </li>
                       </ul>
@@ -639,7 +639,7 @@ const Checkout = () => {
                           If you receive such communication, do not share details. Contact us at
                           <span className="font-black"> +91 9896472169 </span>
                           or
-                          <span className="font-black"> care@saundaryashringar.com</span>
+                          <span className="font-black"> saundaryashringar02@gmail.com</span>
                           . You may also report scams to DoT.
                         </li>
                       </ul>

@@ -36,13 +36,24 @@ const PrivacyPolicy = () => {
             <FiEye className={iconStyle} size={20} />
             <h2>1. About Us</h2>
           </div>
+          <p className="text-sm font-bold uppercase tracking-widest text-brand-pink mb-3">
+            SAUNDARYA SHRINGAR PRIVATE LIMITED
+          </p>
           <p className={paragraphStyle}>
-            Saundarya Shringar Private Limited is a company incorporated under the laws of India, with
-            its registered office at:
+            Saundarya Shringar Private Limited is a company incorporated under the laws of India.
           </p>
-          <p className={`${paragraphStyle} font-semibold text-brand-dark`}>
-            Lajpat Nagar, Near Radha Swamibhawan, Fatehabad – 125050, Haryana, India.
-          </p>
+          <div className="p-4 bg-brand-pink/[0.02] rounded-xl border border-brand-pink/5 space-y-3">
+            <div>
+              <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">CIN</p>
+              <p className="text-sm font-semibold text-brand-dark">U47722HR2026PTC142451</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">Registered Office</p>
+              <p className="text-sm font-semibold text-brand-dark">
+                Lajpat Nagar, Near Radha Swamibhawan, Fatehabad – 125050, Haryana, India
+              </p>
+            </div>
+          </div>
           <p className={paragraphStyle}>
             We specialize in cosmetics and beauty-related products and are committed to ensuring a safe,
             secure, and personalized shopping experience.
@@ -213,11 +224,39 @@ const PrivacyPolicy = () => {
             <FiClock className={iconStyle} size={20} />
             <h2>11. Data Retention</h2>
           </div>
-          <p className={paragraphStyle}>We retain your personal information only for as long as necessary to:</p>
-          <ul className={bulletListStyle}>
-            <li>Fulfill the purposes outlined in this policy</li>
-            <li>Comply with legal, regulatory, and accounting requirements</li>
-          </ul>
+          <p className={paragraphStyle}>We retain your personal information only for as long as necessary to fulfill the purposes outlined in this policy and comply with legal, regulatory, and accounting requirements. Specific retention periods are as follows:</p>
+          
+          <div className="grid md:grid-cols-2 gap-6 bg-gray-50/30 p-6 rounded-2xl border border-gray-100">
+            <div className="space-y-3">
+              <h3 className="text-sm font-bold text-brand-pink uppercase tracking-wider">Active Customer Data</h3>
+              <ul className={bulletListStyle}>
+                <li><span className="font-bold">Account Information:</span> For the duration of your account + 2 years after account closure</li>
+                <li><span className="font-bold">Order & Transaction Data:</span> 7 years (per accounting and tax regulations in India)</li>
+                <li><span className="font-bold">Payment Information:</span> Securely deleted after transaction completion, retained by payment gateways per their policy</li>
+              </ul>
+            </div>
+            <div className="space-y-3">
+              <h3 className="text-sm font-bold text-brand-pink uppercase tracking-wider">Non-Active/Closed Accounts</h3>
+              <ul className={bulletListStyle}>
+                <li><span className="font-bold">Personal Information:</span> Deleted within 2 years of account closure, except as required by law</li>
+                <li><span className="font-bold">Communication History:</span> Retained for 1 year after account closure for dispute resolution</li>
+                <li><span className="font-bold">Marketing Preferences:</span> Deleted upon unsubscribe or account closure</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-4 p-4 bg-brand-pink/[0.03] rounded-xl border border-brand-pink/5">
+            <p className="text-xs font-bold text-brand-pink uppercase tracking-widest mb-2">Additional Retention Scenarios:</p>
+            <ul className={bulletListStyle}>
+              <li><span className="font-bold">Legal or Compliance Hold:</span> Data retained beyond normal periods if required by law, pending litigation, or regulatory investigation</li>
+              <li><span className="font-bold">Return/Refund Disputes:</span> Data retained for minimum 3 years for potential claim resolution</li>
+              <li><span className="font-bold">Analytics & Aggregated Data:</span> Non-personal, aggregated data retained indefinitely for business intelligence</li>
+            </ul>
+          </div>
+
+          <p className={`${paragraphStyle} mt-4`}>
+            You may request deletion of your data at any time, subject to legal and contractual obligations. Such requests will be processed within 30 days where legally permissible.
+          </p>
         </section>
 
         {/* 12. Your Rights */}
@@ -270,7 +309,7 @@ const PrivacyPolicy = () => {
           <div className="grid md:grid-cols-3 gap-6 bg-brand-pink/[0.02] p-6 rounded-2xl border border-brand-pink/5">
             <div>
               <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">Email</p>
-              <a href="mailto:care@saundaryashringar.com" className="text-sm text-brand-dark hover:text-brand-pink transition-colors">care@saundaryashringar.com</a>
+              <a href="mailto:saundaryashringar02@gmail.com" className="text-sm text-brand-dark hover:text-brand-pink transition-colors">saundaryashringar02@gmail.com</a>
             </div>
             <div>
               <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">WhatsApp</p>

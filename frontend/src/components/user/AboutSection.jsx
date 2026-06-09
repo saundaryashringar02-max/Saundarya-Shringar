@@ -109,6 +109,12 @@ const AboutSection = () => {
               <h2 className="text-2xl md:text-4xl font-serif font-bold mb-4 italic border-b border-white/20 pb-4">
                 About Us
               </h2>
+              <p className="text-xs md:text-sm font-bold uppercase tracking-wider opacity-75 mb-2">
+                SAUNDARYA SHRINGAR PRIVATE LIMITED
+              </p>
+              <p className="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-3">
+                CIN: U47722HR2026PTC142451
+              </p>
               <p className="text-sm md:text-base leading-relaxed opacity-90 font-medium tracking-wide">
                 At Saundarya Shringar, beauty is more than appearance. It is confidence, culture, and
                 individuality. We are an emerging Indian beauty and lifestyle brand offering thoughtfully

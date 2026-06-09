@@ -35,13 +35,24 @@ const ReturnPolicy = () => {
             <FiShield className={iconStyle} size={20} />
             <h2>1. About Us</h2>
           </div>
+          <p className="text-sm font-bold uppercase tracking-widest text-brand-pink mb-3">
+            SAUNDARYA SHRINGAR PRIVATE LIMITED
+          </p>
           <p className={paragraphStyle}>
-            Saundarya Shringar Private Limited is a company incorporated under the laws of India, with
-            its registered office at:
+            Saundarya Shringar Private Limited is a company incorporated under the laws of India.
           </p>
-          <p className={`${paragraphStyle} font-semibold text-brand-dark`}>
-            Lajpat Nagar, Near Radha Swamibhawan, Fatehabad – 125050, Haryana, India.
-          </p>
+          <div className="p-4 bg-brand-pink/[0.02] rounded-xl border border-brand-pink/5 space-y-3">
+            <div>
+              <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">CIN</p>
+              <p className="text-sm font-semibold text-brand-dark">U47722HR2026PTC142451</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">Registered Office</p>
+              <p className="text-sm font-semibold text-brand-dark">
+                Lajpat Nagar, Near Radha Swamibhawan, Fatehabad – 125050, Haryana, India
+              </p>
+            </div>
+          </div>
           <p className={paragraphStyle}>
             We are committed to offering high-quality, carefully curated products to our customers.
           </p>
@@ -237,7 +248,7 @@ const ReturnPolicy = () => {
           <div className="grid md:grid-cols-3 gap-6 bg-brand-pink/[0.02] p-6 rounded-2xl border border-brand-pink/5">
             <div>
               <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">Email</p>
-              <a href="mailto:care@saundaryashringar.com" className="text-sm text-brand-dark hover:text-brand-pink transition-colors">care@saundaryashringar.com</a>
+              <a href="mailto:saundaryashringar02@gmail.com" className="text-sm text-brand-dark hover:text-brand-pink transition-colors">saundaryashringar02@gmail.com</a>
             </div>
             <div>
               <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">WhatsApp</p>

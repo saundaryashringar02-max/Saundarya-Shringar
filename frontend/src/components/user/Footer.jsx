@@ -99,7 +99,7 @@ const Footer = () => {
               </p>
               <p className="flex items-center gap-2 group transition-colors hover:text-brand-pink">
                 <FiMail className="shrink-0 opacity-60 group-hover:scale-110 transition-transform" size={10} />
-                <a href="mailto:care@saundaryashringar.com" className="break-all transition-all underline-offset-4 hover:underline">care@saundaryashringar.com</a>
+                <a href="mailto:saundaryashringar02@gmail.com" className="break-all transition-all underline-offset-4 hover:underline">saundaryashringar02@gmail.com</a>
               </p>
             </div>
           </div>
