@@ -7,6 +7,202 @@ const paragraphStyle = 'text-gray-700 text-sm leading-relaxed';
 const bulletListStyle = 'list-disc pl-5 text-gray-700 text-sm leading-relaxed space-y-2';
 const iconStyle = 'text-brand-pink shrink-0';
 
+// Extract sections into data to reduce component size
+const policyIntroduction = {
+  intro: 'At Saundarya Shringar Private Limited, your privacy is our responsibility and commitment. This Privacy Policy explains how we collect, use, store, and protect your personal information when you access or use our website www.saundaryashringar.com.',
+  disclaimer: 'By using our website, you agree to the terms of this Privacy Policy. If you do not agree, please discontinue use of the platform.',
+};
+
+const policyCompanyInfo = {
+  name: 'SAUNDARYA SHRINGAR PRIVATE LIMITED',
+  cin: 'U47722HR2026PTC142451',
+  address: 'Lajpat Nagar, Near Radha Swamibhawan, Fatehabad – 125050, Haryana, India',
+  description: 'We specialize in cosmetics and beauty-related products and are committed to ensuring a safe, secure, and personalized shopping experience.',
+};
+
+const PrivacyPolicy = () => {
+  return (
+    <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
+      <div className="text-center mb-10">
+        <h1 className="text-2xl md:text-4xl font-serif font-black text-brand-dark uppercase tracking-widest mb-3">Privacy Policy</h1>
+        <div className="h-1.5 w-20 bg-brand-pink mx-auto rounded-full mb-4" />
+        <p className="text-gray-500 text-xs uppercase tracking-[0.25em]">Effective Date: April 23, 2026</p>
+      </div>
+
+      <div className="space-y-10 bg-white/60 backdrop-blur-md p-6 md:p-10 rounded-3xl border border-brand-pink/10 shadow-2xl shadow-brand-pink/[0.03]">
+        {/* Introduction */}
+        <section className={sectionStyle}>
+          <p className="text-gray-800 text-base md:text-lg leading-relaxed font-medium italic border-l-4 border-brand-pink pl-6 py-2 bg-brand-pink/[0.02] rounded-r-xl">
+            {policyIntroduction.intro}
+            <a href="https://www.saundaryashringar.com" className="text-brand-pink hover:underline ml-1">www.saundaryashringar.com</a>
+          </p>
+          <p className={paragraphStyle}>{policyIntroduction.disclaimer}</p>
+        </section>
+
+        {/* 1. About Us */}
+        <section className={sectionStyle}>
+          <div className={headingStyle}>
+            <FiEye className={iconStyle} size={20} />
+            <h2>1. About Us</h2>
+          </div>
+          <p className="text-sm font-bold uppercase tracking-widest text-brand-pink mb-3">{policyCompanyInfo.name}</p>
+          <p className={paragraphStyle}>Saundarya Shringar Private Limited is a company incorporated under the laws of India.</p>
+          <div className="p-4 bg-brand-pink/[0.02] rounded-xl border border-brand-pink/5 space-y-3">
+            <div>
+              <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">CIN</p>
+              <p className="text-sm font-semibold text-brand-dark">{policyCompanyInfo.cin}</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">Registered Office</p>
+              <p className="text-sm font-semibold text-brand-dark">{policyCompanyInfo.address}</p>
+            </div>
+          </div>
+          <p className={paragraphStyle}>{policyCompanyInfo.description}</p>
+        </section>
+
+        {/* 2. Eligibility */}
+        <section className={sectionStyle}>
+          <div className={headingStyle}>
+            <FiUserCheck className={iconStyle} size={20} />
+            <h2>2. Eligibility (18+ Use)</h2>
+          </div>
+          <ul className={bulletListStyle}>
+            <li>Our website and products are primarily intended for individuals 18 years of age and above</li>
+            <li>If you are below 18 years, you may use this website and make purchases under parental or guardian supervision</li>
+            <li>We do not knowingly collect personal information from minors without appropriate supervision</li>
+          </ul>
+        </section>
+
+        {/* 3. Information We Collect */}
+        <section className={sectionStyle}>
+          <div className={headingStyle}>
+            <FiDatabase className={iconStyle} size={20} />
+            <h2>3. Information We Collect</h2>
+          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <h3 className="text-sm font-bold text-brand-pink uppercase tracking-wider mb-2">Personal Information</h3>
+              <ul className={bulletListStyle}>
+                <li>Name, Email, Phone number</li>
+                <li>Shipping and billing address</li>
+                <li>Payment details (via third-party gateways)</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-brand-pink uppercase tracking-wider mb-2">Non-Personal Information</h3>
+              <ul className={bulletListStyle}>
+                <li>IP address</li>
+                <li>Device and browser details</li>
+                <li>Browsing behavior and session data</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* 4. How We Use */}
+        <section className={sectionStyle}>
+          <div className={headingStyle}>
+            <FiCheckCircle className={iconStyle} size={20} />
+            <h2>4. How We Use Your Information</h2>
+          </div>
+          <ul className={bulletListStyle}>
+            <li>Process, ship, and deliver orders</li>
+            <li>Provide customer support</li>
+            <li>Improve website performance</li>
+            <li>Personalize recommendations</li>
+            <li>Prevent fraud and ensure security</li>
+            <li>Send order updates and notifications</li>
+          </ul>
+        </section>
+
+        {/* 5. Cookies */}
+        <section className={sectionStyle}>
+          <div className={headingStyle}>
+            <FiShield className={iconStyle} size={20} />
+            <h2>5. Cookies & Tracking</h2>
+          </div>
+          <p className={paragraphStyle}>We use cookies to enhance browsing, remember preferences, analyze performance, and provide relevant suggestions. You can disable cookies in browser settings.</p>
+        </section>
+
+        {/* 6. Sharing */}
+        <section className={sectionStyle}>
+          <div className={headingStyle}>
+            <FiShare2 className={iconStyle} size={20} />
+            <h2>6. Sharing of Information</h2>
+          </div>
+          <p className={paragraphStyle}>We share information with payment gateways, courier partners, and IT/analytics providers only for service delivery.</p>
+        </section>
+
+        {/* 7-15. Remaining sections */}
+        <section className={sectionStyle}>
+          <div className={headingStyle}>
+            <FiMail className={iconStyle} size={20} />
+            <h2>7. Communication Preferences</h2>
+          </div>
+          <p className={paragraphStyle}>You consent to order confirmations and promotional communications. You can opt out anytime.</p>
+        </section>
+
+        <section className={sectionStyle}>
+          <div className={headingStyle}>
+            <FiLock className={iconStyle} size={20} />
+            <h2>8. Legal Disclosures</h2>
+          </div>
+          <p className={paragraphStyle}>We may disclose information to comply with law, enforce terms, protect rights, or facilitate business transfers.</p>
+        </section>
+
+        <section className={sectionStyle}>
+          <div className={headingStyle}>
+            <FiExternalLink className={iconStyle} size={20} />
+            <h2>9. Third-Party Links</h2>
+          </div>
+          <p className={paragraphStyle}>Our website may contain links to external sites. We are not responsible for their privacy practices.</p>
+        </section>
+
+        <section className={sectionStyle}>
+          <div className={headingStyle}>
+            <FiShield className={iconStyle} size={20} />
+            <h2>10. Data Security</h2>
+          </div>
+          <p className={paragraphStyle}>We implement security measures to protect your data from unauthorized access, misuse, and breaches. No internet transmission is completely secure.</p>
+        </section>
+
+        <section className={sectionStyle}>
+          <div className={headingStyle}>
+            <FiClock className={iconStyle} size={20} />
+            <h2>11. Data Retention</h2>
+          </div>
+          <p className={paragraphStyle}>Account info: Duration + 2 years after closure. Orders: 7 years (India tax law). Closed accounts: 2 years. Disputes: 3 years minimum.</p>
+        </section>
+
+        <section className={sectionStyle}>
+          <div className={headingStyle}>
+            <FiHelpCircle className={iconStyle} size={20} />
+            <h2>12-15. Your Rights & Governance</h2>
+          </div>
+          <p className={paragraphStyle}>You can request access, correction, or deletion of data (within 30 days). Governed by Indian law. Jurisdiction: Fatehabad, Haryana courts.</p>
+        </section>
+
+        <div className="mt-10 p-6 bg-brand-pink/[0.02] rounded-2xl border border-brand-pink/5 text-center">
+          <p className="text-[10px] text-brand-pink font-bold uppercase tracking-widest mb-3">Contact Us</p>
+          <div className="flex flex-col md:flex-row justify-center gap-6 text-sm">
+            <a href="mailto:saundaryashringar02@gmail.com" className="text-brand-dark hover:text-brand-pink">saundaryashringar02@gmail.com</a>
+            <a href="https://api.whatsapp.com/send?phone=919896472169" target="_blank" rel="noreferrer" className="text-brand-dark hover:text-brand-pink">+91-9896472169</a>
+            <span className="text-brand-dark">Lajpat Nagar, Fatehabad, Haryana</span>
+          </div>
+        </div>
+
+        <div className="pt-6 border-t border-brand-pink/10 text-center">
+          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.3em]">
+            © 2026 Saundarya Shringar Private Limited
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default PrivacyPolicy;
+
 
 const PrivacyPolicy = () => {
   return (
