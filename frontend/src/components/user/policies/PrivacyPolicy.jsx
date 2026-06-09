@@ -7,6 +7,7 @@ const paragraphStyle = 'text-gray-700 text-sm leading-relaxed';
 const bulletListStyle = 'list-disc pl-5 text-gray-700 text-sm leading-relaxed space-y-2';
 const iconStyle = 'text-brand-pink shrink-0';
 
+
 const PrivacyPolicy = () => {
   return (
     <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
