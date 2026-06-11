@@ -66,7 +66,7 @@ const ReturnPolicy = () => {
           </div>
           <p className={paragraphStyle}>Returns are accepted subject to the following conditions:</p>
           <ul className={bulletListStyle}>
-            <li className="font-semibold text-brand-pink">Return request must be initiated within 2 working days of delivery (including the delivery date).</li>
+            <li className="font-semibold text-brand-pink">Return request must be initiated within 3–7 working days of delivery (including the delivery date).</li>
             <li>The product must be unused, undamaged, and in its original packaging.</li>
             <li>The original invoice must be provided.</li>
           </ul>
@@ -99,8 +99,8 @@ const ReturnPolicy = () => {
             <h2>4. Special Category Returns</h2>
           </div>
           <ul className={bulletListStyle}>
-            <li>Electronic products are eligible for return only in case of manufacturing defects.</li>
-            <li>Products must be returned in their original sealed condition.</li>
+            <li>Cosmetics/personal care items cannot be returned once the safety seal is broken.</li>
+            <li>Products must be returned in their original sealed and unused condition.</li>
           </ul>
         </section>
 
@@ -128,7 +128,7 @@ const ReturnPolicy = () => {
               <h3 className="text-sm font-bold text-brand-dark uppercase tracking-wider">Before Dispatch</h3>
               <ul className={bulletListStyle}>
                 <li>Orders may be canceled fully or partially prior to dispatch.</li>
-                <li>Refunds will be initiated within 15 working days after approval.</li>
+                <li>Refunds will be initiated within 5–7 working days after approval.</li>
               </ul>
             </div>
             <div className="space-y-3 bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
@@ -207,7 +207,8 @@ const ReturnPolicy = () => {
           </div>
           <ul className={bulletListStyle}>
             <li>Returns are facilitated through our logistics partners.</li>
-            <li>Pickup will be scheduled after return approval.</li>
+            <li>Initial approval is only to schedule the reverse pickup.</li>
+            <li>The final refund is processed only after the item passes warehouse inspection.</li>
             <li>Customers must ensure the product is securely packed for collection.</li>
           </ul>
         </section>

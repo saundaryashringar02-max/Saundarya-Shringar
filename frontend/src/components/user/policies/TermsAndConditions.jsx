@@ -141,7 +141,7 @@ const TermsAndConditions = () => {
             </div>
             <div>
               <h3 className="text-sm font-bold text-brand-pink uppercase tracking-widest mb-3">Order Acceptance</h3>
-              <p className={paragraphStyle}>Placing an order constitutes an offer to purchase. We reserve the right to accept, reject, or cancel orders within 1 business day.</p>
+              <p className={paragraphStyle}>Placing an order constitutes an offer to purchase. The Company reserves the right to accept, reject, or cancel orders at any time before delivery due to stock unavailability or logistics issues.</p>
             </div>
             <div>
               <h3 className="text-sm font-bold text-brand-pink uppercase tracking-widest mb-3">Payments</h3>
@@ -170,16 +170,39 @@ const TermsAndConditions = () => {
             <h2>8. Returns, Refunds & Cancellations</h2>
           </div>
           <p className={paragraphStyle}>
-            All returns, refunds, and cancellations are governed by our <a href="/return-policy" className="text-brand-pink font-bold hover:underline">Return & Refund Policy</a>.
-            Refunds are subject to verification and approval.
+            All returns, refunds, and cancellations are governed by our <a href="/return-policy" className="text-brand-pink font-bold hover:underline">Return & Refund Policy</a>. 
+            <br/><br/>
+            <strong>Cosmetics Hygiene Clause:</strong> For hygiene and safety reasons, opened or used cosmetics cannot be returned. We offer a 3–7 days return window for eligible, sealed, and unused items. All returned items are subject to a strict warehouse inspection process before any refund is approved to avoid any discrepancies.
           </p>
         </section>
 
-        {/* 9. Availability */}
+        {/* 9. Shipping & Delivery */}
+        <section className={sectionStyle}>
+          <div className={headingStyle}>
+            <FiMapPin className={iconStyle} size={20} />
+            <h2>9. Shipping & Delivery</h2>
+          </div>
+          <p className={paragraphStyle}>
+            We strive to dispatch all orders promptly. Estimated delivery timelines are typically 3–7 business days depending on your location. The Company shall not be held liable for any delays in delivery caused by third-party logistics partners, incorrect addresses provided by the customer, or unforeseen circumstances.
+          </p>
+        </section>
+
+        {/* 10. Force Majeure */}
+        <section className={sectionStyle}>
+          <div className={headingStyle}>
+            <FiAlertTriangle className={iconStyle} size={20} />
+            <h2>10. Force Majeure</h2>
+          </div>
+          <p className={paragraphStyle}>
+            The Company shall not be held liable for any delays, cancellations, or failure to perform its obligations caused by events beyond its reasonable control. Such events include, but are not limited to, natural disasters, strikes, lockouts, pandemics, government actions, or other unforeseen circumstances.
+          </p>
+        </section>
+
+        {/* 11. Availability */}
         <section className={sectionStyle}>
           <div className={headingStyle}>
             <FiGlobe className={iconStyle} size={20} />
-            <h2>9. Website Availability</h2>
+            <h2>11. Website Availability</h2>
           </div>
           <ul className={bulletListStyle}>
             <li>The website may undergo maintenance, updates, or interruptions</li>
@@ -188,11 +211,11 @@ const TermsAndConditions = () => {
           </ul>
         </section>
 
-        {/* 10. Disclaimer */}
+        {/* 12. Disclaimer */}
         <section className={sectionStyle}>
           <div className={headingStyle}>
             <FiAlertTriangle className={iconStyle} size={20} />
-            <h2>10. Disclaimer of Warranties</h2>
+            <h2>12. Disclaimer of Warranties</h2>
           </div>
           <p className={paragraphStyle}>All services and content are provided on an “as is” and “as available” basis. We do not guarantee complete accuracy or secure operation.</p>
           <div className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
@@ -206,11 +229,11 @@ const TermsAndConditions = () => {
           </div>
         </section>
 
-        {/* 11. Intellectual Property */}
+        {/* 13. Intellectual Property */}
         <section className={sectionStyle}>
           <div className={headingStyle}>
             <FiCpu className={iconStyle} size={20} />
-            <h2>11. Intellectual Property</h2>
+            <h2>13. Intellectual Property</h2>
           </div>
           <p className={paragraphStyle}>All website content, including text, images, logos, and design, is the property of Saundarya Shringar Private Limited or its licensors.</p>
           <ul className={bulletListStyle}>
@@ -219,11 +242,11 @@ const TermsAndConditions = () => {
           </ul>
         </section>
 
-        {/* 12. Third-Party Services */}
+        {/* 14. Third-Party Services */}
         <section className={sectionStyle}>
           <div className={headingStyle}>
             <FiExternalLink className={iconStyle} size={20} />
-            <h2>12. Third-Party Services</h2>
+            <h2>14. Third-Party Services</h2>
           </div>
           <ul className={bulletListStyle}>
             <li>The website may contain links or integrations with third-party services</li>
@@ -232,11 +255,11 @@ const TermsAndConditions = () => {
           </ul>
         </section>
 
-        {/* 13. Limitation of Liability */}
+        {/* 15. Limitation of Liability */}
         <section className={sectionStyle}>
           <div className={headingStyle}>
             <FiAlertTriangle className={iconStyle} size={20} />
-            <h2>13. Limitation of Liability</h2>
+            <h2>15. Limitation of Liability</h2>
           </div>
           <p className="text-gray-800 text-base md:text-lg leading-relaxed font-bold border-l-4 border-brand-pink pl-6 py-2 bg-brand-pink/[0.02] rounded-r-xl">
             To the maximum extent permitted by law, our liability shall be limited to the value of the
@@ -244,11 +267,11 @@ const TermsAndConditions = () => {
           </p>
         </section>
 
-        {/* 14. Governing Law */}
+        {/* 16. Governing Law */}
         <section className={sectionStyle}>
           <div className={headingStyle}>
             <FiShield className={iconStyle} size={20} />
-            <h2>14. Governing Law & Jurisdiction</h2>
+            <h2>16. Governing Law & Jurisdiction</h2>
           </div>
           <p className={paragraphStyle}>
             These Terms are governed by the laws of India.
@@ -256,25 +279,46 @@ const TermsAndConditions = () => {
           </p>
         </section>
 
-        {/* 15. Severability */}
+        {/* 17. Severability */}
         <section className={sectionStyle}>
           <div className={headingStyle}>
             <FiFileText className={iconStyle} size={20} />
-            <h2>15. Severability</h2>
+            <h2>17. Severability</h2>
           </div>
           <p className={paragraphStyle}>If any provision of these Terms is found to be invalid or unenforceable, the remaining provisions shall continue in full force and effect.</p>
         </section>
 
-        {/* 16. Contact Us */}
+        {/* 18. Grievance Officer */}
+        <section className={sectionStyle}>
+          <div className={headingStyle}>
+            <FiUserCheck className={iconStyle} size={20} />
+            <h2>18. Grievance Officer</h2>
+          </div>
+          <p className={paragraphStyle}>
+            In accordance with the Consumer Protection (E-Commerce) Rules, India, the name and contact details of the Grievance Officer are provided below. The Grievance Officer will acknowledge your concerns within 48 hours and resolve them within 1 month from the date of receipt.
+          </p>
+          <div className="p-4 bg-brand-pink/[0.02] rounded-xl border border-brand-pink/5 space-y-3">
+            <div>
+              <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">Name</p>
+              <p className="text-sm font-semibold text-brand-dark">Sunil Kumar</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">Email</p>
+              <a href="mailto:care@saundaryashringar.com" className="text-sm text-brand-dark hover:text-brand-pink transition-colors">care@saundaryashringar.com</a>
+            </div>
+          </div>
+        </section>
+
+        {/* 19. Contact Us */}
         <section className={sectionStyle}>
           <div className={headingStyle}>
             <FiMail className={iconStyle} size={20} />
-            <h2>16. Contact Us</h2>
+            <h2>19. Contact Us</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-6 bg-brand-pink/[0.02] p-6 rounded-2xl border border-brand-pink/5">
             <div>
               <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">Email</p>
-              <a href="mailto:saundaryashringar02@gmail.com" className="text-sm text-brand-dark hover:text-brand-pink transition-colors">saundaryashringar02@gmail.com</a>
+              <a href="mailto:care@saundaryashringar.com" className="text-sm text-brand-dark hover:text-brand-pink transition-colors">care@saundaryashringar.com</a>
             </div>
             <div>
               <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">WhatsApp</p>
