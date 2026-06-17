@@ -86,6 +86,7 @@ const orderSchema = new mongoose.Schema({
     razorpayOrderId: String,
     razorpayPaymentId: String,
     razorpaySignature: String,
+    payuTransactionId: String,
     couponApplied: {
         type: String,
         default: null

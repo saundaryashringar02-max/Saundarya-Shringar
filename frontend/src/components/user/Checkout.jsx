@@ -190,55 +190,58 @@ const Checkout = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Razorpay Integration
-  const handleRazorpay = async () => {
+  // PayU Integration
+  const handlePayU = async () => {
     setIsPaymentLoading(true);
     try {
-      // 1. Create Razorpay order on backend
-      const res = await api.post('/orders/razorpay/create', { amount: total });
-      const { id: razorpay_order_id, amount, currency } = res.data.data.order;
-
-      const options = {
-        key: "rzp_test_8sYbzHWidwe5Zw",
-        amount,
-        currency,
-        name: "Saundarya Shringar",
-        description: "Ritual Selection Transaction",
-        image: "/logo_s.jpg",
-        order_id: razorpay_order_id,
-        handler: async (response) => {
-          // 2. Verify payment & save order
-          try {
-            await verifyAndClearCart(response, {
-              ...formData,
-              items: displayItems.map(i => ({ product: i._id, quantity: i.quantity || 1, price: i.price, name: i.name, image: i.image, size: i.selectedSize })),
-              totalAmount: total,
-              couponCode: appliedCoupon?.code
-            }, total, { subtotal, taxAmount, taxRate: currentTaxRate, shippingValue, actualShipping });
-            setIsSuccess(true);
-          } catch (err) {
-            console.error("Verification error", err);
-          } finally {
-            setIsPaymentLoading(false);
-          }
-        },
-        prefill: {
-          name: formData.name,
-          contact: formData.phone,
-          email: formData.email || user?.email || ""
-        },
-        theme: {
-          color: "#5C2E3E"
-        },
-        modal: {
-          ondismiss: () => setIsPaymentLoading(false)
-        }
+      const orderDetails = {
+        items: displayItems.map(i => ({ product: i._id, quantity: i.quantity || 1, price: i.price, name: i.name, image: i.image, size: i.selectedSize })),
+        subTotal: subtotal,
+        taxAmount: taxAmount,
+        taxRate: currentTaxRate,
+        shippingAmount: shippingValue,
+        actualShippingAmount: actualShipping,
+        totalAmount: total,
+        shippingAddress: formData,
+        couponCode: appliedCoupon?.code
       };
 
-      const rzp = new window.Razorpay(options);
-      rzp.open();
+      // 1. Get hash and parameters from backend
+      const res = await api.post('/orders/payu/initiate', { orderDetails });
+      const { key, txnid, amount, productinfo, firstname, email, phone, udf1, hash } = res.data.data;
+
+      // 2. Create dynamic form and submit
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = 'https://secure.payu.in/_payment'; 
+
+      const inputs = {
+        key,
+        txnid,
+        amount,
+        productinfo,
+        firstname,
+        email,
+        phone,
+        udf1,
+        surl: `${import.meta.env.VITE_API_URL}/orders/payu/callback`,
+        furl: `${import.meta.env.VITE_API_URL}/orders/payu/callback`,
+        hash
+      };
+
+      Object.keys(inputs).forEach(k => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = k;
+        input.value = inputs[k];
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
+      
     } catch (err) {
-      console.error("Razorpay initiation error", err);
+      console.error("PayU initiation error", err);
       alert("Payment gateway failed: " + (err.response?.data?.message || err.message));
       setIsPaymentLoading(false);
     }
@@ -293,7 +296,7 @@ const Checkout = () => {
       }
 
       if (selectedPayment === 'paynow') {
-        await handleRazorpay();
+        await handlePayU();
       } else {
         try {
           await clearCart({
