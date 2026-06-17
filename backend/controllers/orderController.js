@@ -104,6 +104,118 @@ exports.verifyRazorpayPayment = async (req, res, next) => {
     }
 };
 
+// Customer: Initiate PayU Payment (Hash Generation & Create Pending Order)
+exports.initiatePayuPayment = async (req, res, next) => {
+    try {
+        const { orderDetails } = req.body;
+        
+        if (!orderDetails || !orderDetails.totalAmount) {
+            return res.status(400).json({ status: 'error', message: 'Missing order details' });
+        }
+
+        const key = process.env.PAYU_MERCHANT_KEY;
+        const salt = process.env.PAYU_MERCHANT_SALT;
+        const txnid = 'txn_' + crypto.randomBytes(8).toString('hex');
+
+        const amount = orderDetails.totalAmount;
+        const firstname = (orderDetails.shippingAddress?.name || req.user.name || 'User').split(' ')[0];
+        const email = orderDetails.shippingAddress?.email || req.user.email;
+        const phone = orderDetails.shippingAddress?.phone || req.user.phone || '9999999999';
+        const productinfo = 'Saundarya Shringar Order';
+
+        // Create Pending Order in DB
+        const newOrder = await Order.create({
+            user: req.user._id,
+            items: orderDetails.items,
+            subTotal: orderDetails.subTotal,
+            taxAmount: orderDetails.taxAmount,
+            taxRate: orderDetails.taxRate,
+            shippingAmount: orderDetails.shippingAmount,
+            actualShippingAmount: orderDetails.actualShippingAmount || orderDetails.shippingAmount,
+            totalAmount: amount,
+            shippingAddress: orderDetails.shippingAddress,
+            paymentStatus: 'Pending',
+            paymentMethod: 'PayNow',
+            payuTransactionId: txnid, 
+            couponApplied: orderDetails.couponCode || null
+        });
+
+        // Hash Formula: key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5|udf6|udf7|udf8|udf9|udf10|salt
+        const udf1 = newOrder._id.toString();
+        const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|${udf1}||||||||||${salt}`;
+        const hash = crypto.createHash('sha512').update(hashString).digest('hex');
+
+        res.status(200).json({ 
+            status: 'success', 
+            data: { key, txnid, amount, productinfo, firstname, email, phone, udf1, hash, orderId: newOrder._id } 
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+// Customer: Verify PayU Payment (Callback)
+exports.payuCallback = async (req, res, next) => {
+    try {
+        const {
+            mihpayid, status, txnid, amount, productinfo, firstname, email,
+            udf1, hash
+        } = req.body;
+
+        const key = process.env.PAYU_MERCHANT_KEY;
+        const salt = process.env.PAYU_MERCHANT_SALT;
+
+        // Reverse hash: salt|status|udf10|udf9|udf8|udf7|udf6|udf5|udf4|udf3|udf2|udf1|email|firstname|productinfo|amount|txnid|key
+        const reverseHashString = `${salt}|${status}||||||||||${udf1}|${email}|${firstname}|${productinfo}|${amount}|${txnid}|${key}`;
+        const generatedHash = crypto.createHash('sha512').update(reverseHashString).digest('hex');
+
+        if (hash !== generatedHash) {
+            return res.redirect(`${process.env.FRONTEND_URL}/checkout?error=PaymentVerificationFailed`);
+        }
+
+        const order = await Order.findById(udf1).populate('user');
+        if (!order) {
+            return res.redirect(`${process.env.FRONTEND_URL}/checkout?error=OrderNotFound`);
+        }
+
+        if (status === 'success' && order.paymentStatus !== 'Completed') {
+            order.paymentStatus = 'Completed';
+            order.payuTransactionId = mihpayid || txnid;
+            await order.save();
+
+            // Decrement Stock
+            for (const item of order.items) {
+                if (item.product) {
+                    await Product.findByIdAndUpdate(item.product, { $inc: { stock: -Math.abs(item.quantity || 1) } });
+                }
+            }
+
+            if (order.couponApplied) {
+                await Coupon.findOneAndUpdate({ code: order.couponApplied.toUpperCase() }, { $inc: { usedCount: 1 } });
+            }
+
+            // NOTIFICATION
+            notificationService.sendToAdmin({
+                title: 'New Prepaid Order! 💰',
+                body: `${order.user?.name || 'A user'} placed a new order for ₹${order.totalAmount} (PayU).`,
+                data: { type: 'new_order', id: order._id.toString() }
+            });
+
+            return res.redirect(`${process.env.FRONTEND_URL}/profile?payment=success`);
+        } else if (status !== 'success') {
+            order.paymentStatus = 'Failed';
+            await order.save();
+            return res.redirect(`${process.env.FRONTEND_URL}/checkout?error=PaymentFailed`);
+        } else {
+            // Already processed
+            return res.redirect(`${process.env.FRONTEND_URL}/profile?payment=success`);
+        }
+    } catch (err) {
+        console.error('PayU Callback Error:', err);
+        return res.redirect(`${process.env.FRONTEND_URL}/checkout?error=ServerError`);
+    }
+};
+
 // Customer: Create Order (COD/Legacy flow)
 exports.createOrder = async (req, res, next) => {
     try {

@@ -68,7 +68,14 @@ exports.sendOtp = async (req, res, next) => {
             const url = `http://cloud.smsindiahub.in/vendorsms/pushsms.aspx?APIKey=${apiKey}&msisdn=${phone}&sid=${senderId}&msg=${encodeURIComponent(message)}&fl=0&gwid=2`;
 
             try {
-                await axios.get(url, { timeout: 10000 });
+                const response = await axios.get(url, { timeout: 10000 });
+                if (response.data && response.data.ErrorCode && response.data.ErrorCode !== '000') {
+                    console.error('SMS Gateway Rejected Message:', response.data.ErrorMessage);
+                    return res.status(502).json({
+                        status: 'error',
+                        message: `SMS Delivery Failed: ${response.data.ErrorMessage}`
+                    });
+                }
                 console.log(`★ Real OTP Sent to ${phone}`);
             } catch (smsErr) {
                 console.error('SMS Send Error:', smsErr.message);
