@@ -56,7 +56,7 @@ const CancelPolicy = () => {
           </section>
 
           <div className="mt-8 p-4 bg-brand-pink/5 border-l-2 border-brand-gold italic text-[12px] opacity-80">
-            "We strive to provide a seamless shopping experience. For any queries regarding your order status, please reach out to us at saundaryashringar02@gmail.com"
+            "We strive to provide a seamless shopping experience. For any queries regarding your order status, please reach out to us at care@saundaryashringar.com or saundaryashringar02@gmail.com"
           </div>
         </div>
       </div>

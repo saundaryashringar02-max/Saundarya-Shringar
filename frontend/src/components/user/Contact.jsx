@@ -92,8 +92,8 @@ const Contact = () => {
               <ContactInfo
                 icon={<FiMail size={16} />}
                 label="Email us at"
-                value="saundaryashringar02@gmail.com"
-                href="mailto:saundaryashringar02@gmail.com"
+                value="care@saundaryashringar.com, saundaryashringar02@gmail.com"
+                href="mailto:care@saundaryashringar.com,saundaryashringar02@gmail.com"
               />
               <ContactInfo
                 icon={<FiPhone size={16} />}

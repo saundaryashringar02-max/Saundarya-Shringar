@@ -1,7 +1,27 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const SessionLog = require('../models/SessionLog');
 const axios = require('axios');
 const crypto = require('crypto');
+
+const getDeviceString = (req) => {
+    const ua = req.headers['user-agent'] || '';
+    let os = 'Unknown OS';
+    let browser = 'Unknown Browser';
+
+    if (/windows/i.test(ua)) os = 'Windows';
+    else if (/mac os/i.test(ua)) os = 'macOS';
+    else if (/linux/i.test(ua)) os = 'Linux';
+    else if (/android/i.test(ua)) os = 'Android';
+    else if (/iphone|ipad/i.test(ua)) os = 'iOS';
+
+    if (/chrome|crios/i.test(ua) && !/edg/i.test(ua)) browser = 'Chrome';
+    else if (/firefox/i.test(ua)) browser = 'Firefox';
+    else if (/safari/i.test(ua) && !/chrome|crios/i.test(ua)) browser = 'Safari';
+    else if (/edg/i.test(ua)) browser = 'Edge';
+
+    return `${os} / ${browser}`;
+};
 
 const signToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -197,16 +217,22 @@ exports.adminLogin = async (req, res, next) => {
         const isMatch = await user.correctPassword(password, user.password);
         console.log(`[DEBUG] Password Match Result: ${isMatch}`);
 
+        const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.connection?.remoteAddress || req.ip || 'Unknown';
+        const device = getDeviceString(req);
+
         if (!isMatch) {
+            await SessionLog.create({ user: user._id, ip, device, status: 'Failed' });
             return res.status(401).json({ status: 'error', message: 'Incorrect email or password.' });
         }
 
         console.log(`[DEBUG] User Role: ${user.role}`);
         if (user.role !== 'admin' && user.role !== 'super-admin') {
             console.log(`[DEBUG] Role check failed: ${user.role}`);
+            await SessionLog.create({ user: user._id, ip, device, status: 'Blocked' });
             return res.status(403).json({ status: 'error', message: 'Unauthorized access.' });
         }
 
+        await SessionLog.create({ user: user._id, ip, device, status: 'Success' });
         createSendToken(user, 200, res);
     } catch (err) {
         next(err);

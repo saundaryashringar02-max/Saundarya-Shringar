@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FiPercent } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 import ProductCard from './ProductCard';
 import { useShop } from '../../context/ShopContext';
 
@@ -233,9 +234,9 @@ const Offers = () => {
             <p className="text-gray-500 text-sm md:text-base mb-10 font-medium leading-relaxed max-w-lg">
               Become a member today and unlock exclusive access to private sales, early launches, and a permanent 10% discount on all orders.
             </p>
-            <button className="bg-brand-dark text-white px-10 py-4 rounded-none text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-brand-gold transition-all shadow-xl active:scale-95">
+            <Link to="/login" className="inline-block bg-brand-dark text-white px-10 py-4 rounded-none text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-brand-gold transition-all shadow-xl active:scale-95">
               Sign Up For Glow
-            </button>
+            </Link>
           </div>
 
           <div className="w-full md:w-1/3 aspect-square bg-white rounded-2xl shadow-2xl p-4 flex items-center justify-center relative overflow-hidden group">
@@ -262,9 +263,9 @@ const Offers = () => {
             <p className="text-gray-500 text-sm md:text-base mb-10 font-medium leading-relaxed max-w-lg">
               Become a member today and unlock exclusive access to private sales, early launches, and a permanent 10% discount on all orders.
             </p>
-            <button className="bg-brand-dark text-white px-10 py-4 rounded-none text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-brand-gold transition-all shadow-xl active:scale-95">
+            <Link to="/login" className="inline-block bg-brand-dark text-white px-10 py-4 rounded-none text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-brand-gold transition-all shadow-xl active:scale-95">
               Sign Up For Glow
-            </button>
+            </Link>
           </div>
 
           <div className="w-full md:w-1/3 aspect-square bg-white rounded-2xl shadow-2xl p-4 flex items-center justify-center relative overflow-hidden group">

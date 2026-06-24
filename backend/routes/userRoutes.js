@@ -3,6 +3,21 @@ const router = express.Router();
 const User = require('../models/User');
 const Order = require('../models/Order');
 const { protect, restrictTo } = require('../middleware/authMiddleware');
+const SessionLog = require('../models/SessionLog');
+
+router.get('/my-sessions', protect, async (req, res, next) => {
+    try {
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        const sessions = await SessionLog.find({ 
+            user: req.user._id,
+            createdAt: { $gte: thirtyDaysAgo }
+        }).sort('-createdAt').lean();
+        
+        res.status(200).json({ status: 'success', data: { sessions } });
+    } catch (err) {
+        next(err);
+    }
+});
 
 router.get('/', protect, restrictTo('admin', 'super-admin'), async (req, res, next) => {
     try {

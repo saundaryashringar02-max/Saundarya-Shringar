@@ -202,7 +202,7 @@ const PrivacyPolicy = () => {
           <div className="p-6 bg-brand-pink/[0.02] rounded-2xl border border-brand-pink/5 text-center">
             <p className="text-[10px] text-brand-pink font-bold uppercase tracking-widest mb-4">For Privacy-Related Queries</p>
             <div className="flex flex-col md:flex-row justify-center gap-6 text-sm">
-              <a href="mailto:saundaryashringar02@gmail.com" className="text-brand-dark hover:text-brand-pink transition-colors">saundaryashringar02@gmail.com</a>
+              <a href="mailto:care@saundaryashringar.com,saundaryashringar02@gmail.com" className="text-brand-dark hover:text-brand-pink transition-colors">care@saundaryashringar.com, saundaryashringar02@gmail.com</a>
               <a href="https://api.whatsapp.com/send?phone=919896472169" target="_blank" rel="noreferrer" className="text-brand-dark hover:text-brand-pink transition-colors">+91-9896472169</a>
               <span className="text-brand-dark">Lajpat Nagar, Fatehabad, Haryana</span>
             </div>

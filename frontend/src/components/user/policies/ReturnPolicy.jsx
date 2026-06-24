@@ -249,7 +249,7 @@ const ReturnPolicy = () => {
           <div className="grid md:grid-cols-3 gap-6 bg-brand-pink/[0.02] p-6 rounded-2xl border border-brand-pink/5">
             <div>
               <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">Email</p>
-              <a href="mailto:saundaryashringar02@gmail.com" className="text-sm text-brand-dark hover:text-brand-pink transition-colors">saundaryashringar02@gmail.com</a>
+              <a href="mailto:care@saundaryashringar.com,saundaryashringar02@gmail.com" className="text-sm text-brand-dark hover:text-brand-pink transition-colors">care@saundaryashringar.com, saundaryashringar02@gmail.com</a>
             </div>
             <div>
               <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest mb-1">WhatsApp</p>

@@ -97,10 +97,13 @@ const Footer = () => {
                 <FiPhone className="shrink-0 opacity-60 group-hover:scale-110 transition-transform" size={10} />
                 <a href="tel:01667454631" className="transition-all underline-offset-4 hover:underline text-nowrap">Land Line: 01667 454631</a>
               </p>
-              <p className="flex items-center gap-2 group transition-colors hover:text-brand-pink">
-                <FiMail className="shrink-0 opacity-60 group-hover:scale-110 transition-transform" size={10} />
-                <a href="mailto:saundaryashringar02@gmail.com" className="break-all transition-all underline-offset-4 hover:underline">saundaryashringar02@gmail.com</a>
-              </p>
+              <div className="flex items-start gap-2 group transition-colors hover:text-brand-pink">
+                <FiMail className="shrink-0 opacity-60 group-hover:scale-110 transition-transform mt-0.5" size={10} />
+                <div className="flex flex-col gap-1">
+                  <a href="mailto:care@saundaryashringar.com" className="break-all transition-all underline-offset-4 hover:underline">care@saundaryashringar.com</a>
+                  <a href="mailto:saundaryashringar02@gmail.com" className="break-all transition-all underline-offset-4 hover:underline">saundaryashringar02@gmail.com</a>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -34,6 +34,25 @@ const AdminSettings = () => {
   const [profileForm, setProfileForm] = useState({ ...adminInfo });
   const [activeSecurityView, setActiveSecurityView] = useState(null); // 'password', 'notifications', 'presets', 'archive'
   const [passwordForm, setPasswordForm] = useState({ current: '', new: '', confirm: '' });
+  const [sessions, setSessions] = useState([]);
+  const [loadingSessions, setLoadingSessions] = useState(false);
+
+  useEffect(() => {
+    if (activeSecurityView === 'archive') {
+      const fetchSessions = async () => {
+        setLoadingSessions(true);
+        try {
+          const res = await api.get('/users/my-sessions');
+          setSessions(res.data.data.sessions);
+        } catch (err) {
+          console.error("Failed to fetch sessions", err);
+        } finally {
+          setLoadingSessions(false);
+        }
+      };
+      fetchSessions();
+    }
+  }, [activeSecurityView]);
 
   useEffect(() => {
     setPasswordForm(prev => ({ ...prev, current: '' }));
@@ -209,20 +228,22 @@ const AdminSettings = () => {
               <button onClick={() => setActiveSecurityView(null)} className="text-gray-300 hover:text-brand-dark transition-colors"><FiX size={18} /></button>
             </div>
             <div className="space-y-2 overflow-y-auto max-h-[300px] pr-2 custom-scrollbar">
-              {[
-                { time: '21 Mar 2026, 01:06 PM', ip: '192.168.1.1', device: 'Windows / Chrome', status: 'Success' },
-                { time: '20 Mar 2026, 11:45 AM', ip: '192.168.1.1', device: 'Windows / Chrome', status: 'Success' },
-                { time: '19 Mar 2026, 09:12 PM', ip: '45.12.33.2', device: 'iPhone / Safari', status: 'Blocked' },
-                { time: '19 Mar 2026, 08:30 PM', ip: '192.168.1.1', device: 'Windows / Chrome', status: 'Success' },
-              ].map((session, i) => (
-                <div key={i} className="bg-white p-3 border border-brand-pink/5 flex justify-between items-center group hover:border-brand-pink/20 transition-all">
+              {loadingSessions ? (
+                <p className="text-[9px] text-center text-gray-400 mt-4 uppercase tracking-widest">Loading sessions...</p>
+              ) : sessions.length === 0 ? (
+                <p className="text-[9px] text-center text-gray-400 mt-4 uppercase tracking-widest">No recent sessions found</p>
+              ) : sessions.map((session, i) => {
+                const dateOpts = { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+                const timeStr = new Date(session.createdAt).toLocaleString('en-IN', dateOpts).replace(',', '');
+                return (
+                <div key={session._id || i} className="bg-white p-3 border border-brand-pink/5 flex justify-between items-center group hover:border-brand-pink/20 transition-all">
                   <div>
-                    <p className="text-[9px] font-bold text-brand-dark">{session.time}</p>
+                    <p className="text-[9px] font-bold text-brand-dark">{timeStr}</p>
                     <p className="text-[7px] text-gray-400 uppercase tracking-tighter mt-1">{session.device} • {session.ip}</p>
                   </div>
                   <span className={`text-[7px] font-bold uppercase px-2 py-0.5 ${session.status === 'Success' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>{session.status}</span>
                 </div>
-              ))}
+              )})}
             </div>
             <p className="text-[7px] text-center text-gray-400 mt-4 uppercase tracking-widest">Only displaying activity from last 30 days</p>
           </motion.div>

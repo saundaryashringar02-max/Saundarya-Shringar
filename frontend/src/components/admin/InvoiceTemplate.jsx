@@ -74,7 +74,7 @@ const InvoiceTemplate = ({ order }) => {
                   </div>
                   <div className="flex items-center gap-4 text-[10px] text-gray-500 mb-1">
                     <p className="flex items-center gap-1"><span className="text-[#d4af37]">📞</span> 9896472169</p>
-                    <p className="flex items-center gap-1"><span className="text-[#d4af37]">✉️</span> saundaryashringar02@gmail.com</p>
+                    <p className="flex items-center gap-1"><span className="text-[#d4af37]">✉️</span> care@saundaryashringar.com, saundaryashringar02@gmail.com</p>
                   </div>
                   <p className="text-[10px] text-gray-500 flex items-center gap-1 mb-1.5"><span className="text-[#d4af37]">📍</span> LAJPAT NAGAR NEAR RADHA, SWAMIBHAWAN, Fatehabad, Haryana, 125050</p>
                   <div className="flex items-center gap-4 text-[10px] text-[#2b3a6b] font-bold">

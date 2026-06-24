@@ -132,8 +132,8 @@ const ShippingPolicy = () => {
             If you face any delays, tracking issues, or delivery concerns, please contact us:
           </p>
           <div className="flex flex-col md:flex-row gap-6 p-6 bg-brand-dark/5 rounded-2xl">
-            <a href="mailto:saundaryashringar02@gmail.com" className="flex items-center gap-3 text-sm text-brand-dark hover:text-brand-pink transition-colors">
-              <FiMail className="text-brand-pink" /> saundaryashringar02@gmail.com
+            <a href="mailto:care@saundaryashringar.com,saundaryashringar02@gmail.com" className="flex items-center gap-3 text-sm text-brand-dark hover:text-brand-pink transition-colors">
+              <FiMail className="text-brand-pink" /> care@saundaryashringar.com, saundaryashringar02@gmail.com
             </a>
             <a href="https://api.whatsapp.com/send?phone=919896472169" target="_blank" rel="noreferrer" className="flex items-center gap-3 text-sm text-brand-dark hover:text-brand-pink transition-colors">
               <FiPhone className="text-brand-pink" /> +91-9896472169
@@ -177,7 +177,7 @@ const ShippingPolicy = () => {
                 </div>
                 <div className="space-y-2">
                   <p className="text-[10px] font-bold text-brand-pink uppercase tracking-widest">Direct Contact</p>
-                  <p className="text-sm text-gray-700">Email: saundaryashringar02@gmail.com</p>
+                  <p className="text-sm text-gray-700">Email: care@saundaryashringar.com, saundaryashringar02@gmail.com</p>
                   <p className="text-sm text-gray-700">Phone: +91-9896472169</p>
                 </div>
               </div>
