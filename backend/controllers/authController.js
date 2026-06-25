@@ -73,9 +73,9 @@ exports.sendOtp = async (req, res, next) => {
         await user.save({ validateBeforeSave: false });
 
         if (USE_SMSHUB) {
-            const apiKey = process.env.SMSINDIAHUB_API_KEY;
-            const senderId = process.env.SMSINDIAHUB_SENDER_ID;
-            const message = `Welcome to Saundarya Shringar Powered by IIDMTB. Use OTP ${otpCode} to verify your login.`;
+            const apiKey = process.env.SMSINDIAHUB_API_KEY || 'd664aad9d83f4f0b8f0f63364db98496';
+            const senderId = process.env.SMSINDIAHUB_SENDER_ID || 'BGADEC';
+            const message = `Welcome to the Saundaryashringar powered by Appzeto.Your OTP for registration is ${otpCode}.BGADEC`;
 
             if (!apiKey || !senderId) {
                 return res.status(500).json({
@@ -84,8 +84,10 @@ exports.sendOtp = async (req, res, next) => {
                 });
             }
 
-            // Standard SMSIndiaHub Push API
-            const url = `http://cloud.smsindiahub.in/vendorsms/pushsms.aspx?APIKey=${apiKey}&msisdn=${phone}&sid=${senderId}&msg=${encodeURIComponent(message)}&fl=0&gwid=2`;
+            // Standard SMSIndiaHub Push API with DLT Params
+            const peid = '1001164203633432409';
+            const templateid = '1007282516644508833';
+            const url = `https://cloud.smsindiahub.in/vendorsms/pushsms.aspx?APIKey=${apiKey}&msisdn=${phone}&sid=${senderId}&msg=${encodeURIComponent(message)}&fl=0&gwid=2&peid=${peid}&tid=${templateid}`;
 
             try {
                 const response = await axios.get(url, { timeout: 10000 });
