@@ -181,7 +181,7 @@ const ReturnPolicy = () => {
             <h2>9. Refund Timeline</h2>
           </div>
           <ul className={bulletListStyle}>
-            <li>Refunds are initiated within <span className="font-bold">5–7 business days</span> after approval.</li>
+            <li>Refunds are credited within <span className="font-bold">5–7 business days</span> after approval.</li>
             <li>The amount will be credited to the original payment method.</li>
             <li>Final credit timelines may vary depending on your bank or payment provider.</li>
           </ul>
