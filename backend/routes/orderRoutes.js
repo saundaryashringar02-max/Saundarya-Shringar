@@ -8,6 +8,8 @@ router.post('/razorpay/create', orderController.captureRazorpayOrder);
 router.post('/razorpay/verify', protect, orderController.verifyRazorpayPayment);
 router.post('/payu/initiate', protect, orderController.initiatePayuPayment);
 router.post('/payu/callback', orderController.payuCallback);
+router.post('/airpay/initiate', protect, orderController.initiateAirpayPayment);
+router.post('/airpay/callback', orderController.airpayCallback);
 router.post('/', protect, orderController.createOrder);
 router.get('/my-orders', protect, orderController.getMyOrders);
 router.get('/track/:orderId', orderController.getOrder); // Public track via ID

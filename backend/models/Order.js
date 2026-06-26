@@ -61,7 +61,7 @@ const orderSchema = new mongoose.Schema({
     },
     paymentMethod: {
         type: String,
-        enum: ['PayNow', 'COD'],
+        enum: ['PayNow', 'COD', 'Airpay'],
         default: 'PayNow'
     },
     trackingId: String,

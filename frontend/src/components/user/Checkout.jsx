@@ -1,3 +1,919 @@
+// import React, { useState, useEffect } from 'react';
+// import { motion, AnimatePresence } from 'framer-motion';
+// import { FiChevronLeft, FiShoppingBag, FiCreditCard, FiTruck, FiCheckCircle, FiShield, FiMinus, FiPlus, FiTrash2, FiCheck, FiAlertTriangle } from 'react-icons/fi';
+// import { useShop } from '../../context/ShopContext';
+// import { Link, useLocation, useNavigate } from 'react-router-dom';
+// import api from '../../utils/api';
+
+// const Checkout = () => {
+//   const { cart, removeFromCart, updateQuantity, cartTotal, cartCount, clearCart, verifyAndClearCart, orderId, user, isAuthenticated, isAuthLoading, settings } = useShop();
+//   const navigate = useNavigate();
+//   const location = useLocation();
+
+//   const [step, setStep] = useState(1); // 1: Cart, 2: Details, 3: Payment
+//   const [isSuccess, setIsSuccess] = useState(false);
+//   const [selectedPayment, setSelectedPayment] = useState('paynow');
+//   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
+//   const [formData, setFormData] = useState({
+//     name: '',
+//     email: '',
+//     phone: '',
+//     address: '',
+//     landmark: '',
+//     pincode: '',
+//     city: '',
+//     district: '',
+//     state: ''
+//   });
+
+//   // Restore state from login redirect if available
+//   useEffect(() => {
+//     if (location.state?.formData) {
+//       setFormData(location.state.formData);
+//       setStep(3); // Jump to payment step if coming back from login
+//     }
+//   }, [location.state]);
+//   const [couponCode, setCouponCode] = useState('');
+//   const [appliedCoupon, setAppliedCoupon] = useState(null);
+//   const [discountAmount, setDiscountAmount] = useState(0);
+//   const [couponLoading, setCouponLoading] = useState(false);
+//   const [couponError, setCouponError] = useState('');
+//   const [isDisclaimerAccepted, setIsDisclaimerAccepted] = useState(false);
+//   const [disclaimerError, setDisclaimerError] = useState('');
+//   const [errors, setErrors] = useState({});
+//   const [isPincodeLoading, setIsPincodeLoading] = useState(false);
+//   const [pincodeStatus, setPincodeStatus] = useState('');
+
+//   // Pre-populate data from profile
+//   useEffect(() => {
+//     if (user && !isAuthLoading) {
+//       setFormData(prev => ({
+//         ...prev,
+//         name: prev.name || user.name || '',
+//         email: prev.email || user.email || '',
+//         phone: prev.phone || user.phone || '',
+//         address: prev.address || user.address || '',
+//         landmark: prev.landmark || user.landmark || '',
+//         pincode: prev.pincode || user.pincode || '',
+//         city: prev.city || user.city || '',
+//         district: prev.district || user.district || '',
+//         state: prev.state || user.state || ''
+//       }));
+//     }
+//   }, [user, isAuthLoading]);
+
+//   // Auto detect city/district/state from Indian pincode
+//   useEffect(() => {
+//     const pin = (formData.pincode || '').trim();
+//     if (!/^\d{6}$/.test(pin)) {
+//       setPincodeStatus('');
+//       return;
+//     }
+
+//     let isActive = true;
+//     const detectFromPincode = async () => {
+//       setIsPincodeLoading(true);
+//       setPincodeStatus('Detecting location...');
+//       try {
+//         const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
+//         const data = await res.json();
+//         const record = data?.[0];
+//         const office = record?.PostOffice?.[0];
+
+//         if (!isActive) return;
+
+//         if (record?.Status === 'Success' && office) {
+//           setFormData(prev => ({
+//             ...prev,
+//             city: office?.Block || office?.Name || '',
+//             district: office?.District || '',
+//             state: office?.State || ''
+//           }));
+//           setErrors(prev => ({ ...prev, pincode: '', city: '', district: '', state: '' }));
+//           setPincodeStatus(`Detected: ${office?.District || ''}, ${office?.State || ''}`.trim());
+//         } else {
+//           setPincodeStatus('Invalid pincode. Please check and try again.');
+//         }
+//       } catch (e) {
+//         if (!isActive) return;
+//         setPincodeStatus('Unable to detect location right now. Please enter manually.');
+//       } finally {
+//         if (isActive) setIsPincodeLoading(false);
+//       }
+//     };
+
+//     detectFromPincode();
+//     return () => {
+//       isActive = false;
+//     };
+//   }, [formData.pincode]);
+
+//   // Scroll to top on step change or load
+//   useEffect(() => {
+//     window.scrollTo(0, 0);
+//   }, [step, isSuccess]);
+
+//   // Router State Payload checks (Promos from Bag)
+//   const directProduct = location.state?.directProduct || null;
+//   const passedCouponCode = location.state?.couponApplied || null;
+
+//   // Initialize with passed coupon if any
+//   useEffect(() => {
+//     const initCoupon = async () => {
+//       if (passedCouponCode) {
+//         try {
+//           const res = await api.post('/coupons/validate', { code: passedCouponCode });
+//           const coupon = res.data.data.coupon;
+//           setAppliedCoupon(coupon);
+//           // Calculate initial discount
+//           const st = directProduct ? (directProduct.originalPrice || directProduct.price) * (directProduct.quantity || 1) : cartTotal;
+//           if (coupon.discountType === 'percentage') {
+//             setDiscountAmount(Math.round(st * (coupon.discountValue / 100)));
+//           } else {
+//             setDiscountAmount(coupon.discountValue);
+//           }
+//         } catch (err) {
+//           console.error("Initial coupon validation failed", err);
+//         }
+//       }
+//     };
+//     initCoupon();
+//   }, [passedCouponCode, cartTotal, directProduct]);
+
+//   const displayItems = directProduct ? [directProduct] : cart;
+
+//   // Dynamic Logistics Math
+//   const subtotal = directProduct
+//     ? (directProduct.originalPrice || directProduct.price) * (directProduct.quantity || 1)
+//     : cartTotal;
+
+//   const currentTaxRate = settings?.taxRate || 18;
+//   const shippingValue = 0; // Forced to zero as per user requirement to show internal price in invoice but not charge here.
+//   const actualShipping = (settings?.deliveryCharge || 50);
+
+//   // Display Tax calculated as percentage of subtotal, but it is INCLUSIVE (already in main price)
+//   const taxAmount = Math.round(subtotal * (currentTaxRate / 100));
+//   const codFee = (selectedPayment === 'cod' && settings?.isCodEnabled) ? (settings?.codCharge || 0) : 0;
+//   const total = Math.max(0, subtotal - discountAmount + shippingValue + codFee);
+
+//   const handleInputChange = (e) => {
+//     const { name, value } = e.target;
+//     const sanitizedValue = name === 'pincode' ? value.replace(/\D/g, '').slice(0, 6) : value;
+//     setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
+//     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+//   };
+
+//   const validateDetails = () => {
+//     const newErrors = {};
+//     if (!formData.name?.trim()) newErrors.name = 'Name is required';
+//     if (!formData.email?.trim()) {
+//       newErrors.email = 'Email is required';
+//     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+//       newErrors.email = 'Please enter a valid email address';
+//     }
+//     if (!formData.phone?.trim()) {
+//       newErrors.phone = 'Phone is required';
+//     } else if (!/^\d{10}$/.test(formData.phone.trim())) {
+//       newErrors.phone = 'Please enter a valid 10-digit number';
+//     }
+//     if (!formData.address?.trim()) newErrors.address = 'Address is required';
+//     if (!formData.pincode?.trim()) {
+//       newErrors.pincode = 'Pincode is required';
+//     } else if (!/^\d{6}$/.test(formData.pincode.trim())) {
+//       newErrors.pincode = 'Please enter a valid 6-digit pincode';
+//     }
+//     if (!formData.city?.trim()) newErrors.city = 'City is required';
+//     if (!formData.district?.trim()) newErrors.district = 'District is required';
+//     if (!formData.state?.trim()) newErrors.state = 'State is required';
+
+//     setErrors(newErrors);
+//     return Object.keys(newErrors).length === 0;
+//   };
+
+//   // PayU Integration
+//   const handlePayU = async () => {
+//     setIsPaymentLoading(true);
+//     try {
+//       const orderDetails = {
+//         items: displayItems.map(i => ({ product: i._id, quantity: i.quantity || 1, price: i.price, name: i.name, image: i.image, size: i.selectedSize })),
+//         subTotal: subtotal,
+//         taxAmount: taxAmount,
+//         taxRate: currentTaxRate,
+//         shippingAmount: shippingValue,
+//         actualShippingAmount: actualShipping,
+//         totalAmount: total,
+//         shippingAddress: formData,
+//         couponCode: appliedCoupon?.code
+//       };
+
+//       // 1. Get hash and parameters from backend
+//       const res = await api.post('/orders/payu/initiate', { orderDetails });
+//       const { key, txnid, amount, productinfo, firstname, email, phone, udf1, hash } = res.data.data;
+
+//       // 2. Create dynamic form and submit
+//       const form = document.createElement('form');
+//       form.method = 'POST';
+//       form.action = 'https://secure.payu.in/_payment'; 
+
+//       const inputs = {
+//         key,
+//         txnid,
+//         amount,
+//         productinfo,
+//         firstname,
+//         email,
+//         phone,
+//         udf1,
+//         surl: `${import.meta.env.VITE_API_URL}/orders/payu/callback`,
+//         furl: `${import.meta.env.VITE_API_URL}/orders/payu/callback`,
+//         hash
+//       };
+
+//       Object.keys(inputs).forEach(k => {
+//         const input = document.createElement('input');
+//         input.type = 'hidden';
+//         input.name = k;
+//         input.value = inputs[k];
+//         form.appendChild(input);
+//       });
+
+//       document.body.appendChild(form);
+//       form.submit();
+
+//     } catch (err) {
+//       console.error("PayU initiation error", err);
+//       alert("Payment gateway failed: " + (err.response?.data?.message || err.message));
+//       setIsPaymentLoading(false);
+//     }
+//   };
+
+//   const handleAirpay = async () => {
+//     setIsPaymentLoading(true);
+//     try {
+//       const orderDetails = {
+//         items: displayItems.map(i => ({ product: i._id, quantity: i.quantity || 1, price: i.price, name: i.name, image: i.image, size: i.selectedSize })),
+//         subTotal: subtotal,
+//         taxAmount: taxAmount,
+//         taxRate: currentTaxRate,
+//         shippingAmount: shippingValue,
+//         actualShippingAmount: actualShipping,
+//         totalAmount: total,
+//         shippingAddress: formData,
+//         couponCode: appliedCoupon?.code
+//       };
+
+//       const res = await api.post('/orders/airpay/initiate', { orderDetails });
+//       const data = res.data.data;
+
+//       const form = document.createElement('form');
+//       form.method = 'POST';
+//       form.action = 'https://payments.airpay.co.in/pay/index.php';
+
+//       const inputs = {
+//         privatekey: data.privatekey,
+//         mercid: data.mercid,
+//         orderid: data.orderid,
+//         amount: data.amount,
+//         buyerEmail: data.buyerEmail,
+//         buyerPhone: data.buyerPhone,
+//         buyerFirstName: data.buyerFirstName,
+//         buyerLastName: data.buyerLastName,
+//         buyerAddress: data.buyerAddress,
+//         buyerCity: data.buyerCity,
+//         buyerState: data.buyerState,
+//         buyerCountry: data.buyerCountry,
+//         buyerPinCode: data.buyerPinCode,
+//         currency: data.currency,
+//         isocurrency: data.isocurrency,
+//         customvar: data.customvar,
+//         checksum: data.checksum
+//       };
+
+//       Object.keys(inputs).forEach(k => {
+//         const input = document.createElement('input');
+//         input.type = 'hidden';
+//         input.name = k;
+//         input.value = inputs[k];
+//         form.appendChild(input);
+//       });
+
+//       // DEBUG: Log all data going to Airpay - check browser console
+//       console.log('=== AIRPAY DEBUG ===');
+//       console.log('privatekey:', data.privatekey);
+//       console.log('checksum being used:', data.checksum);
+//       console.log('mercid:', data.mercid);
+//       console.log('orderid:', data.orderid);
+//       console.log('amount:', data.amount);
+//       console.log('buyerEmail:', data.buyerEmail);
+//       console.log('buyerPhone:', data.buyerPhone);
+//       console.log('buyerFirstName:', data.buyerFirstName);
+//       console.log('buyerLastName:', data.buyerLastName);
+//       if (data.allChecksums) {
+//         console.log('=== ALL CHECKSUM VARIANTS ===');
+//         Object.entries(data.allChecksums).forEach(([name, val]) => console.log(`  ${name}:`, val));
+//       }
+//       console.log('====================');
+
+//       document.body.appendChild(form);
+//       form.submit();
+
+//     } catch (err) {
+//       console.error("Airpay initiation error", err);
+//       alert("Airpay gateway failed: " + (err.response?.data?.message || err.message));
+//       setIsPaymentLoading(false);
+//     }
+//   };
+
+//   const handleApplyCoupon = async () => {
+//     if (!couponCode.trim()) return;
+//     setCouponLoading(true);
+//     setCouponError('');
+//     try {
+//       const res = await api.post('/coupons/validate', { code: couponCode.trim().toUpperCase() });
+//       const coupon = res.data.data.coupon;
+//       setAppliedCoupon(coupon);
+
+//       let discount = 0;
+//       if (coupon.discountType === 'percentage') {
+//         discount = Math.round(subtotal * (coupon.discountValue / 100));
+//       } else {
+//         discount = coupon.discountValue;
+//       }
+//       setDiscountAmount(discount);
+//       setCouponCode('');
+//     } catch (err) {
+//       setCouponError(err.response?.data?.message || 'Invalid Ritual Key');
+//     } finally {
+//       setCouponLoading(false);
+//     }
+//   };
+
+//   const handleProceed = async () => {
+//     if (step === 1) {
+//       if (displayItems.length === 0) return;
+//       setStep(2);
+//     } else if (step === 2) {
+//       if (validateDetails()) setStep(3);
+//     } else if (step === 3) {
+//       // MANDATORY: User MUST log in before they can finalize the order
+//       if (!isAuthenticated) {
+//         // Save form data and current state before redirecting to login
+//         navigate('/login', { 
+//           state: { 
+//             from: '/checkout',
+//             formData: formData 
+//           } 
+//         });
+//         return;
+//       }
+
+//       if (!isDisclaimerAccepted) {
+//         setDisclaimerError('Please accept the disclaimer to continue.');
+//         return;
+//       }
+
+//       if (selectedPayment === 'paynow') {
+//         await handlePayU();
+//       } else if (selectedPayment === 'airpay') {
+//         await handleAirpay();
+//       } else {
+//         try {
+//           await clearCart({
+//             ...formData,
+//             items: displayItems.map(i => ({ product: i._id, quantity: i.quantity || 1, price: i.price, name: i.name, image: i.image, size: i.selectedSize })),
+//             couponCode: appliedCoupon?.code
+//           }, total, { subtotal, taxAmount, taxRate: currentTaxRate, shippingValue, actualShipping });
+//           setIsSuccess(true);
+//         } catch (err) {
+//           console.error("Checkout failed", err);
+//         }
+//       }
+//     }
+//   };
+
+//   if (isSuccess) {
+//     return (
+//       <div className="min-h-screen bg-[#FDFCFB] flex items-center justify-center p-4">
+//         <motion.div
+//           initial={{ opacity: 0, scale: 0.95 }}
+//           animate={{ opacity: 1, scale: 1 }}
+//           className="max-w-xs w-full bg-white p-6 md:p-8 text-center shadow-2xl border border-gray-100"
+//         >
+//           <motion.div
+//             initial={{ scale: 0 }}
+//             animate={{ scale: 1 }}
+//             transition={{ type: 'spring', damping: 12, stiffness: 200, delay: 0.2 }}
+//             className="w-14 h-14 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6 text-white shadow-xl shadow-green-500/20"
+//           >
+//             <FiCheck size={30} strokeWidth={3} />
+//           </motion.div>
+
+//           <h2 className="text-2xl font-serif font-black text-[#5C2E3E] mb-1 uppercase tracking-tighter">
+//             Order <span className="text-brand-pink">Confirmed</span>
+//           </h2>
+//           <div className="w-8 h-0.5 bg-brand-gold mx-auto mb-4"></div>
+
+//           <p className="text-[9px] text-gray-400 uppercase tracking-[0.2em] font-bold mb-6 leading-relaxed">
+//             Your treasures are being gathered. Check your mail for details.
+//           </p>
+
+//           <div className="space-y-3">
+//             <div className="p-3 bg-gray-50 text-left border-l-2 border-brand-gold">
+//               <p className="text-[7px] font-black text-gray-400 uppercase tracking-widest mb-1">Ritual Key (SS ID)</p>
+//               <p className="text-[10px] font-bold text-brand-gold">{orderId}</p>
+//             </div>
+
+//             <div className="p-3 bg-gray-50 text-left border-l-2 border-[#5C2E3E]">
+//               <p className="text-[7px] font-black text-gray-400 uppercase tracking-widest mb-1">Destination</p>
+//               <p className="text-[10px] font-bold text-[#5C2E3E] truncate">{formData.name}</p>
+//               <p className="text-[8px] text-[#5C2E3E]/60 font-serif italic line-clamp-1">{formData.address}</p>
+//             </div>
+
+//             <Link to={`/track-order?id=${orderId}`} className="w-full inline-block px-8 py-3 bg-brand-gold text-white text-[9px] font-black uppercase tracking-[0.2em] shadow-lg hover:bg-[#5C2E3E] transition-all mb-2">
+//               Track Journey
+//             </Link>
+
+//             <button
+//               onClick={async () => {
+//                 try {
+//                   const res = await api.get(`/orders/track/${orderId}`);
+//                   const order = res.data.data.order;
+//                   const m = await import('../../utils/invoiceHelper');
+//                   m.generateInvoice(order);
+//                 } catch (err) {
+//                   alert("Failed to retrieve invoice details.");
+//                 }
+//               }}
+//               className="w-full inline-block px-8 py-3 border border-brand-pink text-brand-pink text-[9px] font-black uppercase tracking-[0.2em] hover:bg-brand-pink hover:text-white transition-all mb-2"
+//             >
+//               Download Invoice
+//             </button>
+
+//             <Link to="/" className="w-full inline-block px-8 py-3 border border-gray-100 text-[#5C2E3E] text-[9px] font-bold uppercase tracking-[0.2em] hover:bg-gray-50 transition-all active:scale-95">
+//               Back to Sanctuary
+//             </Link>
+//           </div>
+//         </motion.div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="min-h-screen bg-[#FDFCFB] pb-24 lg:pt-8">
+//       <div className="container mx-auto px-4 md:px-8 max-w-6xl">
+//         {/* Back Button */}
+//         <div
+//           onClick={() => step > 1 ? setStep(step - 1) : navigate(-1)}
+//           className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-colors mb-8 cursor-pointer text-black hover:text-[#5C2E3E]"
+//         >
+//           <FiChevronLeft /> Previous Step
+//         </div>
+
+//         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+//           {/* Main Content */}
+//           <div className="lg:col-span-8 space-y-8">
+//             {/* Steps Indicator */}
+//             <div className="flex items-center justify-between max-w-md mx-auto mb-16 relative">
+//               <div className="absolute top-1/2 left-0 w-full h-[1px] bg-gray-100 -z-10" />
+//               {[
+//                 { id: 1, label: 'BAG', icon: <FiShoppingBag size={12} /> },
+//                 { id: 2, label: 'DETAILS', icon: <FiTruck size={12} /> },
+//                 { id: 3, label: 'PAYMENT', icon: <FiCreditCard size={12} /> }
+//               ].map((s) => (
+//                 <div key={s.id} className="flex flex-col items-center gap-3">
+//                   <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 border ${step === s.id ? 'bg-[#5C2E3E] text-white border-[#5C2E3E] shadow-lg scale-110' :
+//                     step > s.id ? 'bg-brand-gold text-white border-brand-gold' : 'bg-white text-gray-300 border-gray-100'
+//                     }`}>
+//                     {step > s.id ? <FiCheck size={14} strokeWidth={3} /> : s.icon}
+//                   </div>
+//                   <span className={`text-[8px] font-black tracking-widest ${step >= s.id ? 'text-[#5C2E3E]' : 'text-gray-300'}`}>
+//                     {s.label}
+//                   </span>
+//                 </div>
+//               ))}
+//             </div>
+
+//             <AnimatePresence mode="wait">
+//               {step === 1 && (
+//                 <motion.div key="step1" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
+//                   <h1 className="text-3xl md:text-4xl font-serif font-black text-[#5C2E3E] mb-8 uppercase tracking-tighter">
+//                     Order <span className="text-brand-pink italic">Selection</span>
+//                   </h1>
+
+//                   <div className="space-y-3">
+//                     {displayItems.length > 0 ? (
+//                       displayItems.map((item) => (
+//                         <div key={`${item._id}-${item.selectedSize || 'nosize'}`} className={`bg-white p-3 border border-gray-100 shadow-sm flex items-center gap-4 group transition-all ${directProduct ? 'border-brand-pink/10' : 'hover:border-brand-pink/20'}`}>
+//                           <div className="w-16 h-20 bg-[#F9F6F4] shrink-0">
+//                             <img src={item.image} alt={item.name} className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all" />
+//                           </div>
+//                           <div className="flex-1 min-w-0">
+//                             <div className="flex justify-between items-start">
+//                               <h3 className="text-[10px] font-black text-[#5C2E3E] uppercase tracking-widest truncate">{item.name}</h3>
+//                               {item.selectedSize && (
+//                                 <span className="text-[8px] font-black text-brand-pink border border-brand-pink/20 px-1.5 rounded bg-brand-pink/5">
+//                                   {item.selectedSize}
+//                                 </span>
+//                               )}
+//                             </div>
+//                             <p className="text-[9px] text-gray-400 font-serif italic mb-2">{item.subCategory}</p>
+//                             <div className="flex items-center gap-4">
+//                               <div className={`flex items-center gap-2.5 bg-gray-50 border border-gray-100 px-2 py-0.5 scale-90 -ml-2 ${directProduct ? 'opacity-50 cursor-not-allowed' : ''}`}>
+//                                 <button
+//                                   onClick={() => !directProduct && updateQuantity(item._id, item.selectedSize, -1)}
+//                                   className={`text-gray-400 hover:text-brand-pink transition-colors ${directProduct ? 'pointer-events-none' : ''}`}
+//                                 >
+//                                   <FiMinus size={8} />
+//                                 </button>
+//                                 <span className="text-[10px] font-black text-[#5C2E3E] w-3 text-center">{item.quantity || 1}</span>
+//                                 <button
+//                                   onClick={() => !directProduct && updateQuantity(item._id, item.selectedSize, 1)}
+//                                   className={`text-gray-400 hover:text-brand-pink transition-colors ${directProduct ? 'pointer-events-none' : ''}`}
+//                                 >
+//                                   <FiPlus size={8} />
+//                                 </button>
+//                               </div>
+//                               {!directProduct && (
+//                                 <button onClick={() => removeFromCart(item._id, item.selectedSize)} className="text-[#5C2E3E]/30 hover:text-red-500 transition-colors uppercase text-[7px] font-black tracking-[0.2em]">
+//                                   Remove
+//                                 </button>
+//                               )}
+//                             </div>
+//                           </div>
+//                           <div className="text-right pr-2">
+//                             <span className="text-[11px] font-black text-brand-gold">₹{item.price * (item.quantity || 1)}</span>
+//                           </div>
+//                         </div>
+//                       ))
+//                     ) : (
+//                       <div className="py-20 text-center bg-white border border-gray-100">
+//                         <p className="text-xl font-serif italic text-gray-300 mb-6">"Your selection remains empty..."</p>
+//                         <Link to="/shop" className="text-[10px] font-black uppercase tracking-widest text-brand-gold underline decoration-brand-pink/30 underline-offset-8">Discover Treasures</Link>
+//                       </div>
+//                     )}
+//                   </div>
+//                 </motion.div>
+//               )}
+
+//               {step === 2 && (
+//                 <motion.div key="step2" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-8">
+//                   <h1 className="text-3xl md:text-4xl font-serif font-black text-[#5C2E3E] uppercase tracking-tighter">
+//                     Shipping <span className="text-brand-pink italic">Sanctuary</span>
+//                   </h1>
+//                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8 bg-white p-8 border border-gray-100">
+//                     <div className="space-y-3">
+//                       <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">Full Name *</label>
+//                       <input
+//                         type="text"
+//                         name="name"
+//                         value={formData.name}
+//                         onChange={handleInputChange}
+//                         className={`w-full bg-white border ${errors.name ? 'border-red-400' : 'border-[#5C2E3E]/10'} px-6 py-4 text-[11px] font-bold outline-none focus:border-brand-pink/30 transition-all shadow-sm`}
+//                         placeholder=""
+//                       />
+//                       {errors.name && <p className="text-red-400 text-[8px] font-black uppercase tracking-widest ml-1">{errors.name}</p>}
+//                     </div>
+//                     <div className="space-y-3">
+//                       <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">Email *</label>
+//                       <input
+//                         type="email"
+//                         name="email"
+//                         value={formData.email}
+//                         onChange={handleInputChange}
+//                         className={`w-full bg-white border ${errors.email ? 'border-red-400' : 'border-[#5C2E3E]/10'} px-6 py-4 text-[11px] font-bold outline-none focus:border-brand-pink/30 transition-all shadow-sm`}
+//                         placeholder=""
+//                       />
+//                       {errors.email && <p className="text-red-400 text-[8px] font-black uppercase tracking-widest ml-1">{errors.email}</p>}
+//                     </div>
+//                     <div className="space-y-3">
+//                       <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">Phone *</label>
+//                       <input
+//                         type="text"
+//                         name="phone"
+//                         value={formData.phone}
+//                         onChange={handleInputChange}
+//                         className={`w-full bg-white border ${errors.phone ? 'border-red-400' : 'border-[#5C2E3E]/10'} px-6 py-4 text-[11px] font-bold outline-none focus:border-brand-pink/30 transition-all shadow-sm`}
+//                         placeholder=""
+//                       />
+//                       {errors.phone && <p className="text-red-400 text-[8px] font-black uppercase tracking-widest ml-1">{errors.phone}</p>}
+//                     </div>
+//                     <div className="space-y-3">
+//                       <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">Pincode *</label>
+//                       <input
+//                         type="text"
+//                         name="pincode"
+//                         value={formData.pincode}
+//                         onChange={handleInputChange}
+//                         className={`w-full bg-white border ${errors.pincode ? 'border-red-400' : 'border-[#5C2E3E]/10'} px-6 py-4 text-[11px] font-bold outline-none focus:border-brand-pink/30 transition-all shadow-sm`}
+//                         placeholder="Enter 6-digit pincode"
+//                         inputMode="numeric"
+//                       />
+//                       {errors.pincode && <p className="text-red-400 text-[8px] font-black uppercase tracking-widest ml-1">{errors.pincode}</p>}
+//                       {!errors.pincode && pincodeStatus && (
+//                         <p className={`text-[8px] font-black uppercase tracking-widest ml-1 ${pincodeStatus.startsWith('Detected') ? 'text-green-500' : 'text-amber-500'}`}>
+//                           {isPincodeLoading ? 'Detecting location...' : pincodeStatus}
+//                         </p>
+//                       )}
+//                     </div>
+//                     <div className="space-y-3">
+//                       <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">City *</label>
+//                       <input
+//                         type="text"
+//                         name="city"
+//                         value={formData.city}
+//                         onChange={handleInputChange}
+//                         className={`w-full bg-white border ${errors.city ? 'border-red-400' : 'border-[#5C2E3E]/10'} px-6 py-4 text-[11px] font-bold outline-none focus:border-brand-pink/30 transition-all shadow-sm`}
+//                         placeholder="Auto-filled from pincode"
+//                       />
+//                       {errors.city && <p className="text-red-400 text-[8px] font-black uppercase tracking-widest ml-1">{errors.city}</p>}
+//                     </div>
+//                     <div className="space-y-3">
+//                       <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">District *</label>
+//                       <input
+//                         type="text"
+//                         name="district"
+//                         value={formData.district}
+//                         onChange={handleInputChange}
+//                         className={`w-full bg-white border ${errors.district ? 'border-red-400' : 'border-[#5C2E3E]/10'} px-6 py-4 text-[11px] font-bold outline-none focus:border-brand-pink/30 transition-all shadow-sm`}
+//                         placeholder="Auto-filled from pincode"
+//                       />
+//                       {errors.district && <p className="text-red-400 text-[8px] font-black uppercase tracking-widest ml-1">{errors.district}</p>}
+//                     </div>
+//                     <div className="space-y-3 md:col-span-2">
+//                       <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">State *</label>
+//                       <input
+//                         type="text"
+//                         name="state"
+//                         value={formData.state}
+//                         onChange={handleInputChange}
+//                         className={`w-full bg-white border ${errors.state ? 'border-red-400' : 'border-[#5C2E3E]/10'} px-6 py-4 text-[11px] font-bold outline-none focus:border-brand-pink/30 transition-all shadow-sm`}
+//                         placeholder="Auto-filled from pincode"
+//                       />
+//                       {errors.state && <p className="text-red-400 text-[8px] font-black uppercase tracking-widest ml-1">{errors.state}</p>}
+//                     </div>
+//                     <div className="space-y-3 md:col-span-2">
+//                       <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">Address *</label>
+//                       <textarea
+//                         name="address"
+//                         value={formData.address}
+//                         onChange={handleInputChange}
+//                         className={`w-full bg-white border ${errors.address ? 'border-red-400' : 'border-[#5C2E3E]/10'} px-6 py-5 text-[11px] font-bold outline-none focus:border-brand-pink/30 transition-all min-h-[140px] resize-none shadow-sm`}
+//                         placeholder=""
+//                       />
+//                       {errors.address && <p className="text-red-400 text-[8px] font-black uppercase tracking-widest ml-1">{errors.address}</p>}
+//                     </div>
+//                     <div className="space-y-3 md:col-span-2">
+//                       <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/60 block">Landmark (Optional)</label>
+//                       <input
+//                         type="text"
+//                         name="landmark"
+//                         value={formData.landmark}
+//                         onChange={handleInputChange}
+//                         className="w-full bg-white border border-[#5C2E3E]/10 px-6 py-4 text-[11px] font-bold outline-none focus:border-brand-pink/30 transition-all shadow-sm"
+//                         placeholder="Nearby landmark for easier delivery"
+//                       />
+//                     </div>
+//                   </div>
+//                 </motion.div>
+//               )}
+
+//               {step === 3 && (
+//                 <motion.div key="step3" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-8">
+//                   <h1 className="text-3xl md:text-4xl font-serif font-black text-[#5C2E3E] uppercase tracking-tighter">
+//                     Payment <span className="text-brand-pink italic">Selection</span>
+//                   </h1>
+
+//                   <div className="bg-[#5C2E3E] text-white border border-[#5C2E3E]/70 p-5 md:p-6 rounded-sm shadow-lg space-y-4">
+//                     <div className="flex items-center gap-2 text-brand-gold">
+//                       <FiAlertTriangle size={16} />
+//                       <h3 className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em]">Scam Alert / धोखाधड़ी से सावधान</h3>
+//                     </div>
+
+//                     <div className="space-y-2 text-[11px] md:text-sm leading-relaxed text-white/95">
+//                       <p className="font-semibold">विभिन्न माध्यमों पर बढ़ती धोखाधड़ी से सावधान</p>
+//                       <ul className="list-disc pl-5 space-y-2">
+//                         <li>
+//                           धोखेबाज लॉजिस्टिक्स या डिलीवरी एजेंट बनकर पैसे मांग सकते हैं।
+//                           <span className="font-black"> भुगतान न करें। </span>
+//                           Saundarya Shringar कभी भी अपने आधिकारिक प्लेटफॉर्म के बाहर किसी भी कॉन्टेस्ट, डील या प्रमोशन के लिए भुगतान/फाइनेंशियल डिटेल नहीं मांगता।
+//                         </li>
+//                         <li>
+//                           अगर ऐसा कोई मैसेज/कॉल मिले, जानकारी शेयर न करें। हमसे संपर्क करें:
+//                           <span className="font-black"> +91 9896472169 </span>
+//                           या
+//                           <span className="font-black"> care@saundaryashringar.com, saundaryashringar02@gmail.com</span>
+//                           ।
+//                         </li>
+//                       </ul>
+//                     </div>
+
+//                     <div className="h-px bg-white/20" />
+
+//                     <div className="space-y-2 text-[11px] md:text-sm leading-relaxed text-white/95">
+//                       <p className="font-semibold">Rise in Fraudulent Activities Across Channels</p>
+//                       <ul className="list-disc pl-5 space-y-2">
+//                         <li>
+//                           Fraudsters may impersonate logistics/delivery partners and ask for payment to complete delivery.
+//                           <span className="font-black"> Do not pay. </span>
+//                           Saundarya Shringar never asks for payments or financial details for contests, deals, or promotions outside our official platform.
+//                         </li>
+//                         <li>
+//                           If you receive such communication, do not share details. Contact us at
+//                           <span className="font-black"> +91 9896472169 </span>
+//                           or
+//                           <span className="font-black"> care@saundaryashringar.com, saundaryashringar02@gmail.com</span>
+//                           . You may also report scams to DoT.
+//                         </li>
+//                       </ul>
+//                     </div>
+
+//                     <div className="h-px bg-white/20" />
+
+//                     <label className="flex items-start gap-3 cursor-pointer">
+//                       <input
+//                         type="checkbox"
+//                         checked={isDisclaimerAccepted}
+//                         onChange={(e) => {
+//                           setIsDisclaimerAccepted(e.target.checked);
+//                           if (e.target.checked) setDisclaimerError('');
+//                         }}
+//                         className="mt-0.5 w-4 h-4 accent-brand-gold"
+//                       />
+//                       <span className="text-[10px] md:text-xs font-bold uppercase tracking-wide text-white/95 leading-relaxed">
+//                         I have read and understood this fraud disclaimer / मैंने यह धोखाधड़ी चेतावनी पढ़ ली है।
+//                       </span>
+//                     </label>
+
+//                     {disclaimerError && (
+//                       <p className="text-[10px] font-bold text-red-300 uppercase tracking-wide">{disclaimerError}</p>
+//                     )}
+//                   </div>
+
+//                   <div className="space-y-3">
+//                     {[
+//                       { id: 'paynow', label: 'PAY NOW (PayU)', desc: 'Secure Online Transaction (UPI, Cards, NetBanking)', show: true },
+//                       { id: 'airpay', label: 'AIRPAY', desc: 'Secure Online Transaction via Airpay', show: true },
+//                       {
+//                         id: 'cod',
+//                         label: 'CASH ON DELIVERY',
+//                         desc: settings?.codCharge > 0
+//                           ? `Pay when your sacred package arrives (+₹${settings.codCharge} Convenience)`
+//                           : 'Pay when your sacred package arrives',
+//                         show: settings?.isCodEnabled !== false
+//                       }
+//                     ].filter(m => m.show).map(method => (
+//                       <div
+//                         key={method.id}
+//                         onClick={() => setSelectedPayment(method.id)}
+//                         className={`p-6 border cursor-pointer transition-all flex items-center gap-6 relative ${selectedPayment === method.id
+//                           ? 'bg-[#5C2E3E] border-[#5C2E3E] shadow-xl translate-x-1'
+//                           : 'bg-white border-gray-100 hover:border-brand-pink/20'
+//                           }`}
+//                       >
+//                         <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${selectedPayment === method.id ? 'border-brand-gold bg-brand-gold' : 'border-gray-100'
+//                           }`}>
+//                           {selectedPayment === method.id && <FiCheck size={12} className="text-white" strokeWidth={4} />}
+//                         </div>
+//                         <div>
+//                           <h4 className={`text-[10px] font-black uppercase tracking-[0.2em] ${selectedPayment === method.id ? 'text-white' : 'text-[#5C2E3E]'}`}>
+//                             {method.label}
+//                           </h4>
+//                           <p className={`text-[9px] font-serif italic mt-1 ${selectedPayment === method.id ? 'text-white/60' : 'text-gray-400'}`}>
+//                             {method.desc}
+//                           </p>
+//                         </div>
+//                         {selectedPayment === method.id && (
+//                           <motion.div layoutId="activePay" className="absolute left-0 w-1 h-full bg-brand-gold" />
+//                         )}
+//                       </div>
+//                     ))}
+//                   </div>
+//                 </motion.div>
+//               )}
+//             </AnimatePresence>
+//           </div>
+
+//           {/* Sidebar / Summary */}
+//           {displayItems.length > 0 && (
+//             <div className="lg:col-span-4 lg:sticky lg:top-32 h-fit">
+//               <div className="bg-white p-8 shadow-2xl border border-gray-100 flex flex-col gap-6 relative overflow-hidden">
+//                 <div className="absolute top-0 right-0 w-32 h-32 bg-brand-pink/5 -translate-y-16 translate-x-16 pointer-events-none rotate-45 border border-brand-pink/10" />
+
+//                 <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#5C2E3E] pb-4 border-b border-gray-100">Order Summary</h3>
+
+//                 <div className="space-y-4 py-2">
+//                   <div className="flex justify-between items-center px-1">
+//                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/40">Subtotal (Incl. GST & Shipping)</span>
+//                     <span className="text-sm font-black text-[#5C2E3E]">₹{subtotal}</span>
+//                   </div>
+
+//                   <div className="py-2">
+//                     <div className="flex flex-col gap-2">
+//                       <p className="text-[7px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1 ml-1">Ritual Key (Coupon)</p>
+//                       <div className="flex gap-2">
+//                         <input
+//                           type="text"
+//                           value={couponCode}
+//                           onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+//                           placeholder="E.G. SAUNDARYA10"
+//                           className="flex-1 bg-gray-50 border border-gray-100 px-3 py-2 text-[9px] font-bold outline-none focus:border-brand-pink/30 uppercase tracking-widest transition-all"
+//                         />
+//                         <button
+//                           onClick={handleApplyCoupon}
+//                           disabled={couponLoading || !couponCode.trim()}
+//                           className="bg-brand-dark text-white px-4 py-2 text-[8px] font-black uppercase tracking-widest hover:bg-black transition-all disabled:opacity-30"
+//                         >
+//                           {couponLoading ? '...' : 'APPLY'}
+//                         </button>
+//                       </div>
+//                       {couponError && <p className="text-[7px] font-bold text-red-400 uppercase tracking-widest mt-1 ml-1">{couponError}</p>}
+//                     </div>
+//                   </div>
+
+//                   {appliedCoupon && (
+//                     <div className="flex justify-between items-center px-1">
+//                       <div className="flex flex-col">
+//                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-green-600">Promo Applied</span>
+//                         <span className="text-[7px] text-green-500 font-bold uppercase tracking-widest">{appliedCoupon.code}</span>
+//                       </div>
+//                       <div className="flex items-center gap-2">
+//                         <span className="text-sm font-black text-green-600">- ₹{discountAmount}</span>
+//                         <button onClick={() => { setAppliedCoupon(null); setDiscountAmount(0); }} className="text-red-300 hover:text-red-500 transition-colors">
+//                           <FiTrash2 size={10} />
+//                         </button>
+//                       </div>
+//                     </div>
+//                   )}
+
+//                   <div className="flex justify-between items-center px-1">
+//                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/40">Shipping (Included)</span>
+//                     <span className="text-sm font-black text-brand-gold">{shippingValue === 0 ? 'INCLUDED' : `₹${shippingValue}`}</span>
+//                   </div>
+
+//                   {codFee > 0 && (
+//                     <div className="flex justify-between items-center px-1">
+//                       <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5C2E3E]/40">COD Convenience (Included)</span>
+//                       <span className="text-sm font-black text-[#5C2E3E]">₹${codFee}</span>
+//                     </div>
+//                   )}
+
+//                   <div className="bg-brand-pink/5 p-4 rounded-lg space-y-2 border border-brand-pink/10">
+//                     <div className="flex justify-between items-center text-[7px] font-black uppercase tracking-widest text-[#5C2E3E]/40 px-1">
+//                       <span>GST ({currentTaxRate}% Included)</span>
+//                       <span>₹{taxAmount}</span>
+//                     </div>
+//                     <div className="flex items-center gap-3 pt-2 border-t border-brand-pink/5">
+//                       <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-brand-pink shadow-sm">
+//                         <FiTruck size={14} />
+//                       </div>
+//                       <div className="flex-1">
+//                         <p className="text-[8px] font-black text-brand-dark uppercase tracking-widest leading-none mb-1">{settings?.shippingPartner || 'Delivery Partner'}</p>
+//                         <p className="text-[7px] font-bold text-brand-pink uppercase tracking-tighter">Est. {settings?.estDeliveryDays || '3-5 days'}</p>
+//                       </div>
+//                     </div>
+//                   </div>
+//                 </div>
+
+//                 <div className="pt-4 border-t border-gray-100 flex justify-between items-center px-1">
+//                   <span className="text-[11px] font-black uppercase tracking-widest text-[#5C2E3E]">Grand Total</span>
+//                   <span className="text-2xl font-black text-brand-gold leading-none">₹{total}</span>
+//                 </div>
+
+//                 <button
+//                   onClick={handleProceed}
+//                   disabled={displayItems.length === 0 || isPaymentLoading || (step === 3 && !isDisclaimerAccepted)}
+//                   className="w-full bg-[#5C2E3E] text-white py-5 font-bold uppercase tracking-[0.4em] text-[10px] shadow-2xl hover:bg-brand-pink transition-all active:scale-95 disabled:bg-gray-100 disabled:text-gray-400 disabled:shadow-none"
+//                 >
+//                   {isPaymentLoading ? 'Processing...' :
+//                     (step === 3
+//                       ? (selectedPayment === 'cod' ? 'Place Order (COD)' : 'Pay Now')
+//                       : 'Continue Journey'
+//                     )
+//                   }
+//                 </button>
+
+//                 <div className="flex flex-wrap items-center justify-center gap-4 mt-2">
+//                   <div className="flex items-center gap-1.5 opacity-30 grayscale hover:grayscale-0 transition-all">
+//                     <FiShield size={10} className="text-[#5C2E3E]" />
+//                     <span className="text-[8px] font-black uppercase tracking-widest text-[#5C2E3E]">Secured</span>
+//                   </div>
+//                   <div className="flex items-center gap-1.5 opacity-30 grayscale hover:grayscale-0 transition-all">
+//                     <FiCheckCircle size={10} className="text-[#5C2E3E]" />
+//                     <span className="text-[8px] font-black uppercase tracking-widest text-[#5C2E3E]">Verified</span>
+//                   </div>
+//                 </div>
+//               </div>
+//             </div>
+//           )}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Checkout;
+
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiChevronLeft, FiShoppingBag, FiCreditCard, FiTruck, FiCheckCircle, FiShield, FiMinus, FiPlus, FiTrash2, FiCheck, FiAlertTriangle } from 'react-icons/fi';
@@ -190,6 +1106,10 @@ const Checkout = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // =============================================
+  // PAYMENT HANDLERS
+  // =============================================
+
   // PayU Integration
   const handlePayU = async () => {
     setIsPaymentLoading(true);
@@ -206,14 +1126,12 @@ const Checkout = () => {
         couponCode: appliedCoupon?.code
       };
 
-      // 1. Get hash and parameters from backend
       const res = await api.post('/orders/payu/initiate', { orderDetails });
       const { key, txnid, amount, productinfo, firstname, email, phone, udf1, hash } = res.data.data;
 
-      // 2. Create dynamic form and submit
       const form = document.createElement('form');
       form.method = 'POST';
-      form.action = 'https://secure.payu.in/_payment'; 
+      form.action = 'https://secure.payu.in/_payment';
 
       const inputs = {
         key,
@@ -239,10 +1157,117 @@ const Checkout = () => {
 
       document.body.appendChild(form);
       form.submit();
-      
+
     } catch (err) {
       console.error("PayU initiation error", err);
       alert("Payment gateway failed: " + (err.response?.data?.message || err.message));
+      setIsPaymentLoading(false);
+    }
+  };
+
+  // Airpay Integration
+  const handleAirpay = async () => {
+    setIsPaymentLoading(true);
+    try {
+      const orderDetails = {
+        items: displayItems.map(i => ({
+          product: i._id,
+          quantity: i.quantity || 1,
+          price: i.price,
+          name: i.name,
+          image: i.image,
+          size: i.selectedSize
+        })),
+        subTotal: subtotal,
+        taxAmount: taxAmount,
+        taxRate: currentTaxRate,
+        shippingAmount: shippingValue,
+        actualShippingAmount: actualShipping,
+        totalAmount: total,
+        shippingAddress: formData,
+        couponCode: appliedCoupon?.code
+      };
+
+      console.log('[Airpay] Sending order details:', orderDetails);
+
+      const res = await api.post('/orders/airpay/initiate', { orderDetails });
+      const data = res.data.data;
+
+      console.log('[Airpay] Received from backend:', data);
+
+      // Create form and submit to Airpay
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = 'https://payments.airpay.co.in/pay/index.php';
+
+      // Only include fields that Airpay expects
+      const inputs = {
+        mercid: data.mercid,
+        orderid: data.orderid,
+        amount: data.amount,
+        buyerEmail: data.buyerEmail,
+        buyerPhone: data.buyerPhone,
+        buyerFirstName: data.buyerFirstName,
+        buyerLastName: data.buyerLastName,
+        buyerAddress: data.buyerAddress,
+        buyerCity: data.buyerCity,
+        buyerState: data.buyerState,
+        buyerCountry: data.buyerCountry,
+        buyerPinCode: data.buyerPinCode,
+        currency: data.currency,
+        isocurrency: data.isocurrency,
+        customvar: data.customvar,
+        checksum: data.checksum
+      };
+
+      Object.keys(inputs).forEach(k => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = k;
+        input.value = inputs[k] || '';
+        form.appendChild(input);
+      });
+
+      // Debug log
+      console.log('[Airpay] Submitting form with:', inputs);
+
+      document.body.appendChild(form);
+      form.submit();
+
+    } catch (err) {
+      console.error("[Airpay] Initiation error:", err);
+      alert("Airpay gateway failed: " + (err.response?.data?.message || err.message));
+      setIsPaymentLoading(false);
+    }
+  };
+
+  // COD Payment Handler
+  const handleCOD = async () => {
+    setIsPaymentLoading(true);
+    try {
+      await clearCart({
+        ...formData,
+        items: displayItems.map(i => ({
+          product: i._id,
+          quantity: i.quantity || 1,
+          price: i.price,
+          name: i.name,
+          image: i.image,
+          size: i.selectedSize
+        })),
+        couponCode: appliedCoupon?.code
+      }, total, {
+        subtotal,
+        taxAmount,
+        taxRate: currentTaxRate,
+        shippingValue,
+        actualShipping
+      });
+      setIsSuccess(true);
+    } catch (err) {
+      console.error("COD checkout failed", err);
+      alert("Failed to place order. Please try again.");
+    } finally {
       setIsPaymentLoading(false);
     }
   };
@@ -280,12 +1305,11 @@ const Checkout = () => {
     } else if (step === 3) {
       // MANDATORY: User MUST log in before they can finalize the order
       if (!isAuthenticated) {
-        // Save form data and current state before redirecting to login
-        navigate('/login', { 
-          state: { 
+        navigate('/login', {
+          state: {
             from: '/checkout',
-            formData: formData 
-          } 
+            formData: formData
+          }
         });
         return;
       }
@@ -295,19 +1319,13 @@ const Checkout = () => {
         return;
       }
 
+      // Process based on selected payment method
       if (selectedPayment === 'paynow') {
         await handlePayU();
-      } else {
-        try {
-          await clearCart({
-            ...formData,
-            items: displayItems.map(i => ({ product: i._id, quantity: i.quantity || 1, price: i.price, name: i.name, image: i.image, size: i.selectedSize })),
-            couponCode: appliedCoupon?.code
-          }, total, { subtotal, taxAmount, taxRate: currentTaxRate, shippingValue, actualShipping });
-          setIsSuccess(true);
-        } catch (err) {
-          console.error("Checkout failed", err);
-        }
+      } else if (selectedPayment === 'airpay') {
+        await handleAirpay();
+      } else if (selectedPayment === 'cod') {
+        await handleCOD();
       }
     }
   };
@@ -672,7 +1690,8 @@ const Checkout = () => {
 
                   <div className="space-y-3">
                     {[
-                      { id: 'paynow', label: 'PAY NOW', desc: 'Secure Online Transaction (UPI, Cards, NetBanking)', show: true },
+                      { id: 'paynow', label: 'PAY NOW (PayU)', desc: 'Secure Online Transaction (UPI, Cards, NetBanking)', show: true },
+                      { id: 'airpay', label: 'AIRPAY', desc: 'Secure Online Transaction via Airpay', show: true },
                       {
                         id: 'cod',
                         label: 'CASH ON DELIVERY',
