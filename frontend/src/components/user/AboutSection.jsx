@@ -10,7 +10,7 @@ import insta2 from '../../assets/images/insta_2.png';
 import insta3 from '../../assets/images/insta_3.png';
 import insta4 from '../../assets/images/insta_4.png';
 import catSkincare from '../../assets/images/cat_skincare.png';
-import catWellness from '../../assets/images/cat_wellness.png';
+import catMakeup from '../../assets/images/cat_makeup_new.png';
 import promoImage from '../../assets/images/promo.png';
 
 const floatingImages = [
@@ -247,11 +247,11 @@ const AboutSection = () => {
               <div className="absolute top-4 left-0 right-0 z-10 flex justify-center">
                 <div className="bg-brand-pink/80 backdrop-blur-md px-6 py-1 rounded-full border border-white/30 shadow-sm">
                   <span className="text-[10px] uppercase tracking-[0.4em] text-white font-bold">
-                    •• Wellness ••
+                    •• Cosmetics ••
                   </span>
                 </div>
               </div>
-              <img src={catWellness} alt="Category Wellness" className="w-full h-64 md:h-80 object-cover group-hover:scale-110 transition-transform duration-700" />
+              <img src={catMakeup} alt="Category Cosmetics" className="w-full h-64 md:h-80 object-cover group-hover:scale-110 transition-transform duration-700" />
             </motion.div>
 
             <motion.div
